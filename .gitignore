@@ -482,3 +482,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# --- Memoria versionada del proyecto (NO ignorar la crónica en logs/) ---
+# La regla [Ll]ogs/ de arriba (logs de build) ignora también nuestra crónica.
+# Reincluimos explícitamente la carpeta de memoria del repo:
+!logs/
+!logs/**

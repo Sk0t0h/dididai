@@ -71,7 +71,7 @@ Alcance comprometido para el MVP del TFM:
 | **Base de datos** | SQLite (fichero local; coste cero) |
 | **Autenticación** | ASP.NET Core Identity (con roles) |
 | **Frontend** | Bootstrap · jQuery · diseño **mobile-first** · sin estilos/scripts inline (CSP) |
-| **Despliegue** | Azure App Service (plan F1, gratuito) |
+| **Despliegue** | Azure App Service (plan B1, Linux) · región Spain Central |
 | **Control de versiones** | Git · GitHub (repositorio público) |
 
 ## Arquitectura
@@ -175,28 +175,31 @@ credenciales.
 
 ## Despliegue
 
-Desplegado en **Azure App Service** (plan **F1**, gratuito) mediante Azure CLI:
+Desplegado en **Azure App Service** (plan **B1**, Linux) en la región **Spain Central**, mediante Azure CLI:
 
 ```bash
-az group create --name rg-dididai --location francecentral
-az appservice plan create --name plan-dididai --resource-group rg-dididai --sku F1 --is-linux
-az webapp create --name dididai-web --resource-group rg-dididai --plan plan-dididai --runtime "DOTNETCORE:10.0"
+az group create --name rg-dididai --location spaincentral
+az appservice plan create --name plan-dididai-es --resource-group rg-dididai --location spaincentral --sku B1 --is-linux
+az webapp create --name dididai-ong --resource-group rg-dididai --plan plan-dididai-es --runtime "DOTNETCORE:10.0"
 
 # Credenciales y BD persistente como App Settings (no en el repo)
-az webapp config appsettings set --name dididai-web --resource-group rg-dididai --settings \
+az webapp config appsettings set --name dididai-ong --resource-group rg-dididai --settings \
   "Seed__AdminEmail=<email>" "Seed__AdminPassword=<contraseña>" \
   "ConnectionStrings__DefaultConnection=Data Source=/home/dididai.db"
 
 # Publicar
 dotnet publish DididaiApp/DididaiApp.csproj -c Release -o ./publish
 # (empaquetar ./publish en un zip y desplegarlo)
-az webapp deploy --name dididai-web --resource-group rg-dididai --src-path dididai.zip --type zip
+az webapp deploy --name dididai-ong --resource-group rg-dididai --src-path dididai.zip --type zip
 ```
 
-> **Nota sobre el plan F1 (gratuito):** tiene una cuota diaria de CPU (~60 min) y la aplicación se suspende
-> por inactividad; al recibir una visita tarda unos segundos en reactivarse. Es una limitación aceptable
-> para una demo de TFM. La base de datos se ubica en `/home` (almacenamiento persistente de App Service)
-> para que sobreviva a los reinicios.
+> **Región Spain Central:** los datos personales de socios se alojan en territorio nacional, alineado con las
+> recomendaciones de RGPD/LOPD sobre minimización de transferencias.
+>
+> **Plan B1:** sin la cuota diaria de CPU del plan gratuito F1; la aplicación permanece disponible de forma
+> estable durante todo el periodo de evaluación. La base de datos SQLite se ubica en `/home` (almacenamiento
+> persistente de App Service) para que sobreviva a los reinicios. El esquema se crea y migra automáticamente
+> en el arranque (`Database.Migrate()`), por lo que un despliegue nuevo levanta con la BD ya inicializada.
 
 ## Seguridad
 
@@ -220,7 +223,7 @@ az webapp deploy --name dididai-web --resource-group rg-dididai --src-path didid
 ## Enlaces del proyecto
 
 - **Repositorio:** https://github.com/Sk0t0h/dididai
-- **Despliegue (URL pública):** https://dididai-web.azurewebsites.net
+- **Despliegue (URL pública):** https://dididai-ong.azurewebsites.net
 - **Presentación (slides):** _(pendiente)_
 - **Vídeo demostrativo:** _(pendiente)_
 

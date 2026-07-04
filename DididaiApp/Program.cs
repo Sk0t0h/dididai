@@ -49,9 +49,15 @@ builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
 
 var app = builder.Build();
 
-// Siembra inicial: rol Admin y usuario admin (credenciales desde configuración).
+// Arranque de datos: aplicar migraciones pendientes (crea el esquema —incluido
+// Identity— si la BD no existe, p. ej. en un despliegue nuevo con /home vacío) y
+// luego sembrar el rol y usuario admin. MigrateAsync es idempotente: si el esquema
+// ya está al día, no hace nada. Se usa Migrate (no EnsureCreated) para respetar el
+// historial de migraciones del proyecto.
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
     await DbSeeder.SeedAdminAsync(scope.ServiceProvider);
 }
 

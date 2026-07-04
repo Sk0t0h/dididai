@@ -1,8 +1,10 @@
-# Runbook de despliegue — Azure App Service F1
+# Runbook de despliegue — Azure App Service B1 (Spain Central)
 
 > Guía autocontenida para desplegar DIDIDAI.ORG en Azure **a la primera**, sin re-investigar. Recoge todo lo
-> aprendido el 2026-07-04 (incluidos los dos escollos: Norton y cuota F1). El porqué de las decisiones está
-> en `decisions.md` (entrada "Despliegue en Azure App Service F1"); aquí van los pasos ejecutables.
+> aprendido el 2026-07-04 (incluidos los escollos: Norton, cuota F1 y arranque de BD). El porqué de las
+> decisiones está en `decisions.md` (entrada "Despliegue rehecho: B1 en Spain Central"); aquí van los pasos
+> ejecutables. **El despliegue vigente es B1 en Spain (`dididai-ong`)**; lo de F1/Francia (`dididai-web`) se
+> conserva como respaldo pero no es la infra activa.
 
 ## Datos fijos del despliegue
 
@@ -12,10 +14,11 @@
 | Tenant / directorio | `dididaioutlook.onmicrosoft.com` |
 | Suscripción | "Azure subscription 1" · `5c742941-32de-4787-b72b-cf092d13d81d` |
 | Resource group | `rg-dididai` |
-| Región | **`francecentral`** (westeurope rechaza cuentas nuevas) |
-| App Service Plan | `plan-dididai` · **F1** · Linux |
-| Web App | `dididai-web` · runtime `DOTNETCORE:10.0` |
-| URL pública | https://dididai-web.azurewebsites.net |
+| Región | **`spaincentral`** (RGPD: datos en territorio nacional) |
+| App Service Plan | `plan-dididai-es` · **B1** · Linux |
+| Web App | `dididai-ong` · runtime `DOTNETCORE:10.0` |
+| URL pública | https://dididai-ong.azurewebsites.net |
+| Respaldo (no activo) | plan `plan-dididai` F1 + webapp `dididai-web` en `francecentral` |
 | Ruta de `az` | `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd` (puede no estar en el PATH de una shell nueva) |
 
 > `az` no siempre está en el PATH tras instalarlo por winget. Si `az` no se reconoce, usar la ruta completa
@@ -48,14 +51,15 @@ $ssl.AuthenticateAsClient($h)
 $ssl.Close(); $tcp.Close()
 ```
 
-## Requisito previo — cuota F1
+## Nota de plan — B1 (sin cuota)
 
-F1 da **~60 min de CPU/día**. Si se agota, la app pasa a estado `QuotaExceeded` ("Web App stopped", HTTP 403)
-y **ni siquiera acepta deploys**; se resetea solo cada ~24h. Por eso:
+El despliegue vigente usa **B1** (de pago, cubierto por el crédito): **no hay cuota diaria de CPU ni
+`QuotaExceeded`**, la app no se duerme. Se puede desplegar y reintentar sin miedo a agotar nada. (El histórico
+de por qué se abandonó F1 —se caía al arrancar la app— está en `decisions.md`.)
 
-- **Comprobar el estado antes de desplegar** (ver paso 0). Si está `QuotaExceeded`, esperar al reset.
-- **Desplegar a la primera, sin reintentos** (cada arranque/intento gasta cuota).
-- No subir a plan de pago (decisión tomada: evitar coste). F1 basta para la demo.
+> **Pendiente del usuario:** convertir la suscripción a **Pago por uso** en el portal antes de que caduque el
+> crédito Free Trial (~agosto 2026), o la suscripción se deshabilita y la web se apaga. Alerta de presupuesto
+> ya creada (`presupuesto-dididai`, 30 €/mes, avisos 50%/90%).
 
 ## Pasos
 
@@ -71,10 +75,8 @@ $az = "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd"
 & $az login                      # navegador → dididai@outlook.es (MFA si lo pide)
 & $az account set --subscription "5c742941-32de-4787-b72b-cf092d13d81d"
 
-# ¿La app está lista para recibir deploy?
-& $az webapp show --name dididai-web --resource-group rg-dididai --query "state" -o tsv
-#   "Running"        -> OK, continuar
-#   "QuotaExceeded"  -> cuota agotada, esperar al reset (~24h). NO intentar deploy.
+& $az webapp show --name dididai-ong --resource-group rg-dididai --query "state" -o tsv
+#   "Running" -> OK. (En B1 no aparece "QuotaExceeded".)
 ```
 
 ### 1. (Solo la PRIMERA vez / si no existen) Crear recursos
@@ -82,23 +84,27 @@ $az = "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd"
 > Si los recursos ya existen (caso normal a partir de ahora), **saltar al paso 3**.
 
 ```powershell
-& $az group create --name rg-dididai --location francecentral
-& $az appservice plan create --name plan-dididai --resource-group rg-dididai --sku F1 --is-linux
-& $az webapp create --name dididai-web --resource-group rg-dididai --plan plan-dididai --runtime "DOTNETCORE:10.0"
+& $az group create --name rg-dididai --location spaincentral
+& $az appservice plan create --name plan-dididai-es --resource-group rg-dididai --location spaincentral --sku B1 --is-linux
+& $az webapp create --name dididai-ong --resource-group rg-dididai --plan plan-dididai-es --runtime "DOTNETCORE:10.0"
 ```
+
+> Si `az appservice plan create` da `No available instances to satisfy this request`, es escasez transitoria
+> de esa SKU en la región; reintentar o probar otra región. En francecentral no había B1 el 04-07; Spain sí.
 
 ### 2. (Solo la PRIMERA vez / si cambian) App settings — secretos y BD
 
 > Los valores sensibles van aquí, NUNCA en el repo. `__` (doble guion bajo) = anidamiento de configuración .NET.
 
 ```powershell
-& $az webapp config appsettings set --name dididai-web --resource-group rg-dididai --settings `
+& $az webapp config appsettings set --name dididai-ong --resource-group rg-dididai --settings `
   "Seed__AdminEmail=admin@dididai.org" `
   "Seed__AdminPassword=<PONER_CONTRASEÑA>" `
   "ConnectionStrings__DefaultConnection=Data Source=/home/dididai.db"
 ```
 
-`/home` es almacenamiento persistente de App Service → la SQLite sobrevive a reinicios.
+`/home` es almacenamiento persistente de App Service → la SQLite sobrevive a reinicios. El esquema lo crea la
+app en el arranque (`Database.MigrateAsync()` en `Program.cs`), no hay que sembrar la BD a mano.
 
 ### 3. Publicar (cada despliegue)
 
@@ -110,22 +116,42 @@ dotnet publish DididaiApp/DididaiApp.csproj -c Release -o $pub
 if (Test-Path $zip) { Remove-Item $zip -Force }
 Compress-Archive -Path "$pub\*" -DestinationPath $zip -Force
 
-& $az webapp deploy --name dididai-web --resource-group rg-dididai --src-path $zip --type zip
+& $az webapp deploy --name dididai-ong --resource-group rg-dididai --src-path $zip --type zip
 ```
 
-> El zip pesa ~28 MB; el deploy tarda 1-3 min. Es un paquete pre-compilado (no se compila en Azure), así que
-> NO hace falta `SCM_DO_BUILD_DURING_DEPLOYMENT`.
+> El zip pesa ~28 MB. Es un paquete pre-compilado (no se compila en Azure), así que NO hace falta
+> `SCM_DO_BUILD_DURING_DEPLOYMENT`.
+>
+> **Caveat "failed" que NO es fallo:** en un arranque en frío que crea+migra la BD por primera vez, el
+> contenedor puede pasarse del límite de deploy (230s) y el CLI reporta `site failed to start within 10 mins`.
+> **Azure reintenta solo** y la app suele levantar en ~50s a la segunda. Antes de dar el deploy por fallido,
+> **comprobar el estado real** (paso 4) y los logs (abajo): si `state=Running` y el home da 200, el deploy fue
+> bien pese al mensaje de error.
 
 ### 4. Verificar
 
 ```powershell
-# Home (debe dar 200)
-(Invoke-WebRequest "https://dididai-web.azurewebsites.net/" -UseBasicParsing -MaximumRedirection 0).StatusCode
+& $az webapp show -n dididai-ong -g rg-dididai --query state -o tsv          # Running
+(Invoke-WebRequest "https://dididai-ong.azurewebsites.net/" -UseBasicParsing).StatusCode   # 200
 # /Admin sin login -> 302 a /Identity/Account/Login
-# Login del admin (Seed__ ya sembrado) -> acceso a /Admin
+# Login del admin (Seed__ ya sembrado) -> /Admin 200
 ```
 
-La primera visita tras inactividad tarda unos segundos (la app F1 se duerme). Es normal.
+### Diagnóstico — leer los logs del contenedor (cuando no arranca)
+
+El startup log (`az webapp log startup show`) solo trae el arranque del contenedor, **no la excepción de
+.NET**. Para el stdout real de la app hay que ir a Kudu, y la **basic auth de SCM suele venir deshabilitada**
+(da 401). Habilitarla y descargar el log:
+
+```powershell
+& $az resource update -g rg-dididai --name scm --namespace Microsoft.Web `
+  --resource-type basicPublishingCredentialsPolicies --parent "sites/dididai-ong" --set properties.allow=true
+$u = & $az webapp deployment list-publishing-credentials -n dididai-ong -g rg-dididai --query publishingUserName -o tsv
+$p = & $az webapp deployment list-publishing-credentials -n dididai-ong -g rg-dididai --query publishingPassword -o tsv
+$b64 = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$u`:$p"))
+# listar: /api/logs/docker  ·  descargar el *_docker.log con /api/vfs/LogFiles/<nombre>
+Invoke-WebRequest "https://dididai-ong.scm.azurewebsites.net/api/logs/docker" -Headers @{Authorization="Basic $b64"} -UseBasicParsing
+```
 
 ## Errores conocidos y su causa
 
@@ -133,6 +159,10 @@ La primera visita tras inactividad tarda unos segundos (la app F1 se duerme). Es
 |---|---|---|
 | `CERTIFICATE_VERIFY_FAILED: unable to get local issuer` | Norton intercepta ese host | Añadir el host a exclusiones de Norton (ver arriba); verificar con el snippet del Issuer |
 | `Basic Constraints of CA cert not marked critical` | Se añadió la raíz Norton al bundle (no vale) | No usar esa vía; usar exclusiones de Norton |
-| `RequestDisallowedByAzure - region not accepting new customers` | La región no admite cuentas nuevas | Usar `francecentral` (u otra que acepte) |
-| `403 - This web app is stopped` / `state = QuotaExceeded` | Cuota diaria F1 agotada | Esperar reset (~24h); desplegar sin reintentos |
+| `RequestDisallowedByAzure - region not accepting new customers` | La región no admite cuentas nuevas | Usar una región que acepte (spaincentral funcionó) |
+| `No available instances to satisfy this request` | Escasez transitoria de esa SKU en la región | Reintentar o cambiar de región (B1 no estaba en francecentral, sí en spaincentral) |
+| `site failed to start within 10 mins` en el deploy, pero luego `state=Running` | Primer arranque en frío (crear+migrar BD) supera el timeout de deploy; Azure reintenta solo | Verificar estado real; si Running + home 200, ignorar el mensaje |
+| Crash de arranque sin migrar (worker no levanta, BD vacía) | Seed antes de aplicar migraciones con `/home` vacío | Ya resuelto: `Database.MigrateAsync()` antes del seed en `Program.cs` |
+| `401 Unauthorized` al leer logs de Kudu | Basic auth de SCM deshabilitada | Habilitarla con `az resource update ... basicPublishingCredentialsPolicies ... --set properties.allow=true` |
+| `403 - This web app is stopped` / `state = QuotaExceeded` | (Solo aplicaba a F1) cuota diaria agotada | No aplica en B1; era el motivo de abandonar F1 |
 | `No subscriptions found` | Login en el tenant equivocado | Login con `dididai@outlook.es`; seleccionar la suscripción personal |

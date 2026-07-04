@@ -119,6 +119,52 @@
   F1 resulta inviable para una demo estable o para grabar el vídeo; y si se hace, la pauta segura es
   **subir a B1 → grabar/demostrar → volver a F1**, con alerta de presupuesto en Azure.
 
+## 2026-07-04 (tarde) · Despliegue rehecho: B1 en Spain Central (revierte "mantener F1")
+
+- **Contexto:** al reanudar el deploy con la cuota F1 ya reseteada, el arranque real de la app volvió a
+  agotar los 60 min de CPU → `QuotaExceeded` de nuevo. Se destaparon dos hechos que **invalidan la decisión
+  previa "mantener F1"** (ver entrada anterior, punto "F1 vs B1"): (1) F1 **se cae al arrancar** la app .NET
+  (cada cold start muerde la cuota; riesgo real de 403 en mitad de la defensa); (2) la **corrección del TFM
+  puede llegar semanas después** del 20/07, así que la web debe estar en pie y estable **más de un mes** sin
+  vigilancia — la pauta "subir a B1, demostrar, volver a F1" ya no sirve porque no se sabe qué día se evalúa.
+- **Decisión — plan B1 (de pago) + convertir la suscripción a Pago por uso:** B1 no tiene cuota de CPU ni
+  duerme la app. Financiado por los 200 $ (quedan 175 €) de crédito Free Trial mientras dure; el usuario
+  **convierte a Pago por uso** (tarea suya en el portal) para que la web no se apague cuando el crédito
+  caduque (~agosto 2026). Alerta de presupuesto creada (`presupuesto-dididai`, 30 €/mes, avisos 50%/90% por
+  email a `dididai@outlook.es`).
+- **Decisión — región Spain Central (`spaincentral`):** se recrea la infra en Spain Central en vez de
+  francecentral. Doble motivo: (a) **RGPD/LOPD** — datos personales de socios en territorio nacional,
+  minimización de transferencias (argumento defendible en el TFM); (b) francecentral **no tenía capacidad
+  B1** en ese momento (`No available instances`), Spain sí. **Francia se deja intacta como respaldo** (no se
+  borra); la webapp nueva usa nombre distinto **`dididai-ong`** (URL `https://dididai-ong.azurewebsites.net`)
+  para no colisionar con `dididai-web`.
+- **Recursos nuevos:** plan `plan-dididai-es` (B1 Linux, spaincentral) + webapp `dididai-ong`
+  (`DOTNETCORE:10.0`) en el mismo RG `rg-dididai`. App settings replicados (seed admin + CS a
+  `/home/dididai.db`).
+- **Bug de arranque corregido (necesario para desplegar en limpio):** `Program.cs` sembraba el admin
+  (`SeedAdminAsync`) **sin aplicar migraciones antes**. En local funcionaba porque `dididai.db` ya existía;
+  en Azure con `/home` vacío, el seed petaba (sin tablas Identity) → worker no arrancaba → deploy failed.
+  **Fix:** `await db.Database.MigrateAsync()` antes del seed (idempotente; usa Migrate, no EnsureCreated,
+  para respetar el historial de migraciones). El primer arranque en frío (crear+migrar BD + pull de imagen)
+  se pasa del timeout de deploy de 230s y el CLI reporta "failed", **pero Azure reintenta solo** y la app
+  levanta en ~50s a la segunda; es esperado, no un fallo real.
+- **Azure SQL — reconsiderado y descartado (de nuevo):** se evaluó migrar a una BD SQL servidor. Descartada:
+  más coste (~+5 €/mes), y sobre todo más trabajo y riesgo a 16 días de entrega (cambiar proveedor EF,
+  regenerar migraciones con tipos estrictos de SQL Server, firewall, más secretos). SQLite cubre el alcance
+  del MVP (ONG pequeña, pocos usuarios concurrentes) y su único punto débil (persistencia) está resuelto en
+  `/home`. Azure SQL queda en **roadmap**.
+- **Alternativas:** esperar y reintentar B1 en francecentral — descartada (sin capacidad + sin ventaja RGPD);
+  Azure Container Apps free tier — descartada (contenerizar = medio día de trabajo + SQLite sobre disco de
+  contenedor es MÁS frágil, no menos); seguir en F1 — descartada (se cae al arrancar; inaceptable para una
+  evaluación de duración desconocida).
+- **Consecuencias:** web pública **estable** en `https://dididai-ong.azurewebsites.net` (Spain, B1),
+  verificada end-to-end (home 200, `/Admin` anónimo 302, login admin 302, `/Admin` autenticado 200). Coste:
+  cubierto por crédito ahora; ~13 €/mes de bolsillo solo si la corrección se alarga tras agotarse/caducar el
+  crédito. La `dididai.db` de `/home` **no se borra** en cada deploy (persiste); si se corrompe, borrarla y
+  reiniciar la recrea por la migración de arranque.
+- **Estado:** aplicado y verificado (04-07 tarde). Pendiente del usuario: **convertir la suscripción a Pago
+  por uso** en el portal antes de que caduque el crédito (~30 días).
+
 ## 2026-07-04 · Autenticación: ASP.NET Core Identity (Default UI) sobre AppDbContext
 
 - **Contexto:** el back de gestión es cerrado, pero **el front público debe seguir abierto sin login**

@@ -6,18 +6,20 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-04.
+> Latest Work + Immediate Risks). Última actualización: 2026-07-05.
 
 ## Active Focus
 
 Deadline **20/07/2026**. Producto: web taylor-made para la ONG DIDIDAI con front público + back de gestión
 cerrado. **MVP:** web pública · login/roles · gestión de socios · módulo económico simple · dashboards.
-Stack: EF Core + SQLite → Azure App Service F1. **Finde 1 casi cerrado:** hechas arquitectura multi-proyecto
-(Web + Core), capa de datos (EF Core + SQLite, `Socio` + `Colaboracion` TPH), **autenticación** (Identity con
-roles, verificada) y **README** (completo, verificado contra el enunciado). **Despliegue en Azure: infra
-creada y configurada** (RG + plan F1 + webapp + app settings), pero el **deploy final quedó bloqueado por la
-cuota diaria de CPU de F1** (`QuotaExceeded`); se resetea en ~24h. **Siguiente paso: completar ese deploy** —
-runbook en `context/deploy-azure.md`. Front público sigue abierto.
+Stack: EF Core + SQLite → Azure App Service. **FINDE 1 CERRADO** ("esqueleto vivo y desplegado"): hechas
+arquitectura multi-proyecto (Web + Core), capa de datos (EF Core + SQLite, `Socio` + `Colaboracion` TPH),
+**autenticación** (Identity con roles, verificada), **README** (completo, verificado contra el enunciado) y
+**DESPLIEGUE en producción, estable y verificado end-to-end**: la web está viva en
+**https://dididai-ong.azurewebsites.net** (Azure App Service **B1**, región **Spain Central** por RGPD). Se
+abandonó F1 (se caía al arrancar por `QuotaExceeded`) por B1 sin cuota, financiado por el crédito. Front
+público abierto. **Siguiente foco (Finde 2): MVP funcional — CRUD de gestión de socios** (arrastra crear la
+capa de servicios en Core). Detalle en `context/next-steps.md`.
 
 ## Propósito real
 
@@ -52,6 +54,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
 | Autenticación + roles (Identity, back cerrado) | IMPLEMENTADO (04-07, verificado): login, recuperación (email stub), registro solo Admin, `/Admin` protegido, seed admin |
+| **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | PLANIFICADO (crear con el CRUD; páginas no tocan `DbContext` directo) |
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first |
 | Gestión de socios (CRUD) | PLANIFICADO (MVP) |
@@ -62,14 +65,22 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
-- **2026-07-04 — README y despliegue Azure iniciado**: README completo en español, verificado contra el
-  enunciado del TFM (cubre los 6 apartados obligatorios + arquitectura, modelo de datos, despliegue,
-  seguridad, roadmap). Despliegue en Azure App Service **F1**: creada toda la infra por Azure CLI (RG
-  `rg-dididai` en francecentral, plan F1 Linux, webapp `dididai-web` .NET 10, app settings con seed admin y
-  BD persistente en `/home`) con cuenta **personal** `dididai@outlook.es` (aislada del trabajo). El **deploy
-  final quedó bloqueado por la cuota diaria de CPU de F1** (`QuotaExceeded`, reset ~24h); NO se subió a plan
-  de pago. Resueltos dos escollos de entorno: Norton interceptaba TLS (exclusiones añadidas) y la cuenta del
-  trabajo no servía. **Runbook completo en `context/deploy-azure.md`** para completarlo a la primera.
+- **2026-07-04 (tarde/noche) — Despliegue en producción CERRADO (B1 / Spain Central)**: la web quedó viva y
+  estable en **https://dididai-ong.azurewebsites.net**, verificada end-to-end (home 200, `/Admin` anónimo
+  302, login admin 302, `/Admin` autenticado 200). Se **abandonó F1**: al reanudar, la app volvió a caer en
+  `QuotaExceeded` al arrancar (F1 se cae en cada cold start), y como la corrección del TFM puede tardar >1
+  mes se necesitaba estabilidad sostenida → **B1** (sin cuota, no duerme), pagado con el crédito Free Trial.
+  Infra recreada en **`spaincentral`** por **RGPD** (datos en territorio nacional; además francecentral no
+  tenía capacidad B1). Francia (`dididai-web`/F1) se conserva como respaldo; webapp nueva `dididai-ong` +
+  plan `plan-dididai-es`. **Bug de arranque corregido:** `Program.cs` sembraba el admin sin migrar la BD → en
+  Azure (`/home` vacío) petaba; fix: `Database.MigrateAsync()` antes del seed. Alerta de presupuesto creada
+  (30 €/mes). Azure SQL reconsiderado y descartado (más coste/riesgo; SQLite cubre el MVP). **Pendiente del
+  usuario: convertir la suscripción a Pago por uso** antes de que caduque el crédito (~agosto). Detalle en
+  `context/decisions.md` y runbook actualizado en `context/deploy-azure.md`.
+- **2026-07-04 — README del TFM**: README completo en español, verificado contra el enunciado (cubre los 6
+  apartados obligatorios + arquitectura, modelo de datos, despliegue, seguridad, roadmap). Infra Azure creada
+  inicialmente en F1 con cuenta personal `dididai@outlook.es`; escollos de entorno resueltos (Norton
+  interceptaba TLS → exclusiones; la cuenta del trabajo no servía → cuenta personal dedicada).
 - **2026-07-04 — Autenticación (ASP.NET Core Identity)**: back de gestión cerrado con Identity (Default UI +
   roles) sobre el `AppDbContext` (migración `AddIdentity`). Login, logout y recuperación de contraseña (con
   `IEmailSender` **stub** que loguea el enlace en vez de enviarlo). **Registro público deshabilitado** por
@@ -100,8 +111,13 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 > Estado: ~~tachado~~ = RESUELTO. Resto: CRÍTICO / ALTO / MEDIO + PENDIENTE / CONFIRMADO.
 
-- **Plazo ajustado: quedan ~16 días para MVP + README + despliegue + slides + vídeo** — ALTO · PENDIENTE (el
-  riesgo dominante es alcance vs tiempo; mitigación: MVP recortado y roadmap para el resto).
+- **Plazo ajustado: quedan ~15 días para MVP funcional + slides + vídeo** — ALTO · PENDIENTE (el riesgo
+  dominante es alcance vs tiempo; mitigación: MVP recortado y roadmap para el resto. El esqueleto y el
+  despliegue ya están; falta el producto: CRUD socios + económico + dashboards).
+- **Crédito Azure caduca en ~30 días (Free Trial)** — ALTO · PENDIENTE · **ACCIÓN DEL USUARIO**: si no se
+  convierte la suscripción a Pago por uso, al caducar el crédito la suscripción se deshabilita y la web se
+  apaga — posiblemente en pleno periodo de corrección. Mitigación: convertir a Pago por uso + alerta de
+  presupuesto ya creada (30 €/mes).
 - **Vulnerabilidad transitiva SQLite NU1903 / CVE-2025-6965** — MEDIO · ACEPTADO Y VIGILADO (no explotable en
   nuestra superficie —sin SQL arbitrario— y sin parche disponible a 04-07. Revisar antes del deploy; ver
   `context/decisions.md`).
@@ -121,7 +137,9 @@ de dominio + datos + servicios). La web referencia a Core e inyecta sus servicio
 Autenticación con ASP.NET Core Identity (usuarios/roles en el mismo `AppDbContext`): front público abierto y
 back `/Admin` cerrado por rol. Sin servicios externos aún (email = stub). Flujo: petición HTTP → página Razor →
 (servicio Core →
-`AppDbContext` → SQLite) → respuesta HTML.
+`AppDbContext` → SQLite) → respuesta HTML. En el arranque, `Program.cs` aplica migraciones
+(`Database.MigrateAsync()`) y siembra el admin. **Desplegado** en Azure App Service B1 (Spain Central); la
+SQLite vive en `/home` (persistente). URL pública: https://dididai-ong.azurewebsites.net
 
 ## Invariantes críticos (NO romper)
 

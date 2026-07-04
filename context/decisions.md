@@ -110,8 +110,14 @@
   resetea solo en ~24h. **Decisión del usuario: NO subir a plan de pago (B1)** para evitar escalada de coste;
   esperar el reset. F1 es suficiente para una demo de TFM (la app solo consume CPU cuando se usa).
 - **Estado:** infraestructura creada y configurada; **deploy final pendiente** de que la cuota se resetee.
-  Procedimiento de reanudación detallado en `ai-context.md`. Herramienta: `az` 2.87 en
-  `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`.
+  Procedimiento de reanudación detallado en `ai-context.md` y `context/deploy-azure.md`. Herramienta: `az`
+  2.87 en `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`.
+- **F1 vs B1 (revisado 04-07):** aunque B1 (~13 $/mes) cabe de sobra en los 200 $ de crédito, **se mantiene
+  F1**. Motivo: B1 NO es "siempre gratis" (tira del crédito, que caduca a los 30 días); si el crédito se
+  agota y la cuenta pasa a pago por uso, B1 factura de verdad → riesgo de escalada de coste que F1 no tiene.
+  Y la ganancia (sin cuota de CPU, sin dormir) es marginal para una demo de TFM. **Reconsiderar B1 SOLO si**
+  F1 resulta inviable para una demo estable o para grabar el vídeo; y si se hace, la pauta segura es
+  **subir a B1 → grabar/demostrar → volver a F1**, con alerta de presupuesto en Azure.
 
 ## 2026-07-04 · Autenticación: ASP.NET Core Identity (Default UI) sobre AppDbContext
 

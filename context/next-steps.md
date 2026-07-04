@@ -28,12 +28,17 @@ Estructurado por **fines de semana** (el grueso del trabajo) + huecos de diario 
 - [ ] Proyecto Razor Pages arrancando en local (ya arranca la plantilla; validar).
 - [x] EF Core + proveedor SQLite añadidos. Entidad `Socio` en BD vía EF Core (primera migración).
       *(Hecho 04-07: además arquitectura multi-proyecto Web+Core y modelo `Socio`+`Colaboracion` TPH.)*
-- [ ] Autenticación funcionando: login + zona protegida (ASP.NET Core Identity + rol `Admin`, seed admin).
-      **← siguiente tarea.**
+- [x] Autenticación funcionando: login + zona protegida (ASP.NET Core Identity + rol `Admin`, seed admin).
+      *(Hecho 04-07: Default UI, registro público bloqueado, recuperación con email stub, /Admin protegido.
+      Verificado end-to-end.)*
 - [ ] **URL pública desplegada en Azure App Service F1** (aunque muestre poco). Validar el pipeline ya.
+      **← siguiente tarea.**
 - [ ] `README.md` creado con secciones vacías (las del enunciado).
 - [ ] **Pendiente de UI (cuando toque front):** mobile-first (principio acordado 04-07).
+- [ ] **Antes/para el deploy:** proveedor de email real (SendGrid/SMTP) en lugar del `LoggingEmailSender`;
+      credenciales del seed admin como variables de entorno en Azure (hoy en User Secrets local).
 - [ ] **Vigilar** parche de `SQLitePCLRaw`/EF para NU1903; actualizar y revisar antes del deploy.
+- [ ] **Opcional (si sobra tiempo):** scaffolding de 2FA de Identity.
 
 ## Entre semana 6-10 jul (si hay ratos)
 

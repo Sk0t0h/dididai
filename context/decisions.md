@@ -83,6 +83,40 @@
 - **Estado:** aplicado. Migración `InitialCreate` regenerada limpia y aplicada; `dididai.db` creada e
   ignorada por git.
 
+## 2026-07-04 · Autenticación: ASP.NET Core Identity (Default UI) sobre AppDbContext
+
+- **Contexto:** el back de gestión es cerrado, pero **el front público debe seguir abierto sin login**
+  (fundamental). Se pidió: login al back, recuperación de contraseña sí, **registro público NO** (altas
+  manuales o desde dentro del back), y 2FA "no estaría de más".
+- **Decisión:**
+  - **Identity compartiendo `AppDbContext`** (hereda de `IdentityDbContext<IdentityUser>`): una sola BD y
+    migración (`AddIdentity`). Usuario `IdentityUser` estándar (email como login). `RequireConfirmedAccount
+    = false` (altas manuales, sin flujo de confirmación de email). Password mínimo 8.
+  - **Default UI de Identity** (`AddIdentity<,>() ... .AddDefaultUI()`): páginas embebidas (login, logout,
+    forgot/reset password, manage) sin scaffolding. Se eligió `AddIdentity` (no `AddDefaultIdentity`) para
+    tener **roles** (`AddRoles`/`IdentityRole`).
+  - **Registro público deshabilitado por middleware:** toda ruta `/Identity/Account/Register*` devuelve 404
+    salvo que la pida un usuario con rol `Admin`. Se descartó `AuthorizeAreaPage` por convención: **no
+    alcanza de forma fiable las páginas compiladas en el ensamblado de la Default UI** (verificado: un
+    anónimo llegaba a registrarse). El middleware va tras `UseAuthentication`.
+  - **Rutas de cookie** (`ConfigureApplicationCookie`) apuntadas al área Identity
+    (`/Identity/Account/Login|Logout|AccessDenied`), porque por defecto Identity apunta a `/Account/Login`
+    (404 con Default UI).
+  - **Seed** (`DbSeeder` en Core): crea rol `Admin` y un usuario admin si hay credenciales en configuración.
+    **Credenciales NUNCA en el repo** (público) → `Seed:AdminEmail` / `Seed:AdminPassword` en **User Secrets**
+    (dev) / variables de entorno (prod). Si faltan, se omite el seed con warning.
+  - **Recuperación de contraseña:** funciona el flujo completo con un `IEmailSender` **stub**
+    (`LoggingEmailSender`, en Web) que loguea el enlace en vez de enviarlo. Proveedor real (SendGrid/SMTP)
+    pendiente para el deploy.
+  - **2FA:** el andamiaje de Identity lo soporta; **no se fuerza ahora** (candidato a recortar por plazo).
+  - **Zona protegida:** `/Admin` (Razor Page) con `[Authorize(Roles="Admin")]`; enlace de acceso/salir en el
+    layout vía `_LoginPartial` (sin inline, respetando CSP).
+- **Verificado end-to-end (HTTP):** front público 200 sin login · `/Admin` anónimo → 302 a login · registro
+  anónimo (GET/POST) → 404 · login admin (seed) → 302 · admin → `/Admin` 200 · admin → registro 200.
+- **Alternativas:** contexto Identity separado — descartada (ceremonia); `AddDefaultIdentity` — descartada
+  (no da roles); bloquear registro por convención de página — descartada (no fiable con Default UI).
+- **Estado:** aplicado y verificado. Pendiente: proveedor de email real, y scaffolding de 2FA si sobra tiempo.
+
 ## 2026-07-04 · Vulnerabilidad NU1903 (CVE-2025-6965) en SQLite transitivo: documentar y aceptar
 
 - **Contexto:** `EntityFrameworkCore.Sqlite 10.0.9` arrastra transitivamente

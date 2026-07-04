@@ -12,10 +12,12 @@
 
 Deadline **20/07/2026**. Producto: web taylor-made para la ONG DIDIDAI con front público + back de gestión
 cerrado. **MVP:** web pública · login/roles · gestión de socios · módulo económico simple · dashboards.
-Stack: EF Core + SQLite → Azure App Service F1. **Finde 1 en curso — ya hay primer código de producto:**
-arquitectura multi-proyecto (Web + Core) y capa de datos completa (EF Core + SQLite, modelo `Socio` +
-`Colaboracion` TPH, migración aplicada). **Siguiente paso: autenticación** (ASP.NET Core Identity + rol Admin
-+ login + zona protegida), luego deploy "hola mundo" en Azure para validar el pipeline.
+Stack: EF Core + SQLite → Azure App Service F1. **Finde 1 avanzado:** hechas arquitectura multi-proyecto
+(Web + Core), capa de datos (EF Core + SQLite, modelo `Socio` + `Colaboracion` TPH) y **autenticación**
+(ASP.NET Core Identity con roles: login, recuperación de contraseña con email stub, registro público
+bloqueado, zona `/Admin` protegida, seed de admin) — todo verificado end-to-end. Front público sigue abierto.
+**Siguiente paso: desplegar en Azure App Service F1** para validar el pipeline y obtener URL pública; luego
+README.
 
 ## Propósito real
 
@@ -49,8 +51,8 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Persistencia (EF Core 10 + SQLite, `AppDbContext`, migración `InitialCreate`) | IMPLEMENTADO (04-07) |
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
+| Autenticación + roles (Identity, back cerrado) | IMPLEMENTADO (04-07, verificado): login, recuperación (email stub), registro solo Admin, `/Admin` protegido, seed admin |
 | Capa de servicios (Core `Services/`) | PLANIFICADO (crear con el CRUD; páginas no tocan `DbContext` directo) |
-| Autenticación + roles (back cerrado) | PLANIFICADO (MVP) — **siguiente tarea** |
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first |
 | Gestión de socios (CRUD) | PLANIFICADO (MVP) |
 | Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
@@ -60,6 +62,13 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-04 — Autenticación (ASP.NET Core Identity)**: back de gestión cerrado con Identity (Default UI +
+  roles) sobre el `AppDbContext` (migración `AddIdentity`). Login, logout y recuperación de contraseña (con
+  `IEmailSender` **stub** que loguea el enlace en vez de enviarlo). **Registro público deshabilitado** por
+  middleware (404 salvo rol Admin). Zona `/Admin` protegida por rol; enlace de acceso en el layout. Seed de
+  rol `Admin` + usuario admin con credenciales en **User Secrets** (nunca en el repo). El **front público
+  sigue abierto sin login**. Verificado end-to-end por HTTP (la verificación destapó y corrigió dos bugs:
+  faltaba `.AddDefaultUI()` y las rutas de cookie). Detalle en `context/decisions.md`.
 - **2026-07-04 — Primer código: arquitectura multi-proyecto + capa de datos**: creada la solución
   `DididaiApp.sln` con `DididaiApp` (web/presentación) + `DididaiApp.Core` (dominio + datos + servicios).
   Modelo de datos disociando persona de pago: `Socio` (identidad) 1:N `Colaboracion` (aportación, jerarquía
@@ -88,9 +97,9 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 - **Vulnerabilidad transitiva SQLite NU1903 / CVE-2025-6965** — MEDIO · ACEPTADO Y VIGILADO (no explotable en
   nuestra superficie —sin SQL arbitrario— y sin parche disponible a 04-07. Revisar antes del deploy; ver
   `context/decisions.md`).
-- Repo público sin gestión de secretos establecida — MEDIO · PENDIENTE (hoy la connection string es solo la
-  ruta del `.db`, sin secretos. El riesgo aparece con API keys / cadenas de Azure SQL. Mitigación acordada:
-  User Secrets + variables de entorno, nunca literales en `appsettings.json`).
+- Repo público sin gestión de secretos establecida — MEDIO · MITIGADO EN CURSO (la connection string es solo
+  la ruta del `.db`; **las credenciales del seed admin ya van por User Secrets**, no en el repo. Al desplegar,
+  llevarlas a variables de entorno en Azure. El riesgo crece con API keys —email real, etc.).
 - Datos personales de socios en repo/BD (RGPD) — MEDIO · MITIGADO PARCIALMENTE (`*.db` en `.gitignore`; falta
   garantizar datos anonimizados en la demo. `Dni`/`Iban` sin cifrar a nivel de columna: fuera de MVP).
 - ~~Alcance funcional sin especificar~~ — RESUELTO (MVP definido 2026-07-03).
@@ -101,19 +110,29 @@ Aplicación ASP.NET Core Razor Pages con solución de **dos proyectos**: `Didida
 páginas renderizadas en servidor; punto de entrada y pipeline en `Program.cs`) y `DididaiApp.Core` (biblioteca
 de dominio + datos + servicios). La web referencia a Core e inyecta sus servicios; **no** accede al
 `DbContext` directamente. Persistencia con EF Core sobre SQLite (`AppDbContext` en Core, `dididai.db` local).
-Sin servicios externos ni autenticación todavía. Flujo: petición HTTP → página Razor → (servicio Core →
+Autenticación con ASP.NET Core Identity (usuarios/roles en el mismo `AppDbContext`): front público abierto y
+back `/Admin` cerrado por rol. Sin servicios externos aún (email = stub). Flujo: petición HTTP → página Razor →
+(servicio Core →
 `AppDbContext` → SQLite) → respuesta HTML.
 
 ## Invariantes críticos (NO romper)
 
-- **No subir secretos al repo** (es público). Ver `CLAUDE.md`.
+- **No subir secretos al repo** (es público). Ver `CLAUDE.md`. En particular, las **credenciales del seed
+  admin** (`Seed:AdminEmail` / `Seed:AdminPassword`) van por User Secrets (dev) / variables de entorno (prod),
+  **nunca** en `appsettings.json`.
 - No commitear con la identidad global del usuario: este repo usa identidad local gmail + remote por alias
   `github-dididai`.
+- **El front público NO debe requerir login** (requisito de negocio). Solo `/Admin` y el registro de usuarios
+  van protegidos.
 
 ## Áreas frágiles / caveats
 
 - Configuración SSH/git específica de este repo (alias de host, `core.sshCommand` local). Si se clona en otra
   máquina hay que replicar la clave y el alias; ver `CLAUDE.md` y `context/decisions.md`.
+- **Registro de usuarios bloqueado por middleware** en `Program.cs` (no por convención de página, que no
+  funciona con la Default UI de Identity). Si se cambia el pipeline, no reabrir el auto-registro público.
+- **Seed admin:** si al arrancar no hay `Seed:*` en configuración, el admin no se crea (warning en log) y no
+  se podrá entrar al back. En una máquina nueva hay que poner los User Secrets.
 
 ## Orden de arranque
 

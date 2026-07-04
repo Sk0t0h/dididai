@@ -7,11 +7,13 @@
 
 ## Estado actual
 
-Finde 1 en marcha. **Ya hay primer código de producto.** Hecho hoy (04-07): arquitectura multi-proyecto
-(`DididaiApp.sln` = web `DididaiApp` + `DididaiApp.Core`) y capa de datos completa (EF Core 10 + SQLite,
-`AppDbContext`, migración `InitialCreate` aplicada, `dididai.db` creada e ignorada por git). Modelo de datos:
-`Socio` (persona) disociado de `Colaboracion` (aportación, jerarquía TPH: CuotaDomiciliada / AportacionUnica /
-Teaming). Racional en `context/decisions.md` (3 decisiones del 04-07).
+Finde 1 avanzando bien. Hecho hoy (04-07): (1) arquitectura multi-proyecto (`DididaiApp.sln` = web
+`DididaiApp` + `DididaiApp.Core`); (2) capa de datos (EF Core 10 + SQLite, modelo `Socio` 1:N `Colaboracion`
+TPH, migración `InitialCreate`); (3) **autenticación** con ASP.NET Core Identity (Default UI + roles sobre
+`AppDbContext`, migración `AddIdentity`): login, logout, recuperación de contraseña (email **stub** que
+loguea), **registro público bloqueado** (404 salvo Admin), zona `/Admin` protegida por rol, seed de admin con
+credenciales en User Secrets. **El front público sigue abierto sin login.** Todo verificado end-to-end por
+HTTP. Racional en `context/decisions.md` (4 decisiones del 04-07).
 
 Ritmo real: se trabaja sobre todo en **findes** y en **ratos cortos entre semana**. Trabajo pesado a findes;
 ratos de diario solo tareas pequeñas y sin riesgo.
@@ -20,24 +22,32 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 Estado de las tareas del finde:
 1. ~~Commit memoria~~ ✓ (commit 51dc831).
-2. ~~EF Core + SQLite + entidad~~ ✓ (04-07, ver arriba).
-3. **Auth (Identity + rol Admin, seed admin) con login y zona protegida** ← **SIGUIENTE**.
-4. Desplegar "hola mundo" en Azure App Service F1 (validar pipeline).
+2. ~~EF Core + SQLite + entidad~~ ✓ (04-07).
+3. ~~Auth (Identity + rol Admin, seed admin) con login y zona protegida~~ ✓ (04-07, verificado).
+4. **Desplegar "hola mundo" en Azure App Service F1 (validar pipeline)** ← **SIGUIENTE**.
 5. README con secciones vacías.
 
 ## Pendientes abiertos
 
-- **Auth (siguiente tarea):** ASP.NET Core Identity sobre el `AppDbContext` existente (o `IdentityDbContext`),
-  rol `Admin`, seed de usuario admin, login y una zona protegida. Decidir si Identity comparte `AppDbContext`
-  o va en su propio contexto.
+- **Deploy Azure (siguiente tarea):** publicar en App Service F1, obtener URL pública, validar el pipeline.
+  Ojo al llevar la config sensible: credenciales del seed admin como **variables de entorno** en Azure (hoy
+  en User Secrets local); el `IEmailSender` sigue siendo stub.
+- **Email real:** sustituir `LoggingEmailSender` por SendGrid/SMTP antes de que la recuperación de contraseña
+  sea útil en producción.
 - **Servicios en Core:** aún no hay capa `Services/` escrita (las páginas deberán inyectar servicios, no el
-  `DbContext`). Crear al construir el CRUD de socios.
+  `DbContext`). Crear al construir el CRUD de socios (Finde 2).
 - **UI mobile-first:** principio acordado 04-07; aplicar cuando se toque el front público.
 - **NU1903 (CVE-2025-6965):** vulnerabilidad transitiva de SQLite aceptada y documentada; sin parche a día de
   hoy. Vigilar y actualizar antes del deploy. Aviso sigue visible en el build a propósito.
+- **2FA:** opcional, si sobra tiempo (andamiaje de Identity disponible).
 - Extraer recursos de marca de la web actual (logo, colores, textos) para el front.
 - Elegir librería de gráficas para el dashboard compatible con CSP.
 - Decidir si el formulario de contacto envía email o solo persiste.
+
+## Credenciales de desarrollo (no versionadas)
+
+- Admin seed en User Secrets del proyecto Web: `Seed:AdminEmail` = `admin@dididai.org`,
+  `Seed:AdminPassword` = (puesta en User Secrets). Se re-siembra al arrancar si no existe.
 
 ## Contexto ONG (de www.dididai.org)
 

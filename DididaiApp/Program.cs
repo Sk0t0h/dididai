@@ -1,4 +1,5 @@
 using DididaiApp.Core.Data;
+using DididaiApp.Core.Services;
 using DididaiApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -46,6 +47,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // flujo de recuperación de contraseña sin proveedor externo). Sustituir por
 // SendGrid/SMTP antes del despliegue.
 builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
+
+// Servicios de dominio (Core). Las páginas los inyectan; nunca el DbContext directo.
+builder.Services.AddScoped<ISocioService, SocioService>();
 
 var app = builder.Build();
 

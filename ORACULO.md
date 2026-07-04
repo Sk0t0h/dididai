@@ -18,8 +18,9 @@ arquitectura multi-proyecto (Web + Core), capa de datos (EF Core + SQLite, `Soci
 **DESPLIEGUE en producción, estable y verificado end-to-end**: la web está viva en
 **https://dididai-ong.azurewebsites.net** (Azure App Service **B1**, región **Spain Central** por RGPD). Se
 abandonó F1 (se caía al arrancar por `QuotaExceeded`) por B1 sin cuota, financiado por el crédito. Front
-público abierto. **Siguiente foco (Finde 2): MVP funcional — CRUD de gestión de socios** (arrastra crear la
-capa de servicios en Core). Detalle en `context/next-steps.md`.
+público abierto. **MVP en marcha:** hecho el **CRUD de gestión de socios** (05-07, verificado en local, sin
+desplegar) con su capa de servicios en Core. **Siguiente:** desplegar el CRUD y seguir con Colaboraciones
+(métodos de pago) → módulo económico → dashboards. Detalle en `context/next-steps.md`.
 
 ## Propósito real
 
@@ -55,9 +56,9 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
 | Autenticación + roles (Identity, back cerrado) | IMPLEMENTADO (04-07, verificado): login, recuperación (email stub), registro solo Admin, `/Admin` protegido, seed admin |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
-| Capa de servicios (Core `Services/`) | PLANIFICADO (crear con el CRUD; páginas no tocan `DbContext` directo) |
+| Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first |
-| Gestión de socios (CRUD) | PLANIFICADO (MVP) |
+| Gestión de socios (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único, validación internacional |
 | Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
 | Dashboards / informes visuales | PLANIFICADO (MVP) |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
@@ -65,6 +66,17 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-05 (madrugada) — CRUD de gestión de socios (primer módulo del MVP)**: en `/Admin/Socios`. Capa
+  de servicios en Core (`ISocioService`/`SocioService`; las páginas no tocan el `DbContext`). Páginas Razor:
+  listado con búsqueda + toggle "incluir bajas", ficha, alta, edición. **Baja lógica** (`Socio.FechaBaja`) +
+  **reactivación**. **DNI único** (índice BD + servidor, normalizado); **Email NO único** (familias/gestores
+  comparten correo). Consentimiento RGPD obligatorio en el alta. **Validación universal, no España-only** por
+  el carácter internacional de la base de socios (el director trabajó años en UK) — decisión deliberada, ver
+  `decisions.md`. Migración `AddSocioBajaAndDniIndex`. Frontend Bootstrap responsive, sin inline (CSP:
+  confirmación de baja por JS externo). Seguridad revisada: EF parametriza (no SQLi), Razor escapa (no XSS),
+  antiforgery (CSRF). **Verificado end-to-end en local** (alta, listado, DNI duplicado rechazado, alta sin
+  RGPD rechazada, edición, baja, reactivación). Commiteado. **SIN DESPLEGAR aún.** Idea abierta del usuario:
+  web bilingüe ES/EN con validación por idioma (ver Immediate Risks / decisions).
 - **2026-07-04 (tarde/noche) — Despliegue en producción CERRADO (B1 / Spain Central)**: la web quedó viva y
   estable en **https://dididai-ong.azurewebsites.net**, verificada end-to-end (home 200, `/Admin` anónimo
   302, login admin 302, `/Admin` autenticado 200). Se **abandonó F1**: al reanudar, la app volvió a caer en

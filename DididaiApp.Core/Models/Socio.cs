@@ -57,6 +57,19 @@ public class Socio
     /// <summary>Fecha de alta como colaborador. La fija la aplicación al crear el registro.</summary>
     public DateTime FechaAlta { get; set; }
 
+    /// <summary>
+    /// Fecha de baja del socio (borrado lógico). <c>null</c> = socio activo; con
+    /// valor = el socio se ha dado de baja del todo y no aparece en el listado por
+    /// defecto, pero se conserva el registro (trazabilidad, RGPD). No debe
+    /// confundirse con la baja de una <see cref="Colaboracion"/> concreta (dejar de
+    /// pagar una cuota), que vive en la propia colaboración.
+    /// </summary>
+    public DateTime? FechaBaja { get; set; }
+
+    /// <summary>Indica si el socio está activo (no dado de baja). Derivado de <see cref="FechaBaja"/>.</summary>
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public bool Activo => FechaBaja is null;
+
     /// <summary>Colaboraciones (formas de aportación) asociadas a este socio.</summary>
     public ICollection<Colaboracion> Colaboraciones { get; set; } = new List<Colaboracion>();
 }

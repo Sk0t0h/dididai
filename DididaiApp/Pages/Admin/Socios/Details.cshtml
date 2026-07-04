@@ -1,0 +1,58 @@
+@page "{id:int}"
+@model DididaiApp.Pages.Admin.Socios.DetailsModel
+@{
+    ViewData["Title"] = "Ficha de socio";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">@Model.Socio.Nombre @Model.Socio.Apellidos</h1>
+    @if (Model.Socio.Activo)
+    {
+        <span class="badge text-bg-success">Activo</span>
+    }
+    else
+    {
+        <span class="badge text-bg-secondary">Baja</span>
+    }
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="alert">@mensaje</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">DNI</dt><dd class="col-sm-9">@Model.Socio.Dni</dd>
+    <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9">@Model.Socio.Telefono</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Socio.Email</dd>
+    <dt class="col-sm-3">Dirección</dt>
+    <dd class="col-sm-9">@Model.Socio.Direccion, @Model.Socio.CodigoPostal @Model.Socio.Localidad (@Model.Socio.Pais)</dd>
+    <dt class="col-sm-3">Alta</dt><dd class="col-sm-9">@Model.Socio.FechaAlta.ToString("dd/MM/yyyy")</dd>
+    @if (Model.Socio.FechaBaja is DateTime baja)
+    {
+        <dt class="col-sm-3">Baja</dt><dd class="col-sm-9">@baja.ToString("dd/MM/yyyy")</dd>
+    }
+    <dt class="col-sm-3">Privacidad</dt>
+    <dd class="col-sm-9">@(Model.Socio.AceptaPrivacidad ? "Aceptada" : "No aceptada")</dd>
+</dl>
+
+<div class="d-flex flex-wrap gap-2 mt-4">
+    <a class="btn btn-outline-secondary" asp-page="Index">Volver</a>
+    <a class="btn btn-outline-primary" asp-page="Edit" asp-route-id="@Model.Socio.Id">Editar</a>
+
+    @if (Model.Socio.Activo)
+    {
+        <form method="post" asp-page-handler="Baja" asp-route-id="@Model.Socio.Id" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger js-confirm"
+                    data-confirm="¿Dar de baja a este socio? Se conservará su registro pero dejará de aparecer en el listado.">
+                Dar de baja
+            </button>
+        </form>
+    }
+    else
+    {
+        <form method="post" asp-page-handler="Reactivar" asp-route-id="@Model.Socio.Id" class="d-inline">
+            <button type="submit" class="btn btn-success">Reactivar</button>
+        </form>
+    }
+</div>

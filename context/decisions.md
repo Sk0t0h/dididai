@@ -119,6 +119,51 @@
   F1 resulta inviable para una demo estable o para grabar el vídeo; y si se hace, la pauta segura es
   **subir a B1 → grabar/demostrar → volver a F1**, con alerta de presupuesto en Azure.
 
+## 2026-07-05 · CRUD de socios: baja lógica, DNI único, Email NO único, validación internacional
+
+- **Contexto:** primer módulo funcional del MVP (Finde 2). CRUD de la identidad del socio en `/Admin/Socios`.
+  La ONG tiene vínculo internacional (el director trabajó años en Inglaterra) → **la base de socios no es
+  solo española**. Eso condiciona validación y unicidad.
+- **Baja del socio = borrado LÓGICO** (`Socio.FechaBaja` nullable; `Activo` derivado). El socio no se borra:
+  se marca con fecha de baja, desaparece del listado por defecto (toggle "incluir bajas") y se puede
+  **reactivar**. Distíngase de la baja de un **método de pago / colaboración** (dejar de pagar una cuota),
+  que vive en `Colaboracion.FechaFin`/`Activa` y se gestionará en el bloque de colaboraciones. El usuario
+  aclaró que lo habitual será dar de baja pagos, no al socio; la baja del socio cubre el caso "se va del todo"
+  (roza el derecho de supresión RGPD, conservando trazabilidad). Sin borrado físico en la UI.
+- **DNI único ABSOLUTO** (índice único en BD + validación en servidor; normalizado a mayúsculas/sin espacios
+  para que la unicidad no dependa del formato tecleado). Si al dar de alta el DNI ya existe pero está de baja
+  → la UI ofrece **reactivar** el existente en vez de crear un duplicado. Alternativa "único solo entre
+  activos" (índice filtrado) descartada: permitiría varios registros de la misma persona y ensucia informes.
+- **Email NO único** (a propósito): es habitual que varias personas compartan correo (familias, un gestor que
+  administra a varios socios). Sigue siendo obligatorio y con formato válido, pero repetible.
+- **Validación de formato: UNIVERSAL y laxa, NO nacional.** Decisión deliberada por el carácter internacional
+  de la base de socios: **no** se añade regex de DNI/NIE, código postal ni teléfono español, porque
+  rechazaría socios legítimos de UK u otros países (postcode `SW1A 1AA`, National Insurance, móvil `+44…`).
+  Se mantiene solo lo universal: `[Required]`, longitudes máximas, `[EmailAddress]`, `[Phone]` (permisivo con
+  `+`/espacios) y el consentimiento RGPD obligatorio en el alta. El **IBAN** (cuando llegue en colaboraciones)
+  sí se podrá validar con el algoritmo **mod-97 internacional** (vale para todos los países, no ata a España).
+  Alternativa "validación por país según `Socio.Pais`" descartada para el MVP: sobre-ingeniería a 15 días.
+- **Idea abierta (post-MVP, sin decidir) — web bilingüe ES/EN + validación por idioma/país:** el usuario
+  apunta que lo más funcional a futuro sería una web en **inglés y castellano** con validaciones acordes al
+  idioma/país. **Tensión reconocida:** cualquier validación de formato nacional (aunque sea por idioma)
+  **puede dejar fuera a alguien de un tercer país** que no encaje en ninguno de los dos moldes — justo lo que
+  hay que evitar en una ONG de alcance internacional. Conclusión provisional: si se hace bilingüe, la
+  validación de identificadores debe seguir siendo **permisiva por defecto** (aceptar formato libre) y, como
+  mucho, *sugerir* formato según idioma, nunca **bloquear** por no cumplir un patrón nacional. Decisión real
+  aplazada a después del MVP.
+- **Arquitectura:** capa de servicios en Core (`ISocioService`/`SocioService`); las páginas Razor **no tocan
+  el `DbContext`** (invariante del proyecto). Resultados de alta/actualización como enums (`ResultadoAlta`,
+  `ResultadoActualizacion`) para que la UI distinga "duplicado activo" de "existe de baja" sin excepciones.
+- **Seguridad (revisada con el usuario):** inyección SQL cubierta (EF parametriza todo, incl. el `.Contains`
+  del buscador; sin SQL crudo); XSS cubierto por el escape automático de Razor (se guarda el dato tal cual y
+  se escapa al mostrar — NO se sanea al entrar, que destruiría datos legítimos); CSRF cubierto (antiforgery
+  de Razor Pages en todos los POST). Frontend sin inline (CSP): la confirmación de baja va por JS externo
+  (`.js-confirm` + `data-confirm`), no por `onclick`.
+- **Estado:** aplicado y **verificado end-to-end en local** (login, alta, listado, DNI normalizado, rechazo
+  de DNI duplicado, rechazo sin consentimiento RGPD, edición, baja lógica, reactivación). Migración
+  `AddSocioBajaAndDniIndex` aplicada en local. **Sin desplegar aún.** Pendiente/candidato: validación de
+  formato por país si se decide más adelante (documentado como fuera de MVP).
+
 ## 2026-07-04 (tarde) · Despliegue rehecho: B1 en Spain Central (revierte "mantener F1")
 
 - **Contexto:** al reanudar el deploy con la cuota F1 ya reseteada, el arranque real de la app volvió a

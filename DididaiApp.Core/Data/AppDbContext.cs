@@ -35,5 +35,11 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         // Precisión explícita para el importe monetario (común a toda la jerarquía;
         // evita el warning de EF sobre decimal sin precisión y fija el formato en la BD).
         modelBuilder.Entity<Colaboracion>().Property(c => c.Importe).HasPrecision(10, 2);
+
+        // DNI único a nivel de BD: identifica inequívocamente a la persona; dos socios
+        // con el mismo DNI es siempre un duplicado (aunque uno esté de baja → se reactiva
+        // el existente, no se crea otro). El Email NO es único a propósito: es habitual
+        // que varias personas compartan correo (familias, un gestor para varios socios).
+        modelBuilder.Entity<Socio>().HasIndex(s => s.Dni).IsUnique();
     }
 }

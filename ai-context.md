@@ -43,12 +43,13 @@ Antes de tocar producto, un par de cierres administrativos y de contenido (rápi
 - Rellenar en el README las **credenciales de demo** (usuario/contraseña ficticios) y, cuando existan, las
   URLs de slides y vídeo.
 
-## Pendiente del USUARIO (no lo puede hacer Claude)
+## Facturación Azure — RESUELTO
 
-- **Convertir la suscripción Azure a "Pago por uso"** en el portal (portal.azure.com → la suscripción →
-  enlace "Actualizar"). Si no, cuando caduque el crédito Free Trial (~agosto 2026) la suscripción se
-  deshabilita y **la web se apaga** justo cuando podría estar corrigiéndose. Es el paso que garantiza que la
-  web siga en pie durante toda la evaluación.
+- **Suscripción convertida a "Pago por uso"** (05-07, verificado: `quotaId = PayAsYouGo_2014-09-01`). Ya NO
+  caduca → la web no se apagará al consumirse el crédito. Se sigue tirando primero de los ~175 € de crédito;
+  después ~13 €/mes de B1. Doble control de coste: alerta de presupuesto (30 €/mes, avisos 15/27 €) + método
+  de pago = **tarjeta virtual con límite** del usuario. Al aprobar el TFM, apagar o bajar a F1 para cortar el
+  gasto.
 
 ## Pendientes abiertos
 

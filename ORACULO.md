@@ -114,10 +114,9 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 - **Plazo ajustado: quedan ~15 días para MVP funcional + slides + vídeo** — ALTO · PENDIENTE (el riesgo
   dominante es alcance vs tiempo; mitigación: MVP recortado y roadmap para el resto. El esqueleto y el
   despliegue ya están; falta el producto: CRUD socios + económico + dashboards).
-- **Crédito Azure caduca en ~30 días (Free Trial)** — ALTO · PENDIENTE · **ACCIÓN DEL USUARIO**: si no se
-  convierte la suscripción a Pago por uso, al caducar el crédito la suscripción se deshabilita y la web se
-  apaga — posiblemente en pleno periodo de corrección. Mitigación: convertir a Pago por uso + alerta de
-  presupuesto ya creada (30 €/mes).
+- ~~Crédito Azure caduca en ~30 días (Free Trial)~~ — RESUELTO (05-07): suscripción convertida a **Pago por
+  uso** (`quotaId = PayAsYouGo`), ya no caduca; la web no se apagará. Coste controlado: se agota primero el
+  crédito (~175 €), luego ~13 €/mes de B1, topado por tarjeta virtual + alerta de presupuesto (30 €/mes).
 - **Vulnerabilidad transitiva SQLite NU1903 / CVE-2025-6965** — MEDIO · ACEPTADO Y VIGILADO (no explotable en
   nuestra superficie —sin SQL arbitrario— y sin parche disponible a 04-07. Revisar antes del deploy; ver
   `context/decisions.md`).

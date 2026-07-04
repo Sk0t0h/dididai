@@ -272,6 +272,11 @@ ServiceFabricBackup/
 *.ldf
 *.ndf
 
+# SQLite database files (RGPD: nunca subir BD con datos reales de socios)
+*.db
+*.db-shm
+*.db-wal
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout

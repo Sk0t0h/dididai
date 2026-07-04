@@ -1,7 +1,15 @@
+using DididaiApp.Core.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+// Persistencia: EF Core sobre SQLite. La cadena de conexión (solo la ruta del
+// fichero .db, sin secretos) vive en appsettings.json.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

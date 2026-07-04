@@ -24,12 +24,16 @@ Estructurado por **fines de semana** (el grueso del trabajo) + huecos de diario 
 
 ## Finde 1 — 4 y 5 jul → "Esqueleto vivo y desplegado"
 
-- [ ] Commit inicial del sistema de memoria del repo.
+- [x] Commit inicial del sistema de memoria del repo.
 - [ ] Proyecto Razor Pages arrancando en local (ya arranca la plantilla; validar).
-- [ ] EF Core + proveedor SQLite añadidos. Entidad `Socio` en BD vía EF Core (primera migración).
+- [x] EF Core + proveedor SQLite añadidos. Entidad `Socio` en BD vía EF Core (primera migración).
+      *(Hecho 04-07: además arquitectura multi-proyecto Web+Core y modelo `Socio`+`Colaboracion` TPH.)*
 - [ ] Autenticación funcionando: login + zona protegida (ASP.NET Core Identity + rol `Admin`, seed admin).
+      **← siguiente tarea.**
 - [ ] **URL pública desplegada en Azure App Service F1** (aunque muestre poco). Validar el pipeline ya.
 - [ ] `README.md` creado con secciones vacías (las del enunciado).
+- [ ] **Pendiente de UI (cuando toque front):** mobile-first (principio acordado 04-07).
+- [ ] **Vigilar** parche de `SQLitePCLRaw`/EF para NU1903; actualizar y revisar antes del deploy.
 
 ## Entre semana 6-10 jul (si hay ratos)
 

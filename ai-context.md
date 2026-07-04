@@ -24,8 +24,35 @@ Estado de las tareas del finde:
 1. ~~Commit memoria~~ ✓ (commit 51dc831).
 2. ~~EF Core + SQLite + entidad~~ ✓ (04-07).
 3. ~~Auth (Identity + rol Admin, seed admin) con login y zona protegida~~ ✓ (04-07, verificado).
-4. **Desplegar "hola mundo" en Azure App Service F1 (validar pipeline)** ← **SIGUIENTE**.
-5. README con secciones vacías.
+4. **Deploy Azure F1** ← infra CREADA, deploy final BLOQUEADO por cuota (ver abajo). **RETOMAR primero.**
+5. ~~README~~ ✓ (04-07, completo y verificado contra el enunciado; faltan credenciales demo + URLs slides/vídeo).
+
+## RETOMAR AQUÍ (deploy Azure) — importante para medianoche
+
+> **Runbook completo paso a paso: [`context/deploy-azure.md`](context/deploy-azure.md)** — todo lo necesario
+> para desplegar a la primera (comandos, datos fijos, exclusiones de Norton, errores conocidos). Leerlo al
+> reanudar. Lo de aquí abajo es el resumen.
+
+La infra Azure está toda creada y configurada; **solo falta el deploy final del zip**, que hoy se bloqueó
+porque la app entró en `QuotaExceeded` (F1 = ~60 min CPU/día, agotados con los intentos). Se resetea en ~24h.
+
+**Pasos al reanudar (cuota reseteada):**
+1. Comprobar estado: `az webapp show --name dididai-web --resource-group rg-dididai --query state`.
+   Si dice `Running` (no `QuotaExceeded`) → adelante. Si sigue `QuotaExceeded`, aún no ha reseteado; esperar.
+2. Deploy directo (paquete ya compilado en scratchpad, o recompilar):
+   `dotnet publish DididaiApp/DididaiApp.csproj -c Release -o ./publish` → zip → `az webapp deploy ...`.
+   **Hacerlo a la primera, sin reintentos**, para no volver a agotar la cuota.
+3. Verificar: `https://dididai-web.azurewebsites.net` (home 200) y login del admin (Seed__ ya en app settings).
+4. Rellenar credenciales de demo en el README y actualizar estado.
+
+Datos del deploy: RG `rg-dididai` · región `francecentral` · plan F1 Linux `plan-dididai` · webapp
+`dididai-web` · runtime `DOTNETCORE:10.0`. Cuenta Azure: **`dididai@outlook.es`** (personal, NO la del
+trabajo). Comando login: `az login` (elegir/usar la suscripción "Azure subscription 1"). `az` está en
+`C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd` (puede no estar en el PATH de una shell nueva).
+
+**Caveat Norton (CRÍTICO):** Norton intercepta TLS. Ya añadidas exclusiones en Norton → Web segura para los
+dominios de Azure (`login.microsoftonline.com`, `management.azure.com`, `graph.microsoft.com`,
+`*.azurewebsites.net`). Si en una máquina/perfil nuevo `az` da error de certificado, revisar esas exclusiones.
 
 ## Pendientes abiertos
 

@@ -83,6 +83,36 @@
 - **Estado:** aplicado. Migración `InitialCreate` regenerada limpia y aplicada; `dididai.db` creada e
   ignorada por git.
 
+## 2026-07-04 · Despliegue en Azure App Service F1 (cuenta personal) — infra creada, entorno resuelto
+
+- **Contexto:** validar el pipeline de despliegue pronto (tarea del Finde 1). Requisito: URL pública, coste
+  cero. Se hizo por **Azure CLI** (reproducible, documentable) en vez del portal.
+- **Cuenta Azure — decisión:** usar una cuenta **personal dedicada** `dididai@outlook.es` con Azure Free
+  Account (200 USD de crédito), no la cuenta del trabajo. La cuenta corporativa (`...@ideidentidadsloutlook`)
+  solo daba acceso a suscripciones de empresa (una con gasto real de ~449 €), inapropiadas para un TFM
+  personal con repo público. Directorio/tenant propio: `dididaioutlook.onmicrosoft.com`, suscripción
+  "Azure subscription 1" (`5c742941-32de-4787-b72b-cf092d13d81d`).
+- **Recursos (Azure CLI, todo F1 gratis):** RG `rg-dididai`, plan F1 Linux `plan-dididai`, webapp
+  `dididai-web` con runtime `DOTNETCORE:10.0`. **Región `francecentral`**: `westeurope` devolvió
+  `RequestDisallowedByAzure - region not accepting new customers` (típico en cuentas nuevas); se probaron
+  varias y francecentral aceptó. **App settings** (no en repo): `Seed__AdminEmail`, `Seed__AdminPassword`
+  (doble guion bajo = anidamiento .NET) y `ConnectionStrings__DefaultConnection=Data Source=/home/dididai.db`
+  (`/home` es almacenamiento **persistente** de App Service → la SQLite sobrevive a reinicios, gratis).
+- **Escollo 1 — Norton intercepta TLS:** Norton re-firma los certificados HTTPS con su raíz "Norton Web/Mail
+  Shield" → `az` falla con `CERTIFICATE_VERIFY_FAILED` (usa su propio bundle certifi, no el store de Windows).
+  Añadir la raíz de Norton al bundle **no funcionó**: el cert de Norton no marca Basic Constraints como
+  critical y OpenSSL 3.x lo rechaza. **Solución aplicada:** exclusiones en **Norton → Web segura →
+  Exclusiones** para `login.microsoftonline.com`, `management.azure.com`, `graph.microsoft.com` y
+  `*.azurewebsites.net` (http y https). Verificado inspeccionando el emisor del cert (pasó de "Norton..." a
+  DigiCert/Microsoft). NO se desactivó Norton entero (opción descartada por reducir la protección general).
+- **Escollo 2 — cuota F1:** el plan F1 da ~60 min de CPU/día; se agotó con los intentos de arranque/deploy y
+  Azure puso la app en `QuotaExceeded` ("Web App stopped", 403), que **ni siquiera acepta el deploy**. Se
+  resetea solo en ~24h. **Decisión del usuario: NO subir a plan de pago (B1)** para evitar escalada de coste;
+  esperar el reset. F1 es suficiente para una demo de TFM (la app solo consume CPU cuando se usa).
+- **Estado:** infraestructura creada y configurada; **deploy final pendiente** de que la cuota se resetee.
+  Procedimiento de reanudación detallado en `ai-context.md`. Herramienta: `az` 2.87 en
+  `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`.
+
 ## 2026-07-04 · Autenticación: ASP.NET Core Identity (Default UI) sobre AppDbContext
 
 - **Contexto:** el back de gestión es cerrado, pero **el front público debe seguir abierto sin login**

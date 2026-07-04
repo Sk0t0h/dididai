@@ -62,6 +62,18 @@ Estructurado por **fines de semana** (el grueso del trabajo) + huecos de diario 
 - [ ] Pruebas de uso reales (meter socios de mentira, navegar, buscar fallos). Datos de ejemplo anonimizados.
 - [ ] Corregir bugs. Pulir README. **Nada de features nuevas.**
 
+## Requisitos formales del enunciado (Módulo 12 — verificados 04-07)
+
+De `Documentacion-TFM-Fundae-1.md`. Lo que se entrega vía formulario del Proyecto Final:
+- **README** con: (a) descripción, (b) stack, (c) instalación/ejecución, (d) estructura, (e) funcionalidades,
+  (f) usuario/contraseña de prueba. → **Ya cubierto en README.md** (falta rellenar credenciales de demo).
+- **Repo público en GitHub** ✅ (si fuera privado, habría que dar acceso a `mouredev@gmail.com` — no aplica).
+- **URL de despliegue** (recomendado) → en la doc. En curso (Azure F1).
+- **Slides** con presentación: URL pública **y** enlazadas/incluidas en el repo/doc.
+- **Vídeo OBLIGATORIO** con explicación + **captura de pantalla obligatoria** (rostro opcional). URL pública.
+- Formulario de entrega pide: nombre, email de inscripción al máster, URL repo, URL despliegue, URL slides,
+  URL vídeo, usuario/contraseña de prueba.
+
 ## Finde 3 — 18 y 19 jul → "Entregables no-código"
 
 - [ ] **Sábado 18 por la mañana: tope absoluto para tocar código.** A partir de ahí congelado (salvo bug

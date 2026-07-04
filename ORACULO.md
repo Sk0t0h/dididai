@@ -12,12 +12,12 @@
 
 Deadline **20/07/2026**. Producto: web taylor-made para la ONG DIDIDAI con front público + back de gestión
 cerrado. **MVP:** web pública · login/roles · gestión de socios · módulo económico simple · dashboards.
-Stack: EF Core + SQLite → Azure App Service F1. **Finde 1 avanzado:** hechas arquitectura multi-proyecto
-(Web + Core), capa de datos (EF Core + SQLite, modelo `Socio` + `Colaboracion` TPH) y **autenticación**
-(ASP.NET Core Identity con roles: login, recuperación de contraseña con email stub, registro público
-bloqueado, zona `/Admin` protegida, seed de admin) — todo verificado end-to-end. Front público sigue abierto.
-**Siguiente paso: desplegar en Azure App Service F1** para validar el pipeline y obtener URL pública; luego
-README.
+Stack: EF Core + SQLite → Azure App Service F1. **Finde 1 casi cerrado:** hechas arquitectura multi-proyecto
+(Web + Core), capa de datos (EF Core + SQLite, `Socio` + `Colaboracion` TPH), **autenticación** (Identity con
+roles, verificada) y **README** (completo, verificado contra el enunciado). **Despliegue en Azure: infra
+creada y configurada** (RG + plan F1 + webapp + app settings), pero el **deploy final quedó bloqueado por la
+cuota diaria de CPU de F1** (`QuotaExceeded`); se resetea en ~24h. **Siguiente paso: completar ese deploy** —
+runbook en `context/deploy-azure.md`. Front público sigue abierto.
 
 ## Propósito real
 
@@ -62,6 +62,14 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-04 — README y despliegue Azure iniciado**: README completo en español, verificado contra el
+  enunciado del TFM (cubre los 6 apartados obligatorios + arquitectura, modelo de datos, despliegue,
+  seguridad, roadmap). Despliegue en Azure App Service **F1**: creada toda la infra por Azure CLI (RG
+  `rg-dididai` en francecentral, plan F1 Linux, webapp `dididai-web` .NET 10, app settings con seed admin y
+  BD persistente en `/home`) con cuenta **personal** `dididai@outlook.es` (aislada del trabajo). El **deploy
+  final quedó bloqueado por la cuota diaria de CPU de F1** (`QuotaExceeded`, reset ~24h); NO se subió a plan
+  de pago. Resueltos dos escollos de entorno: Norton interceptaba TLS (exclusiones añadidas) y la cuenta del
+  trabajo no servía. **Runbook completo en `context/deploy-azure.md`** para completarlo a la primera.
 - **2026-07-04 — Autenticación (ASP.NET Core Identity)**: back de gestión cerrado con Identity (Default UI +
   roles) sobre el `AppDbContext` (migración `AddIdentity`). Login, logout y recuperación de contraseña (con
   `IEmailSender` **stub** que loguea el enlace en vez de enviarlo). **Registro público deshabilitado** por
@@ -152,6 +160,7 @@ dotnet ef database update        --project DididaiApp.Core --startup-project Did
 
 - Estado de trabajo actual → `ai-context.md`
 - Decisiones → `context/decisions.md`
+- **Despliegue (runbook paso a paso) → `context/deploy-azure.md`**
 - Próximos pasos → `context/next-steps.md`
 - Estructura/baseline técnico → `context/project-overview.md`
 - Reglas operativas estables → `CLAUDE.md`

@@ -155,6 +155,40 @@ public class ResumenEconomicoServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Proyectar_IngresosRecurrentesConstantesYGastosMediaMensual()
+    {
+        var s = NuevoSocio();
+        // Recurrente = 10/mes (una cuota mensual activa).
+        AgregarCuota(s.Id, 10m, ModalidadCuota.Mensual, activa: true, new DateTime(2026, 1, 10));
+        // Gastos en 2 meses distintos: 100 (ene) y 300 (feb) -> media mensual = 200.
+        _db.Gastos.Add(new Gasto { Concepto = "a", Importe = 100m, Fecha = new DateTime(2026, 1, 5), Categoria = CategoriaGasto.AccionDirecta });
+        _db.Gastos.Add(new Gasto { Concepto = "b", Importe = 300m, Fecha = new DateTime(2026, 2, 5), Categoria = CategoriaGasto.AccionDirecta });
+        _db.SaveChanges();
+
+        var proy = await _sut.ProyectarAsync(new DateTime(2026, 3, 1), 3);
+
+        Assert.Equal(3, proy.Count);
+        Assert.Equal("2026-03", proy[0].Mes);
+        Assert.Equal("2026-04", proy[1].Mes);
+        Assert.Equal("2026-05", proy[2].Mes);
+        Assert.All(proy, p => Assert.Equal(10m, p.IngresosProyectados));   // recurrente constante
+        Assert.All(proy, p => Assert.Equal(200m, p.GastosProyectados));    // media 2 meses
+    }
+
+    [Fact]
+    public async Task Proyectar_SinGastos_GastoProyectadoCero()
+    {
+        var s = NuevoSocio();
+        AgregarCuota(s.Id, 25m, ModalidadCuota.Mensual, activa: true, new DateTime(2026, 1, 10));
+
+        var proy = await _sut.ProyectarAsync(new DateTime(2026, 2, 1), 2);
+
+        Assert.Equal(2, proy.Count);
+        Assert.All(proy, p => Assert.Equal(25m, p.IngresosProyectados));
+        Assert.All(proy, p => Assert.Equal(0m, p.GastosProyectados));
+    }
+
+    [Fact]
     public async Task SinDatos_DevuelveCeros()
     {
         var r = await _sut.ObtenerAsync();

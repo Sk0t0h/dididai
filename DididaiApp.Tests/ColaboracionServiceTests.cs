@@ -130,6 +130,64 @@ public class ColaboracionServiceTests : IDisposable
         Assert.Equal(fechaFin, (await _sut.ObtenerAsync(col.Id))!.FechaFin);
     }
 
+    [Fact]
+    public async Task Actualizar_CuotaValida_CambiaImporteModalidadEIban()
+    {
+        var socioId = await SembrarSocioAsync();
+        await _sut.CrearAsync(new CuotaDomiciliada { SocioId = socioId, Importe = 10m, Modalidad = ModalidadCuota.Mensual, Iban = "ES9121000418450200051332" });
+        var col = (await _sut.ListarPorSocioAsync(socioId))[0];
+
+        var r = await _sut.ActualizarAsync(col.Id, 25m, ModalidadCuota.Anual, "GB82WEST12345698765432");
+
+        Assert.Equal(ResultadoColaboracion.Creado, r); // reutiliza Creado como "ok"
+        var tras = (CuotaDomiciliada)(await _sut.ObtenerAsync(col.Id))!;
+        Assert.Equal(25m, tras.Importe);
+        Assert.Equal(ModalidadCuota.Anual, tras.Modalidad);
+        Assert.Equal("GB82WEST12345698765432", tras.Iban);
+    }
+
+    [Fact]
+    public async Task Actualizar_IbanInvalido_Rechaza()
+    {
+        var socioId = await SembrarSocioAsync();
+        await _sut.CrearAsync(new CuotaDomiciliada { SocioId = socioId, Importe = 10m, Modalidad = ModalidadCuota.Mensual, Iban = "ES9121000418450200051332" });
+        var col = (await _sut.ListarPorSocioAsync(socioId))[0];
+
+        var r = await _sut.ActualizarAsync(col.Id, 10m, ModalidadCuota.Mensual, "ES0000000000000000000000");
+        Assert.Equal(ResultadoColaboracion.IbanInvalido, r);
+    }
+
+    [Fact]
+    public async Task Actualizar_ImporteCero_Rechaza()
+    {
+        var socioId = await SembrarSocioAsync();
+        await _sut.CrearAsync(new AportacionUnica { SocioId = socioId, Importe = 50m });
+        var col = (await _sut.ListarPorSocioAsync(socioId))[0];
+
+        var r = await _sut.ActualizarAsync(col.Id, 0m, ModalidadCuota.Mensual, null);
+        Assert.Equal(ResultadoColaboracion.ImporteInvalido, r);
+    }
+
+    [Fact]
+    public async Task Actualizar_NoAplicaIbanNiModalidadANoCuota()
+    {
+        var socioId = await SembrarSocioAsync();
+        await _sut.CrearAsync(new AportacionUnica { SocioId = socioId, Importe = 50m });
+        var col = (await _sut.ListarPorSocioAsync(socioId))[0];
+
+        // Aportación única: el IBAN pasado se ignora (no es cuota), solo cambia el importe.
+        var r = await _sut.ActualizarAsync(col.Id, 75m, ModalidadCuota.Mensual, "iban-basura");
+        Assert.Equal(ResultadoColaboracion.Creado, r);
+        Assert.Equal(75m, (await _sut.ObtenerAsync(col.Id))!.Importe);
+    }
+
+    [Fact]
+    public async Task Actualizar_Inexistente_DevuelveNoEncontrada()
+    {
+        var r = await _sut.ActualizarAsync(999, 10m, ModalidadCuota.Mensual, null);
+        Assert.Equal(ResultadoColaboracion.NoEncontrada, r);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

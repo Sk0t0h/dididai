@@ -63,4 +63,28 @@ public class ColaboracionService : IColaboracionService
         colaboracion.FechaFin = DateTime.UtcNow;
         await _db.SaveChangesAsync();
     }
+
+    public async Task<ResultadoColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban)
+    {
+        var colaboracion = await _db.Colaboraciones.FirstOrDefaultAsync(c => c.Id == id);
+        if (colaboracion is null)
+            return ResultadoColaboracion.NoEncontrada;
+
+        if (importe <= 0)
+            return ResultadoColaboracion.ImporteInvalido;
+
+        // Periodicidad e IBAN solo aplican a la cuota domiciliada; en el resto se ignoran.
+        if (colaboracion is CuotaDomiciliada cuota)
+        {
+            var norm = ValidacionIban.Normalizar(iban ?? string.Empty);
+            if (!ValidacionIban.EsValido(norm))
+                return ResultadoColaboracion.IbanInvalido;
+            cuota.Iban = norm;
+            cuota.Modalidad = modalidad;
+        }
+
+        colaboracion.Importe = importe;
+        await _db.SaveChangesAsync();
+        return ResultadoColaboracion.Creado;
+    }
 }

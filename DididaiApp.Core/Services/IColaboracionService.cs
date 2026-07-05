@@ -34,6 +34,13 @@ public interface IColaboracionService
     /// <c>FechaFin</c>. Es el caso de "dejar de pagar" una cuota. Idempotente.
     /// </summary>
     Task DarDeBajaAsync(int id);
+
+    /// <summary>
+    /// Edita los datos económicos de una colaboración existente: importe y, si es cuota
+    /// domiciliada, periodicidad e IBAN. NO permite cambiar el tipo ni el socio. Valida
+    /// importe (&gt;0) e IBAN (mod-97) como el alta.
+    /// </summary>
+    Task<ResultadoColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban);
 }
 
 /// <summary>Resultado de crear una colaboración.</summary>
@@ -46,4 +53,6 @@ public enum ResultadoColaboracion
     ImporteInvalido,
     /// <summary>La cuota domiciliada requiere un IBAN válido (mod-97).</summary>
     IbanInvalido,
+    /// <summary>La colaboración a editar no existe.</summary>
+    NoEncontrada,
 }

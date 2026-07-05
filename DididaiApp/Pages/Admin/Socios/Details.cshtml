@@ -99,6 +99,7 @@ else
                             }
                         </td>
                         <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="/Admin/Colaboraciones/Edit" asp-route-id="@c.Id">Editar</a>
                             @if (c.Activa)
                             {
                                 <form method="post" asp-page-handler="BajaColaboracion" asp-route-id="@c.Id" asp-route-socioId="@Model.Socio.Id" class="d-inline">

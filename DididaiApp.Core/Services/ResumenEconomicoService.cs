@@ -15,6 +15,34 @@ public class ResumenEconomicoService : IResumenEconomicoService
 
     public ResumenEconomicoService(AppDbContext db) => _db = db;
 
+    public async Task<IReadOnlyList<ProyeccionMes>> ProyectarAsync(DateTime desde, int meses)
+    {
+        if (meses < 1) return [];
+
+        // Ingresos proyectados/mes: el recurrente actual (cuotas domiciliadas activas, anual/12).
+        var cuotasActivas = await _db.Colaboraciones.AsNoTracking()
+            .Where(c => c.Activa).OfType<CuotaDomiciliada>().ToListAsync();
+        decimal ingresoMes = cuotasActivas
+            .Sum(c => c.Modalidad == ModalidadCuota.Anual ? c.Importe / 12m : c.Importe);
+
+        // Gastos proyectados/mes: media mensual sobre los meses que tienen gasto (si no hay, 0).
+        var gastos = await _db.Gastos.AsNoTracking().Select(g => new { g.Importe, g.Fecha }).ToListAsync();
+        decimal gastoMes = 0m;
+        if (gastos.Count > 0)
+        {
+            int mesesConGasto = gastos.Select(g => $"{g.Fecha.Year:D4}-{g.Fecha.Month:D2}").Distinct().Count();
+            gastoMes = gastos.Sum(g => g.Importe) / mesesConGasto;
+        }
+
+        var serie = new List<ProyeccionMes>(meses);
+        for (int i = 0; i < meses; i++)
+        {
+            var mes = desde.AddMonths(i);
+            serie.Add(new ProyeccionMes($"{mes.Year:D4}-{mes.Month:D2}", ingresoMes, gastoMes));
+        }
+        return serie;
+    }
+
     public async Task<ResumenEconomico> ObtenerAsync()
     {
         // Colaboraciones activas (los ingresos vivos). Se traen a memoria para poder

@@ -38,6 +38,7 @@ public class IndexModel : PageModel
     public string ChartGastosPorCategoria { get; private set; } = "null";
     public string ChartIngresosVsGastos { get; private set; } = "null";
     public string ChartAltasPorMes { get; private set; } = "null";
+    public string ChartProyeccion { get; private set; } = "null";
 
     [BindProperty]
     public NuevoGasto GastoNuevo { get; set; } = new();
@@ -70,11 +71,27 @@ public class IndexModel : PageModel
         Resumen = await _resumen.ObtenerAsync();
         Gastos = await _gastos.ListarAsync();
         Colaboraciones = await _colaboraciones.ListarTodasAsync();
-        ConstruirGraficas();
+        // Proyección de los próximos 6 meses desde el mes actual ("si todo sigue igual").
+        var hoy = DateTime.UtcNow;
+        var proyeccion = await _resumen.ProyectarAsync(new DateTime(hoy.Year, hoy.Month, 1), 6);
+        ConstruirGraficas(proyeccion);
     }
 
-    private void ConstruirGraficas()
+    private void ConstruirGraficas(IReadOnlyList<ProyeccionMes> proyeccion)
     {
+        // Proyección: gráfica de líneas con DOS series (ingresos y gastos) sobre los
+        // meses proyectados. Es extrapolación "si todo sigue igual", no una predicción.
+        ChartProyeccion = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            tipo = "line",
+            labels = proyeccion.Select(p => p.Mes).ToArray(),
+            series = new[]
+            {
+                new { etiqueta = "Ingresos previstos", valores = proyeccion.Select(p => p.IngresosProyectados).ToArray() },
+                new { etiqueta = "Gastos previstos", valores = proyeccion.Select(p => p.GastosProyectados).ToArray() },
+            },
+        });
+
         // Ingresos por tipo (donut).
         ChartIngresosPorTipo = Chart("doughnut", "Ingresos por tipo",
             ["Cuota domiciliada", "Aportación única", "Teaming"],

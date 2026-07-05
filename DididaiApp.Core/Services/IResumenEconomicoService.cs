@@ -10,7 +10,18 @@ namespace DididaiApp.Core.Services;
 public interface IResumenEconomicoService
 {
     Task<ResumenEconomico> ObtenerAsync();
+
+    /// <summary>
+    /// Proyección "si todo sigue igual" de los próximos <paramref name="meses"/> meses a
+    /// partir de <paramref name="desde"/> (inclusive): ingresos = recurrente mensual actual
+    /// (cuotas domiciliadas activas); gastos = media mensual de los gastos con datos. No es
+    /// una predicción estadística, sino una extrapolación de los valores actuales.
+    /// </summary>
+    Task<IReadOnlyList<ProyeccionMes>> ProyectarAsync(DateTime desde, int meses);
 }
+
+/// <summary>Un mes de la proyección económica.</summary>
+public record ProyeccionMes(string Mes, decimal IngresosProyectados, decimal GastosProyectados);
 
 /// <summary>Resultado agregado del módulo económico en un momento dado.</summary>
 public record ResumenEconomico

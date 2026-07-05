@@ -82,6 +82,13 @@
             <div class="chart-box"><canvas data-chart="@Model.ChartAltasPorMes" aria-label="Altas de colaboraciones por mes"></canvas></div>
         </div></div>
     </div>
+    <div class="col-12">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Previsión ingresos vs gastos (próximos 6 meses)</h6>
+            <p class="small text-muted mb-2">Extrapolación «si todo sigue igual»: ingresos = cuotas recurrentes activas; gastos = media mensual de los registrados. No es una predicción.</p>
+            <div class="chart-box"><canvas data-chart="@Model.ChartProyeccion" aria-label="Previsión de ingresos frente a gastos"></canvas></div>
+        </div></div>
+    </div>
 </div>
 
 @* --- Ingresos por tipo --- *@

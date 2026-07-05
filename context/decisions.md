@@ -469,3 +469,21 @@
 - **Estado:** corregido y verificado (05-07): lógica de mostrar/ocultar de cuota y de validación DNI probadas
   en Node contra los ficheros JS reales con valores numéricos; alta por HTTP OK; 86 tests verdes. **Pendiente
   validación visual del usuario** + desplegar.
+
+## 2026-07-05 · Editar colaboración + previsión ingresos/gastos (feedback del usuario)
+
+- **Contexto:** al usar el módulo, el usuario echó en falta (a) poder editar una colaboración en vez de solo
+  borrarla, y (b) una previsión de evolución ingresos vs gastos en el dashboard.
+- **Editar colaboración:** `ColaboracionService.ActualizarAsync` (TDD) edita **importe** y, si es cuota
+  domiciliada, **periodicidad e IBAN** (valida mod-97). **NO** permite cambiar el tipo (complicaría el
+  discriminador TPH) ni el socio. Página `Colaboraciones/Edit` (tipo fijo, campos de cuota solo si aplica) +
+  enlace "Editar" por fila en la ficha del socio. Corregir un dato ya no obliga a baja+alta (menos ruido en el
+  histórico).
+- **Previsión ingresos vs gastos:** `ResumenEconomicoService.ProyectarAsync(desde, meses)` (TDD) — proyección
+  **"si todo sigue igual"**, NO predicción estadística: ingresos = recurrente mensual actual (cuotas activas);
+  gastos = media mensual de los gastos con datos. Se descartó regresión/tendencia (con 2-3 meses de histórico
+  es ruido). 5ª gráfica en el dashboard: líneas con 2 series (ingresos/gastos previstos, 6 meses), con nota
+  explícita de que es extrapolación. `dashboard.js` ampliado para soportar multi-serie (`series[]`).
+- **Estado:** IMPLEMENTADO y verificado (05-07): edición E2E (importe/IBAN/periodicidad cambian en la ficha),
+  proyección con 2 series y 6 meses en el JSON. **93 tests verdes.** SIN desplegar; render visual pendiente de
+  validación del usuario.

@@ -32,7 +32,9 @@ dotnet run                 # perfil por defecto
 - Perfil `http`: solo `http://localhost:5110`.
 - `ASPNETCORE_ENVIRONMENT=Development` en ambos perfiles de launch.
 
-Build/test: `dotnet build` / `dotnet test` (aún no hay proyecto de tests).
+Build/test: `dotnet build` / `dotnet test`. Tests unitarios en **`DididaiApp.Tests`** (xUnit): cubren la
+validación de identidad (`ValidacionIdentidad`: DNI/NIE/E.164) y los catálogos (`Paises`,
+`PrefijosTelefonicos`). Son funciones puras (sin BD ni HTTP). Al tocar esa lógica, añadir/actualizar tests.
 
 ## Convenciones y zonas sensibles
 

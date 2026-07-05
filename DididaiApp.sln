@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DididaiApp", "DididaiApp\Di
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DididaiApp.Core", "DididaiApp.Core\DididaiApp.Core.csproj", "{111441F5-82A8-455F-BDD1-7ABE94A2DFB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DididaiApp.Tests", "DididaiApp.Tests\DididaiApp.Tests.csproj", "{AFB233C4-10D1-4452-905E-93076A4D4504}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{111441F5-82A8-455F-BDD1-7ABE94A2DFB1}.Release|x64.Build.0 = Release|Any CPU
 		{111441F5-82A8-455F-BDD1-7ABE94A2DFB1}.Release|x86.ActiveCfg = Release|Any CPU
 		{111441F5-82A8-455F-BDD1-7ABE94A2DFB1}.Release|x86.Build.0 = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|x64.Build.0 = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Debug|x86.Build.0 = Debug|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|x64.ActiveCfg = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|x64.Build.0 = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|x86.ActiveCfg = Release|Any CPU
+		{AFB233C4-10D1-4452-905E-93076A4D4504}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

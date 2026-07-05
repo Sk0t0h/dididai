@@ -58,14 +58,13 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 ## RETOMAR AQUÍ
 
-Todo verificado en local, **nada desplegado**. Pendientes por orden sugerido:
+**DESPLEGADO Y VIVO en producción** (i18n + Frente 1, verificado por HTTP el 05-07). Tests unitarios añadidos
+(`DididaiApp.Tests`, xUnit, 55 tests verdes). Pendientes por orden sugerido:
 
-0. **Commitear el Frente 1** (i18n ya está en `a4dfa8d`; Frente 1 sin commitear al escribir esto).
-1. **Desplegar a Azure** lo acumulado (CRUD socios + i18n + Frente 1) (B1/Spain, bajo riesgo; migraciones
-   —incl. `SocioResidenciaYTipoDocumento`— se aplican solas en arranque por el fix `MigrateAsync`). Verificar
-   en producción: login admin → /Admin/Socios → alta (probar DNI ES, tipo documento, teléfono con prefijo).
-   Runbook en `context/deploy-azure.md`.
-2. **BD local**: se recrea limpia en cada arranque (se borró tras verificar). Nada pendiente aquí.
+1. **CRUD de Colaboraciones** — siguiente módulo del MVP (ver abajo). El IBAN reutiliza el patrón de
+   `ValidacionIdentidad` + atributo `IClientModelValidator`.
+2. En producción quedó un socio de prueba (`Prueba Produccion`, DNI 12345678Z) creado al verificar el alta;
+   **el usuario decidió dejarlo** (datos ficticios) y gestionarlo al preparar la demo.
 
 Después, seguir el MVP:
 - **CRUD de Colaboraciones** (métodos de pago: cuota domiciliada, aportación única, Teaming). Aquí es donde

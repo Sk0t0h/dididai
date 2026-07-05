@@ -18,12 +18,14 @@ arquitectura multi-proyecto (Web + Core), capa de datos (EF Core + SQLite, `Soci
 **DESPLIEGUE en producción, estable y verificado end-to-end**: la web está viva en
 **https://dididai-ong.azurewebsites.net** (Azure App Service **B1**, región **Spain Central** por RGPD). Se
 abandonó F1 (se caía al arrancar por `QuotaExceeded`) por B1 sin cuota, financiado por el crédito. Front
-público abierto. **MVP en marcha:** hecho el **CRUD de gestión de socios** (05-07, verificado en local, sin
-desplegar) con su capa de servicios en Core, y montada la **infra i18n del front público** (05-07, ES/EN
-conmutable por selector+cookie, extensible a N idiomas; solo front, el back queda en español). **Decisión
-transversal:** el idioma de la UI y la validación de datos son ejes independientes — la validación de
-DNI/teléfono/IBAN se condicionará al **país del socio** (`PaisCodigo` ISO), nunca al idioma. **Siguiente:**
-Frente 1 (país ISO + validación por país) → desplegar → Colaboraciones (métodos de pago) → módulo económico →
+público abierto. **MVP en marcha y DESPLEGADO:** **CRUD de gestión de socios** (validación por tipo de
+documento, país=residencia, teléfono E.164, cliente=servidor), **infra i18n del front público** (ES/EN por
+selector+cookie, extensible a N idiomas; solo front) y **tests unitarios** (`DididaiApp.Tests`, xUnit, 55
+verdes sobre la validación y catálogos) — todo **vivo en producción** (05-07, verificado por HTTP).
+**Decisión transversal:** idioma de UI, país de residencia y validación de datos son ejes independientes; la
+validación la dispara el **tipo de documento**, no el país ni el idioma. **Forma de trabajo acordada (05-07):
+TDD en la lógica pura/de negocio** (IBAN mod-97, cálculos económicos, agregaciones), pragmático en
+páginas/plumbing. **Siguiente:** CRUD de Colaboraciones (empezando por TDD del IBAN) → módulo económico →
 dashboards. Detalle en `context/next-steps.md` y `context/decisions.md`.
 
 ## Propósito real
@@ -63,7 +65,8 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
-| Gestión de socios (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
+| Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (05-07): 55 tests verdes sobre `ValidacionIdentidad` (DNI/NIE/E.164), `Paises`, `PrefijosTelefonicos`. `dotnet test` |
+| Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
 | Dashboards / informes visuales | PLANIFICADO (MVP) |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |

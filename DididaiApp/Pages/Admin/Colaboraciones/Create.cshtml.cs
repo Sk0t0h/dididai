@@ -28,7 +28,15 @@ public class CreateModel : PageModel
     }
 
     /// <summary>Tipo de colaboración (discriminador de la jerarquía).</summary>
-    public enum TipoColaboracion { CuotaDomiciliada, AportacionUnica, Teaming }
+    public enum TipoColaboracion
+    {
+        [Display(Name = "Cuota domiciliada")]
+        CuotaDomiciliada,
+        [Display(Name = "Aportación única")]
+        AportacionUnica,
+        [Display(Name = "Teaming")]
+        Teaming,
+    }
 
     [BindProperty]
     public Entrada Datos { get; set; } = new();
@@ -44,10 +52,10 @@ public class CreateModel : PageModel
         [Display(Name = "Tipo de colaboración")]
         public TipoColaboracion Tipo { get; set; } = TipoColaboracion.CuotaDomiciliada;
 
-        [Required]
+        [Required(ErrorMessage = "Indica el importe.")]
         [Range(0.01, 1_000_000, ErrorMessage = "El importe debe ser mayor que cero.")]
         [Display(Name = "Importe (€)")]
-        public decimal Importe { get; set; }
+        public decimal? Importe { get; set; }
 
         // Solo para CuotaDomiciliada (se validan condicionalmente en OnPost).
         [Display(Name = "Periodicidad")]
@@ -86,22 +94,24 @@ public class CreateModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
+        // ModelState.IsValid ya garantizó que Importe tiene valor ([Required]).
+        var importe = Datos.Importe!.Value;
         Colaboracion colaboracion = Datos.Tipo switch
         {
             TipoColaboracion.CuotaDomiciliada => new CuotaDomiciliada
             {
                 SocioId = Datos.SocioId,
-                Importe = Datos.Importe,
+                Importe = importe,
                 Modalidad = Datos.Modalidad,
                 Iban = Datos.Iban ?? string.Empty,
             },
             TipoColaboracion.AportacionUnica => new AportacionUnica
             {
                 SocioId = Datos.SocioId,
-                Importe = Datos.Importe,
+                Importe = importe,
                 Fecha = DateTime.UtcNow,
             },
-            _ => new Teaming { SocioId = Datos.SocioId, Importe = Datos.Importe },
+            _ => new Teaming { SocioId = Datos.SocioId, Importe = importe },
         };
 
         var resultado = await _colaboraciones.CrearAsync(colaboracion);

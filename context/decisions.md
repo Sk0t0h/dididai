@@ -449,3 +449,23 @@
 - **Estado:** **corregido y verificado por HTTP (05-07):** alta con España → 302 (antes fallaba); país vacío
   → rechazado con mensaje claro. 86 tests verdes. **Pendiente validación visual del usuario** (filtrado del
   combo al teclear) + desplegar.
+
+## 2026-07-05 · Fix: los <select> de enum comparaban por nombre pero emiten valor numérico
+
+- **Contexto:** el usuario reportó dos síntomas: (a) en el alta de colaboración **nunca aparecían** los campos
+  de la cuota domiciliada (IBAN, periodicidad); (b) la validación de DNI **solo saltaba al enviar**, no en vivo.
+- **Causa raíz común:** `Html.GetEnumSelectList<T>()` genera `<option>` con `value` = **valor numérico** del
+  enum (`0`,`1`,`2`), pero el JS comparaba `select.value === "CuotaDomiciliada"` / `=== "DniEspanol"` (el
+  NOMBRE). La comparación era siempre falsa → los campos de cuota nunca se mostraban y el validador de DNI
+  nunca detectaba el tipo. El servidor no se veía afectado (bindea el enum correctamente).
+- **Decisión:** no acoplar el JS al nombre ni al número mágico. Los `<select>` exponen el/los valor(es)
+  relevante(s) en atributos `data-*` generados en Razor con el cast del enum:
+  `data-colab-cuota-val="@((int)TipoColaboracion.CuotaDomiciliada)"` y
+  `data-tipo-dni`/`data-tipo-nie` en el select de documento. El JS compara `select.value` contra esos
+  atributos. Si mañana cambia el orden del enum o se pasa a value=nombre, sigue funcionando.
+- **Extras del mismo fix:** `[Display]` en el enum `TipoColaboracion` para que el desplegable muestre "Cuota
+  domiciliada" (antes salía pegado); `Entrada.Importe` pasa a `decimal?` (antes renderizaba `value="0"`, que
+  fallaba el `[Range]` de entrada) con `[Required]`.
+- **Estado:** corregido y verificado (05-07): lógica de mostrar/ocultar de cuota y de validación DNI probadas
+  en Node contra los ficheros JS reales con valores numéricos; alta por HTTP OK; 86 tests verdes. **Pendiente
+  validación visual del usuario** + desplegar.

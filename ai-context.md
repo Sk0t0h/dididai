@@ -83,11 +83,15 @@ anual/12], ingresos por tipo, socios con colaboración, altas/mes, balance ingre
 líneas altas/mes. Datos por `data-chart` + `dashboard.js` externo. Nueva agregación `GastosPorCategoria` (TDD).
 86 tests verdes. **Render visual NO verificado** (Playwright bloqueado por el entorno) → validar en navegador.
 
-**05-07 — Fix del campo país** (bug reportado por el usuario: no se podía dar de alta, el select+buscador
-suelto fallaba con "min/max length 2"). Sustituido por **combo `<input list>`+`<datalist>`** con buscador
-nativo integrado; el usuario teclea el nombre y `site.js` (`data-pais-combo`) resuelve el código ISO al hidden
-`PaisResidencia` (`data-pais-codigo`). Verificado por HTTP (alta con España → 302; país vacío → rechazo con
-mensaje claro). 86 tests verdes.
+**05-07 — Fixes de UI reportados por el usuario:**
+- **Campo país**: el select+buscador suelto fallaba ("min/max length 2"). Sustituido por **combo
+  `<input list>`+`<datalist>`**; `site.js` (`data-pais-combo`) resuelve el código ISO al hidden
+  `PaisResidencia`. OK.
+- **Enum en `<select>`**: `Html.GetEnumSelectList` emite el **valor numérico**, pero el JS comparaba por
+  nombre → (a) los campos de cuota (IBAN/periodicidad) **nunca se mostraban** y (b) la validación de DNI solo
+  saltaba al enviar. Corregido exponiendo el valor en `data-*` (`data-colab-cuota-val`, `data-tipo-dni/nie`) y
+  comparando contra eso. `[Display]` en `TipoColaboracion` (texto legible) e `Importe` → `decimal?` (evita
+  `value="0"` inválido de entrada). Verificado en Node contra los JS reales + HTTP. 86 tests verdes.
 
 Pendientes por orden sugerido:
 

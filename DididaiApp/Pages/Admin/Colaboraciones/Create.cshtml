@@ -14,7 +14,11 @@
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <label asp-for="Datos.Tipo" class="form-label"></label>
+            @* data-colab-cuota-val = el value que representa "cuota domiciliada" en este
+               select (Html.GetEnumSelectList usa el valor numérico del enum), para que el
+               JS muestre los campos de cuota sin depender de si es "0" o el nombre. *@
             <select asp-for="Datos.Tipo" class="form-select" data-colab-tipo
+                    data-colab-cuota-val="@((int)DididaiApp.Pages.Admin.Colaboraciones.CreateModel.TipoColaboracion.CuotaDomiciliada)"
                     asp-items="Html.GetEnumSelectList<DididaiApp.Pages.Admin.Colaboraciones.CreateModel.TipoColaboracion>()">
             </select>
             <span asp-validation-for="Datos.Tipo" class="text-danger"></span>

@@ -15,7 +15,11 @@
 
     <div class="col-12 col-md-4">
         <label asp-for="TipoDocumento" class="form-label"></label>
+        @* data-* con los valores (numéricos) de DNI/NIE para que el validador de
+           cliente sepa cuándo exigir letra de control, sin depender del nombre. *@
         <select asp-for="TipoDocumento" class="form-select" data-tipo-doc
+                data-tipo-dni="@((int)TipoDocumento.DniEspanol)"
+                data-tipo-nie="@((int)TipoDocumento.Nie)"
                 asp-items="Html.GetEnumSelectList<TipoDocumento>()">
         </select>
         <span asp-validation-for="TipoDocumento" class="text-danger"></span>

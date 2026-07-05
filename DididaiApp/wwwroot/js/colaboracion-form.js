@@ -5,7 +5,10 @@
     "use strict";
 
     function aplicar(select) {
-        var esCuota = select.value === "CuotaDomiciliada";
+        // El valor que representa "cuota domiciliada" viene del data-* del select
+        // (Html.GetEnumSelectList emite el valor numérico del enum, no el nombre).
+        var valorCuota = select.getAttribute("data-colab-cuota-val");
+        var esCuota = select.value === valorCuota;
         var campos = document.querySelectorAll("[data-colab-cuota]");
         for (var i = 0; i < campos.length; i++) {
             campos[i].hidden = !esCuota;

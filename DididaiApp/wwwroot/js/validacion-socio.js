@@ -33,12 +33,16 @@
         return letraDniCorrecta(pre + m[2], m[3]);
     }
     // Valida el documento según el tipo declarado (mismo criterio que el servidor).
-    function documentoValido(doc, tipoTexto) {
+    // El <select> del tipo lleva data-tipo-dni / data-tipo-nie con los valores que
+    // representan DNI y NIE (Html.GetEnumSelectList emite valores numéricos), así que
+    // se compara contra esos y no contra un nombre.
+    function documentoValido(doc, tipoSelect) {
         doc = (doc || "").trim().toUpperCase();
         if (doc.length === 0) return true; // la obligatoriedad la cubre 'required'
-        // tipoTexto es el value del <select> del enum: "DniEspanol","Nie","Pasaporte","Otro"
-        if (tipoTexto === "DniEspanol") return dniValido(doc);
-        if (tipoTexto === "Nie") return nieValido(doc);
+        if (!tipoSelect) return true;
+        var v = tipoSelect.value;
+        if (v === tipoSelect.getAttribute("data-tipo-dni")) return dniValido(doc);
+        if (v === tipoSelect.getAttribute("data-tipo-nie")) return nieValido(doc);
         return true; // Pasaporte / Otro: laxo
     }
 
@@ -116,8 +120,7 @@
         // el documento cuando ese tipo cambia.
         $.validator.addMethod("documentoportipo", function (value, element, params) {
             var tipoSelect = element.form.querySelector("[data-tipo-doc]");
-            var tipo = tipoSelect ? tipoSelect.value : "";
-            return documentoValido(value, tipo);
+            return documentoValido(value, tipoSelect);
         });
         $.validator.unobtrusive.adapters.add("documentoportipo", ["tipocampo", "patrondni", "patronnie"], function (options) {
             options.rules["documentoportipo"] = options.params;

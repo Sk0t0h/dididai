@@ -3,7 +3,7 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-05.
+> Actualizado: 2026-07-05 (noche, tras validación del usuario).
 
 ## Estado actual
 
@@ -58,9 +58,29 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 ## RETOMAR AQUÍ
 
+**El usuario validó el núcleo en producción (05-07): 5 gráficas + editar colaboración OK.** Reportó dos
+mejoras, ya HECHAS y commiteadas (SIN desplegar aún):
+
+1. **Fix doble-click al guardar IBAN.** El IBAN solo validaba en servidor → el error persistía hasta una
+   interacción, "gastando" el primer submit. Corregido con validación de cliente real: atributo `[Iban]`
+   (`IClientModelValidator`, ya existía) en los ViewModels de Create/Edit de colaboración + adaptador
+   jquery-validation `iban` en `colaboracion-form.js` (mod-97 replicado 1:1 del servidor, verificado 10 casos
+   en Node); script cargado también en Edit.
+2. **Gestión de colaboraciones desde la edición del socio.** Tabla (ver/crear/editar/baja) extraída a partial
+   `_TablaColaboraciones.cshtml` (+ modelo), usada en Details (sin duplicar) y en Edit. `Edit.cshtml.cs` carga
+   colaboraciones y tiene handler de baja (redirige a Edit). Baja lógica, sin borrado físico.
+
+Verificado por HTTP (sesión admin): `data-val-iban` en Create y Edit, tabla en Edit del socio con acciones,
+POST de baja desde Edit OK (302→Finalizada). Doble-click confirmado visualmente por el usuario. **93 tests
+verdes, build OK.** Playwright sigue bloqueado por el entorno (ERR_BLOCKED_BY_CLIENT en localhost, es el
+navegador headless del entorno, NO Norton — descartado probando ambos puertos). **PENDIENTE: desplegar** estas
+dos mejoras (se pueden desplegar ya o junto al front público).
+
+---
+
 **Socios (i18n + Frente 1) y CRUD de Colaboraciones DESPLEGADOS y vivos en producción** (05-07, verificados
-por HTTP: alta de cuota domiciliada + ficha muestra la colaboración con IBAN). Tests: `DididaiApp.Tests` (xUnit), **79 verdes**
-(ValidacionIdentidad, Paises, PrefijosTelefonicos, ValidacionIban por TDD, ColaboracionService integración).
+por HTTP: alta de cuota domiciliada + ficha muestra la colaboración con IBAN). Tests: `DididaiApp.Tests` (xUnit), **93 verdes**
+(ValidacionIdentidad, Paises, PrefijosTelefonicos, ValidacionIban por TDD, ColaboracionService/ResumenEconomico integración).
 
 **05-07 — CRUD de Colaboraciones.** IBAN validado por **TDD** (`ValidacionIban`, mod-97 ISO 13616,
 internacional) + atributo `[Iban]` (`IClientModelValidator`). `IColaboracionService`/`ColaboracionService`

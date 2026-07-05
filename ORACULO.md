@@ -6,7 +6,7 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-05 (tarde).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-05 (noche, tras validación del usuario).
 
 ## Active Focus
 
@@ -76,6 +76,19 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-05 (tras validación del usuario) — Fix doble-click IBAN + gestión de colaboraciones desde Edit**:
+  el usuario probó el núcleo en producción (5 gráficas + editar colaboración OK) y pidió dos mejoras, ya
+  hechas y commiteadas (**sin desplegar aún**). (1) **Doble-click al guardar IBAN**: el IBAN solo validaba en
+  servidor, el mensaje de error persistía hasta una interacción y el primer submit se "gastaba" limpiándolo.
+  Corregido con **validación de cliente real**: atributo `[Iban]` (`IClientModelValidator`, ya existía) en los
+  ViewModels de Create/Edit de colaboración + adaptador jquery-validation `iban` en `colaboracion-form.js`
+  (lógica mod-97 replicada 1:1 del servidor, paridad verificada con 10 casos en Node), cargado también en
+  Edit. (2) **Gestión de colaboraciones desde la edición del socio**: la tabla ver/crear/editar/baja (que solo
+  estaba en la ficha) se extrajo a un partial reutilizable `_TablaColaboraciones` usado en Details (elimina
+  duplicación) y en Edit; `Edit.cshtml.cs` carga las colaboraciones y tiene su handler de baja. Baja lógica,
+  sin borrado físico (conserva histórico). **93 tests verdes**, build OK. Verificado por HTTP (admin):
+  `data-val-iban` en Create y Edit, tabla en Edit con acciones, POST de baja desde Edit OK. Detalle en el log
+  semanal y en el commit.
 - **2026-07-05 (cierre de finde) — Editar colaboración + previsión + DESPLIEGUE de todo el núcleo**: tras
   probar el módulo, el usuario pidió (a) **editar colaboración** (no solo borrar) y (b) una **previsión
   ingresos vs gastos**. Hecho: `ColaboracionService.ActualizarAsync` (TDD; importe/periodicidad/IBAN, no tipo

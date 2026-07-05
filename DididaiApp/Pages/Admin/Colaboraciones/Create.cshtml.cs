@@ -63,6 +63,7 @@ public class CreateModel : PageModel
 
         [Display(Name = "IBAN")]
         [StringLength(34)]
+        [Iban]
         public string? Iban { get; set; }
     }
 

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using DididaiApp.Core.Data;
 using DididaiApp.Core.Models;
+using DididaiApp.Core.Models.Validation;
 using DididaiApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,7 @@ public class EditModel : PageModel
 
         [Display(Name = "IBAN")]
         [StringLength(34)]
+        [Iban]
         public string? Iban { get; set; }
     }
 

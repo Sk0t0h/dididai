@@ -58,19 +58,26 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 ## RETOMAR AQUÍ
 
-**DESPLEGADO Y VIVO en producción** (i18n + Frente 1, verificado por HTTP el 05-07). Tests unitarios añadidos
-(`DididaiApp.Tests`, xUnit, 55 tests verdes). Pendientes por orden sugerido:
+**Socios (i18n + Frente 1) DESPLEGADO y vivo en producción** (05-07). **CRUD de Colaboraciones HECHO y
+verificado en local (05-07), SIN desplegar.** Tests: `DididaiApp.Tests` (xUnit), **79 verdes**
+(ValidacionIdentidad, Paises, PrefijosTelefonicos, ValidacionIban por TDD, ColaboracionService integración).
 
-1. **CRUD de Colaboraciones** — siguiente módulo del MVP (ver abajo). El IBAN reutiliza el patrón de
-   `ValidacionIdentidad` + atributo `IClientModelValidator`.
-2. En producción quedó un socio de prueba (`Prueba Produccion`, DNI 12345678Z) creado al verificar el alta;
-   **el usuario decidió dejarlo** (datos ficticios) y gestionarlo al preparar la demo.
+**05-07 — CRUD de Colaboraciones.** IBAN validado por **TDD** (`ValidacionIban`, mod-97 ISO 13616,
+internacional) + atributo `[Iban]` (`IClientModelValidator`). `IColaboracionService`/`ColaboracionService`
+(reglas: socio existe, importe>0, IBAN válido solo si cuota domiciliada; **baja lógica** idempotente = "dejar
+de pagar" sin borrar). Gestión **desde la ficha del socio** (Details lista + alta + baja por fila); alta en
+un formulario con selector de tipo y campos de cuota que se muestran/ocultan por JS externo (CSP). Sin
+migración (solo atributos; el esquema TPH ya existía). E2E verificado por HTTP. Racional en `decisions.md`.
 
-Después, seguir el MVP:
-- **CRUD de Colaboraciones** (métodos de pago: cuota domiciliada, aportación única, Teaming). Aquí es donde
-  se "dan de baja los pagos" (el caso habitual). El **IBAN** con mod-97 internacional.
-- Módulo económico simple (ingresos = suma de colaboraciones) y dashboards.
-- **Traducir al inglés el contenido real del front público** cuando exista (la infra ya está lista).
+Pendientes por orden sugerido:
+
+1. **Desplegar** a Azure el CRUD de Colaboraciones (bajo riesgo, sin migración nueva; el runbook igual).
+2. **Módulo económico simple** (ingresos = suma de colaboraciones activas) + **vista global de
+   colaboraciones** (se pospuso aquí a propósito) → base de los dashboards. Aplicar **TDD** a las agregaciones.
+3. **Dashboards** (elegir librería de gráficas compatible con CSP).
+4. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
+
+Nota: en producción quedó un socio de prueba (`Prueba Produccion`); el usuario lo gestiona al preparar la demo.
 
 Pendientes administrativos/contenido (rápidos, sin riesgo):
 - Rellenar en el README las **credenciales de demo** (usuario/contraseña ficticios) y, cuando existan, las

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using DididaiApp.Core.Models.Validation;
 
 namespace DididaiApp.Core.Models;
 
@@ -36,10 +37,15 @@ public abstract class Colaboracion
 public class CuotaDomiciliada : Colaboracion
 {
     /// <summary>Periodicidad de la cuota.</summary>
+    [Required]
+    [Display(Name = "Periodicidad")]
     public ModalidadCuota Modalidad { get; set; }
 
-    /// <summary>IBAN de la cuenta de cargo.</summary>
+    /// <summary>IBAN de la cuenta de cargo. Obligatorio para la cuota domiciliada.</summary>
+    [Required]
     [StringLength(34)]
+    [Display(Name = "IBAN")]
+    [Iban]
     public string Iban { get; set; } = string.Empty;
 }
 

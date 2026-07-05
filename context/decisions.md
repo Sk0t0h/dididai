@@ -356,3 +356,29 @@
   (compón/descompón/preselección) probados en Node contra el fichero real. Build OK. **SIN commitear/desplegar
   cuando se escribió esto** (commit inmediatamente después). Verificación en navegador con Playwright no fue
   posible por bloqueo de red del entorno (Norton/TLS), documentado.
+
+## 2026-07-05 · CRUD de Colaboraciones (TDD en la lógica, IBAN mod-97, baja lógica)
+
+- **Contexto:** segundo módulo del MVP. Un socio tiene N colaboraciones (jerarquía TPH ya existente:
+  CuotaDomiciliada / AportacionUnica / Teaming). Es donde "se dan de baja los pagos".
+- **Decisión — IBAN por TDD:** `ValidacionIban.EsValido` (mod-97 ISO 13616, internacional) escrito test-first
+  (17 tests en rojo→verde). Atributo `[Iban]` (`IClientModelValidator`) que delega en él, mismo patrón que
+  DNI/teléfono (cliente=servidor). Longitudes por país en un mapa (ampliable); país no registrado se rechaza.
+- **Decisión — capa de servicios:** `IColaboracionService`/`ColaboracionService` (patrón de socios: la página
+  no toca el DbContext). Reglas: socio debe existir, importe > 0, IBAN válido solo si es cuota domiciliada.
+  **Baja lógica** (`Activa=false` + `FechaFin`), idempotente: es "dejar de pagar" conservando histórico, NO un
+  borrado. Cubierto con **tests de integración** (SQLite en memoria, 7 tests) — según lo acordado: TDD/tests en
+  lógica y servicios, pragmático en páginas.
+- **Decisión — UI:** gestión **desde la ficha del socio** (Details lista sus colaboraciones + alta + baja por
+  fila). Alta en **un solo formulario con selector de tipo**; los campos de cuota (IBAN, periodicidad) se
+  muestran/ocultan por JS externo (CSP) y solo se validan si el tipo es cuota domiciliada. La página usa un
+  ViewModel plano y construye el subtipo TPH en el POST (no se puede bindear al tipo base abstracto).
+  **Vista global de colaboraciones pospuesta al módulo económico** (es donde aporta: agregación de ingresos);
+  no duplicar ahora.
+- **Alternativas descartadas:** IBAN solo español (contradice base internacional); bindeo directo a
+  `Colaboracion` abstracta (no funciona con TPH); una página de alta por tipo (más páginas, peor UX); vista
+  global ya (adelanta trabajo del módulo económico).
+- **Estado:** **IMPLEMENTADO y verificado en local (05-07).** 79 tests verdes (incl. 7 de integración del
+  servicio). E2E por HTTP: alta de los 3 tipos, IBAN inválido/ausente e importe cero rechazados con mensaje,
+  baja lógica efectiva. Sin migración (solo atributos de validación; el esquema TPH ya existía). **SIN
+  desplegar** al cerrar la nota.

@@ -67,13 +67,26 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
 | Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (05-07): 55 tests verdes sobre `ValidacionIdentidad` (DNI/NIE/E.164), `Paises`, `PrefijosTelefonicos`. `dotnet test` |
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
-| Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
+| Gestión de Colaboraciones (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta (3 tipos, form con selector), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
+| Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos = suma de `Colaboracion` activas; incluye la vista global de colaboraciones (pospuesta a este módulo) |
 | Dashboards / informes visuales | PLANIFICADO (MVP) |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
 
+- **2026-07-05 (noche) — CRUD de Colaboraciones (segundo módulo del MVP)**: gestión de las aportaciones de un
+  socio (cuota domiciliada / aportación única / Teaming, jerarquía TPH ya existente). **IBAN validado por TDD**
+  (`ValidacionIban`, mod-97 ISO 13616, internacional; 17 tests rojo→verde) + atributo `[Iban]`
+  (`IClientModelValidator`, cliente=servidor, mismo patrón que DNI/teléfono). Capa de servicios
+  `IColaboracionService`/`ColaboracionService` (patrón de socios: la página no toca el DbContext); reglas:
+  socio existe, importe>0, IBAN válido solo si cuota domiciliada; **baja lógica** idempotente ("dejar de pagar"
+  conservando histórico, no borra). Cubierta con **tests de integración** (SQLite en memoria). UI: gestión
+  **desde la ficha del socio** (Details lista + botón añadir + baja por fila); alta en un formulario con
+  **selector de tipo** y campos de cuota que se muestran/ocultan por JS externo (CSP); ViewModel plano que
+  construye el subtipo TPH en el POST. Vista global pospuesta al módulo económico. Sin migración (solo
+  atributos de validación). **79 tests verdes** en total. E2E por HTTP (alta 3 tipos, rechazos de IBAN/importe,
+  baja efectiva). **SIN desplegar.** Ver `context/decisions.md`.
 - **2026-07-05 (tarde/noche) — Frente 1: validación de identidad por tipo de documento + país=residencia +
   teléfono E.164 + paridad cliente/servidor**: refinamiento del CRUD de socios para una base internacional.
   **Tres datos separados**: `PaisResidencia` (ISO 3166-1 alpha-2, domicilio, NO valida), `TipoDocumento` (enum

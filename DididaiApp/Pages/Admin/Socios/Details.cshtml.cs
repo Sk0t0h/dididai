@@ -12,10 +12,18 @@ namespace DididaiApp.Pages.Admin.Socios;
 public class DetailsModel : PageModel
 {
     private readonly ISocioService _socios;
+    private readonly IColaboracionService _colaboraciones;
 
-    public DetailsModel(ISocioService socios) => _socios = socios;
+    public DetailsModel(ISocioService socios, IColaboracionService colaboraciones)
+    {
+        _socios = socios;
+        _colaboraciones = colaboraciones;
+    }
 
     public Socio Socio { get; private set; } = new();
+
+    /// <summary>Colaboraciones del socio (activas e históricas), más recientes primero.</summary>
+    public IReadOnlyList<Colaboracion> Colaboraciones { get; private set; } = [];
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -24,7 +32,15 @@ public class DetailsModel : PageModel
             return NotFound();
 
         Socio = socio;
+        Colaboraciones = await _colaboraciones.ListarPorSocioAsync(id);
         return Page();
+    }
+
+    public async Task<IActionResult> OnPostBajaColaboracionAsync(int id, int socioId)
+    {
+        await _colaboraciones.DarDeBajaAsync(id);
+        TempData["Mensaje"] = "Colaboración finalizada.";
+        return RedirectToPage("Details", new { id = socioId });
     }
 
     public async Task<IActionResult> OnPostBajaAsync(int id)

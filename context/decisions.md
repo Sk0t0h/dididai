@@ -288,3 +288,31 @@
 - **Consecuencias:** permite reutilización manteniendo aviso de copyright; cláusula "sin garantía" limita
   responsabilidad.
 - **Estado:** aplicado.
+
+## 2026-07-05 · Web multi-idioma: i18n solo en front público, extensible a N idiomas; validación por país (no por idioma)
+
+- **Contexto:** hace tiempo se pidió una versión en inglés de la web que quedó a medias. Se retoma ahora,
+  antes del CRUD de Colaboraciones (que trae IBAN/teléfono), por si condiciona la estructura de datos y
+  validación.
+- **Decisión — separar tres ejes independientes:** (1) **cultura de la UI** (idioma que se ve, lo elige el
+  visitante); (2) **país del socio** (`Socio.PaisCodigo`, dato de negocio); (3) **validación de datos**
+  (DNI/teléfono/IBAN), que se condiciona **al país del socio, NUNCA al idioma de la web**. Un español puede
+  navegar en inglés: la validación no debe cambiar por eso.
+- **Decisión — alcance i18n:** solo **front público** bilingüe ES/EN; el back `/Admin` queda en español. La
+  infra se monta **ahora** (antes de crear más páginas), la traducción de contenido real se hace cuando el
+  MVP core esté cerrado.
+- **Decisión — infra N-idiomas:** `AddViewLocalization` + `.resx` + `RequestLocalizationMiddleware` con
+  **cookie provider** (selector manual en la cabecera, persiste en cookie), `es` por defecto. Ampliar idioma
+  = añadir la cultura a la lista de `Program.cs` + su `.resx`; nada de `if (idioma == "en")` en el código.
+- **Decisión — captura de país:** `Socio.Pais` (texto libre hoy) pasará a **código ISO 3166-1 alpha-2**
+  (`ES`, `GB`…) como única fuente de verdad; desplegable con buscador, España por defecto. (Pendiente Frente 1.)
+- **Alternativas descartadas:** validación por idioma de la web (frágil: descuadra a un español navegando en
+  inglés); i18n también del back (más trabajo, sin valor para el TFM); idioma por URL `/es//en/` (obliga a
+  reestructurar el routing, más de lo que conviene ahora); país como texto libre (impide validar por país de
+  forma fiable).
+- **Consecuencias:** mantiene la base de socios internacional sana (decisión previa "validación universal").
+  El idioma es puramente cosmético. Selector CSP-safe (JS externo, sin inline). POST del selector con
+  antiforgery y sin open-redirect.
+- **Estado:** **Frente 2 (infra i18n) IMPLEMENTADO y verificado end-to-end (05-07)**: default ES, cookie EN
+  conmuta textos y `lang`, `/Admin` no se ve afectado, CSRF protegido. **Frente 1 (país ISO + validación por
+  país) PENDIENTE**, a abordar antes del CRUD de Colaboraciones. SIN desplegar.

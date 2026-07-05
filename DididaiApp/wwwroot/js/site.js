@@ -15,3 +15,15 @@ document.addEventListener("submit", function (e) {
         }
     }
 });
+
+// Selector de idioma: al cambiar la opción, se envía el formulario que fija la
+// cultura en la cookie (manejador externo, sin inline, para respetar la CSP).
+document.addEventListener("change", function (e) {
+    var select = e.target;
+    if (select && select.hasAttribute("data-lang-select")) {
+        var form = select.closest("[data-lang-form]");
+        if (form) {
+            form.submit();
+        }
+    }
+});

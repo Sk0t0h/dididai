@@ -1,14 +1,36 @@
+using System.Globalization;
 using DididaiApp.Core.Data;
 using DididaiApp.Core.Services;
 using DididaiApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Idiomas del front público. Ampliar el catálogo es añadir una cultura a esta
+// lista y su .resx correspondiente: el resto de la infra (middleware, selector)
+// no cambia. El primero es el idioma por defecto.
+string[] culturasSoportadas = ["es", "en"];
+
 // Add services to the container.
-builder.Services.AddRazorPages();
+// Localización de vistas: los textos viven en Resources/**/*.resx y se resuelven
+// con IStringLocalizer / IViewLocalizer. El back de gestión (/Admin) NO se localiza.
+builder.Services.AddRazorPages()
+    .AddViewLocalization();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var culturas = culturasSoportadas.Select(c => new CultureInfo(c)).ToList();
+    options.DefaultRequestCulture = new RequestCulture(culturasSoportadas[0]);
+    options.SupportedCultures = culturas;
+    options.SupportedUICultures = culturas;
+    // El idioma lo decide el visitante mediante el selector, que persiste su
+    // elección en una cookie. La cookie tiene prioridad sobre Accept-Language.
+    options.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+});
 
 // Persistencia: EF Core sobre SQLite. La cadena de conexión (solo la ruta del
 // fichero .db, sin secretos) vive en appsettings.json.
@@ -74,6 +96,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Aplica la cultura de la petición (cookie del selector → Accept-Language →
+// idioma por defecto) antes del enrutado, para que las vistas se localicen.
+app.UseRequestLocalization();
 
 app.UseRouting();
 

@@ -6,7 +6,7 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-05.
+> Latest Work + Immediate Risks). Última actualización: 2026-07-05 (tarde).
 
 ## Active Focus
 
@@ -19,8 +19,12 @@ arquitectura multi-proyecto (Web + Core), capa de datos (EF Core + SQLite, `Soci
 **https://dididai-ong.azurewebsites.net** (Azure App Service **B1**, región **Spain Central** por RGPD). Se
 abandonó F1 (se caía al arrancar por `QuotaExceeded`) por B1 sin cuota, financiado por el crédito. Front
 público abierto. **MVP en marcha:** hecho el **CRUD de gestión de socios** (05-07, verificado en local, sin
-desplegar) con su capa de servicios en Core. **Siguiente:** desplegar el CRUD y seguir con Colaboraciones
-(métodos de pago) → módulo económico → dashboards. Detalle en `context/next-steps.md`.
+desplegar) con su capa de servicios en Core, y montada la **infra i18n del front público** (05-07, ES/EN
+conmutable por selector+cookie, extensible a N idiomas; solo front, el back queda en español). **Decisión
+transversal:** el idioma de la UI y la validación de datos son ejes independientes — la validación de
+DNI/teléfono/IBAN se condicionará al **país del socio** (`PaisCodigo` ISO), nunca al idioma. **Siguiente:**
+Frente 1 (país ISO + validación por país) → desplegar → Colaboraciones (métodos de pago) → módulo económico →
+dashboards. Detalle en `context/next-steps.md` y `context/decisions.md`.
 
 ## Propósito real
 
@@ -57,7 +61,8 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Autenticación + roles (Identity, back cerrado) | IMPLEMENTADO (04-07, verificado): login, recuperación (email stub), registro solo Admin, `/Admin` protegido, seed admin |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
-| Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first |
+| Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
+| Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
 | Gestión de socios (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único, validación internacional |
 | Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
 | Dashboards / informes visuales | PLANIFICADO (MVP) |
@@ -66,6 +71,18 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-05 (tarde) — Infra de internacionalización (i18n) del front público**: localización estándar de
+  ASP.NET Core (`AddViewLocalization` + `.resx` en `Resources/` + `RequestLocalizationMiddleware`). Idioma
+  elegido por **selector en la cabecera** que persiste en **cookie** (`CookieRequestCultureProvider`); `es`
+  por defecto. Página `SetLanguage` (POST con **antiforgery**, valida contra el catálogo de culturas, sin
+  open-redirect) fija la cookie. `_Layout` e `Index` localizados (ES neutro + `.en`) como prueba. Selector
+  CSP-safe: auto-submit por **JS externo** (`data-lang-select` en `site.js`), sin inline. **Solo front
+  público**; el back `/Admin` queda en español a propósito. **Extensible a N idiomas**: añadir un idioma =
+  una entrada en la lista de culturas de `Program.cs` + su `.resx`, sin `if (idioma=="en")` en el código.
+  **Decisión transversal registrada:** cultura de UI, país del socio y validación de datos son ejes
+  independientes; la validación (DNI/teléfono/IBAN) irá por **país** (`PaisCodigo` ISO), no por idioma —
+  Frente 1 pendiente. **Verificado end-to-end** (default ES; cookie EN conmuta textos y `lang`; `/Admin` no
+  afectado; POST sin token → 400). Build OK. **SIN commitear/desplegar aún.** Ver `context/decisions.md`.
 - **2026-07-05 (madrugada) — CRUD de gestión de socios (primer módulo del MVP)**: en `/Admin/Socios`. Capa
   de servicios en Core (`ISocioService`/`SocioService`; las páginas no tocan el `DbContext`). Páginas Razor:
   listado con búsqueda + toggle "incluir bajas", ficha, alta, edición. **Baja lógica** (`Socio.FechaBaja`) +

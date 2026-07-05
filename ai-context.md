@@ -3,11 +3,22 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-05 (madrugada).
+> Actualizado: 2026-07-05.
 
 ## Estado actual
 
-**Finde 1 CERRADO** (esqueleto vivo y desplegado) + **primer módulo del MVP hecho: CRUD de socios**.
+**Finde 1 CERRADO** (esqueleto vivo y desplegado) + **CRUD de socios hecho** + **infra i18n del front público
+montada** (idioma ES/EN conmutable, extensible a N idiomas).
+
+**05-07 (tarde): infra i18n del front público.** Localización estándar de ASP.NET Core (`AddViewLocalization`
++ `.resx` + `RequestLocalizationMiddleware`, cookie provider, `es` por defecto). Selector de idioma en la
+cabecera (JS externo, CSP-safe). Página `SetLanguage` (POST con antiforgery, sin open-redirect) fija la cookie
+de cultura. `_Layout` e `Index` localizados como prueba. **Solo front público**: el back `/Admin` queda en
+español a propósito. **Ampliar idioma = una línea en `Program.cs` + su `.resx`**, sin tocar infra ni meter
+`if (idioma=="en")`. **Verificado end-to-end** (default ES; cookie EN conmuta textos y `lang`; `/Admin` no
+afectado; CSRF protegido; build OK). Commit pendiente de tu OK. **SIN DESPLEGAR.** Racional en
+`context/decisions.md` (entrada 05-07, "Web multi-idioma"). **Decisión clave:** la validación de
+DNI/teléfono/IBAN se condicionará al **país del socio**, NUNCA al idioma de la web.
 
 Finde 1 (04-07): arquitectura multi-proyecto, capa de datos (EF Core 10 + SQLite, `Socio` 1:N `Colaboracion`
 TPH), autenticación (Identity, roles, verificada), README, y **despliegue en producción**. La web está viva:
@@ -37,22 +48,28 @@ ratos de diario solo tareas pequeñas y sin riesgo.
   vacío) petaba. Fix: `await db.Database.MigrateAsync()` antes del seed.
 - Alerta de presupuesto creada: `presupuesto-dididai`, 30 €/mes, avisos 50%/90% por email.
 
-## RETOMAR AQUÍ (mañana, sesión corta)
+## RETOMAR AQUÍ
 
-**CRUD de socios HECHO y verificado en local, commiteado, PERO sin desplegar.** Lo primero mañana:
+Dos cosas hechas y verificadas en local, **ninguna desplegada**: CRUD de socios (commiteado) e infra i18n
+(commit pendiente). Pendientes por orden sugerido:
 
-1. **Desplegar a Azure el CRUD** (B1/Spain, bajo riesgo; la migración `AddSocioBajaAndDniIndex` se aplica
-   sola en el arranque por el fix `MigrateAsync`). Verificar en producción: login admin → /Admin/Socios →
-   alta/listado. Runbook en `context/deploy-azure.md` (paso 3 en adelante; recursos ya existen).
-2. **Limpiar la BD local**: quedó un socio de prueba (`id=1`, "Ana Maria Garcia Lopez", DNI 12345678Z) de la
-   verificación. Está en `dididai.db` (ignorada por git), pero conviene borrarlo o recrear la BD antes de
-   grabar demo/vídeo. En producción la BD está limpia (deploy nuevo).
+0. **(Opcional) Commitear la infra i18n** si no se hizo en la sesión anterior.
+1. **Frente 1 — País ISO + validación por país** (ANTES del CRUD de Colaboraciones, es zona sensible:
+   entidad + migración). `Socio.Pais` (texto libre) → `PaisCodigo` ISO 3166-1 alpha-2 como única fuente de
+   verdad; desplegable con buscador, España por defecto; validación de DNI (letra si ES) / teléfono (E.164)
+   condicionada al país. Migración nueva. Ver `decisions.md` (entrada 05-07 "Web multi-idioma").
+2. **Desplegar a Azure** lo acumulado (CRUD + i18n [+ país si ya está]) (B1/Spain, bajo riesgo; migraciones
+   se aplican solas en arranque por el fix `MigrateAsync`). Verificar en producción. Runbook en
+   `context/deploy-azure.md`.
+3. **Limpiar la BD local**: quedó un socio de prueba (`id=1`, "Ana Maria Garcia Lopez", DNI 12345678Z) de la
+   verificación. Está en `dididai.db` (ignorada por git); borrarlo o recrear la BD antes de grabar demo. En
+   producción la BD está limpia.
 
 Después, seguir el MVP:
 - **CRUD de Colaboraciones** (métodos de pago: cuota domiciliada, aportación única, Teaming). Aquí es donde
-  se "dan de baja los pagos" (el caso habitual, según el usuario). El **IBAN** se validará con mod-97
-  internacional (no atar a España).
+  se "dan de baja los pagos" (el caso habitual). El **IBAN** con mod-97 internacional.
 - Módulo económico simple (ingresos = suma de colaboraciones) y dashboards.
+- **Traducir al inglés el contenido real del front público** cuando exista (la infra ya está lista).
 
 Pendientes administrativos/contenido (rápidos, sin riesgo):
 - Rellenar en el README las **credenciales de demo** (usuario/contraseña ficticios) y, cuando existan, las

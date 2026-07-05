@@ -314,5 +314,45 @@
   El idioma es puramente cosmético. Selector CSP-safe (JS externo, sin inline). POST del selector con
   antiforgery y sin open-redirect.
 - **Estado:** **Frente 2 (infra i18n) IMPLEMENTADO y verificado end-to-end (05-07)**: default ES, cookie EN
-  conmuta textos y `lang`, `/Admin` no se ve afectado, CSRF protegido. **Frente 1 (país ISO + validación por
-  país) PENDIENTE**, a abordar antes del CRUD de Colaboraciones. SIN desplegar.
+  conmuta textos y `lang`, `/Admin` no se ve afectado, CSRF protegido. SIN desplegar.
+
+## 2026-07-05 · Frente 1: país=residencia (ISO), validación por TIPO de documento, teléfono E.164, cliente=servidor
+
+- **Contexto:** al implementar la validación por país surgió el caso "español residente en UK (y viceversa)".
+  Si `PaisCodigo` significaba a la vez nacionalidad y residencia, era ambiguo: a un español en UK no se le
+  validaría la letra del DNI. Además se decidió cerrar la deuda de validación cliente/servidor divergente
+  ("la UX debe ser central").
+- **Decisión — tres datos separados, cada uno con su rol:**
+  1. **`Socio.PaisResidencia`** (renombra `PaisCodigo`): ISO 3166-1 alpha-2; es el **domicilio**, NO decide
+     la validación del documento.
+  2. **`Socio.TipoDocumento`** (nuevo enum: `DniEspanol`/`Nie`/`Pasaporte`/`Otro`): es lo que **dispara** la
+     validación del documento. Así un español en el extranjero declara "DNI español" y se le valida la letra.
+  3. **`Socio.Dni`** (el valor): validado según `TipoDocumento` (DNI/NIE → letra de control; pasaporte/otro →
+     laxo, solo presencia). Sigue siendo la clave única del socio.
+- **Decisión — teléfono E.164 universal**, con UI de **prefijo (select) + número**: `Telefono` sigue siendo un
+  único campo (E.164) en la entidad; la UI lo parte solo en pantalla y lo recompone (JS externo). El prefijo se
+  preselecciona por residencia (comodidad), pero es independiente (móvil español viviendo fuera).
+- **Decisión — validación cliente = servidor sin duplicar regla:** atributos custom `IClientModelValidator`
+  (`[TelefonoE164]`, `[DocumentoPorTipo]`) que validan en servidor y emiten los `data-val-*`; adaptadores
+  jquery-validation en `validacion-socio.js` (CSP-safe) que aplican la MISMA regla en vivo y **revalidan el
+  documento al cambiar el tipo**. La lógica de servidor vive en `ValidacionIdentidad`; el cliente la reproduce
+  (verificado con test de paridad en Node).
+- **Decisión — catálogos en código, no en BD:** `Paises` (ISO, vía `RegionInfo`) y `PrefijosTelefonicos`
+  (código de llamada, lista curada). Datos estándar y estables; la validez del código se garantiza con el
+  desplegable + validación en servidor, no con FK. Promocionar a tabla si el negocio lo pidiera es no
+  destructivo.
+- **Decisión — layering:** los atributos `IClientModelValidator` obligan a `FrameworkReference
+  Microsoft.AspNetCore.App` en Core. Aceptado: Core ya dependía de ASP.NET Core vía Identity, así que no
+  introduce una dependencia de capa nueva.
+- **Migración:** se descartó la intermedia `SocioPaisIso` (no desplegada) y se generó una única limpia
+  `SocioResidenciaYTipoDocumento` (drop `Pais` + add `PaisResidencia` + `TipoDocumento`). Datos antiguos de
+  texto libre no mapeables → drop+add deliberado; prod vacía, local desechable.
+- **Alternativas descartadas:** un solo `PaisCodigo` con doble significado (ambiguo, el caso ES-en-UK lo
+  rompía); validar el documento por país de residencia (mismo problema); tabla de países/prefijos en BD
+  (sobre-ingeniería para dato estándar); teléfono en un solo input libre (peor UX y ambigüedad de prefijo);
+  validación solo de servidor (deuda de UX, descartada por decisión explícita del usuario).
+- **Estado:** **IMPLEMENTADO y verificado (05-07).** Servidor: 8 casos (incl. español-en-UK aceptado, DNI/NIE
+  inválidos y residencia inexistente rechazados con mensaje). Cliente: paridad de lógica + glue del teléfono
+  (compón/descompón/preselección) probados en Node contra el fichero real. Build OK. **SIN commitear/desplegar
+  cuando se escribió esto** (commit inmediatamente después). Verificación en navegador con Playwright no fue
+  posible por bloqueo de red del entorno (Norton/TLS), documentado.

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using DididaiApp.Core.Models.Validation;
 
 namespace DididaiApp.Core.Models;
 
@@ -21,13 +22,28 @@ public class Socio
     [StringLength(150)]
     public string Apellidos { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Tipo de documento declarado por el socio. Decide cómo se valida <see cref="Dni"/>
+    /// (DNI/NIE con letra; pasaporte/otro laxo). Independiente del país de residencia.
+    /// </summary>
+    [Required]
+    [Display(Name = "Tipo de documento")]
+    public TipoDocumento TipoDocumento { get; set; } = TipoDocumento.DniEspanol;
+
+    /// <summary>
+    /// Número/código del documento de identidad. Se valida según <see cref="TipoDocumento"/>.
+    /// Es la clave única del socio (dos socios con el mismo documento son la misma persona).
+    /// </summary>
     [Required]
     [StringLength(20)]
+    [Display(Name = "Documento de identidad")]
+    [DocumentoPorTipo(nameof(TipoDocumento))]
     public string Dni { get; set; } = string.Empty;
 
     [Required]
-    [Phone]
     [StringLength(30)]
+    [Display(Name = "Teléfono")]
+    [TelefonoE164]
     public string Telefono { get; set; } = string.Empty;
 
     [Required]
@@ -47,9 +63,16 @@ public class Socio
     [StringLength(100)]
     public string Localidad { get; set; } = string.Empty;
 
+    /// <summary>
+    /// País de residencia del socio, en código ISO 3166-1 alpha-2 (<c>ES</c>, <c>GB</c>…).
+    /// Es el domicilio, NO la nacionalidad: no decide la validación del documento (eso lo
+    /// hace <see cref="TipoDocumento"/>). El nombre para mostrar se resuelve con
+    /// <see cref="Paises.Nombre"/>. Único sitio donde vive el país; NO el idioma de la UI.
+    /// </summary>
     [Required]
-    [StringLength(100)]
-    public string Pais { get; set; } = string.Empty;
+    [StringLength(2, MinimumLength = 2)]
+    [Display(Name = "País de residencia")]
+    public string PaisResidencia { get; set; } = Paises.CodigoPorDefecto;
 
     /// <summary>Consentimiento de la política de privacidad (RGPD).</summary>
     public bool AceptaPrivacidad { get; set; }

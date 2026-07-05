@@ -18,6 +18,8 @@ public class SocioService : ISocioService
 
     private static string NormalizarDni(string dni) => (dni ?? string.Empty).Trim().ToUpperInvariant();
 
+    private static string NormalizarPais(string pais) => (pais ?? string.Empty).Trim().ToUpperInvariant();
+
     public async Task<IReadOnlyList<Socio>> ListarAsync(bool incluirBajas = false, string? busqueda = null)
     {
         IQueryable<Socio> query = _db.Socios.AsNoTracking();
@@ -51,7 +53,20 @@ public class SocioService : ISocioService
 
     public async Task<ResultadoAlta> CrearAsync(Socio socio)
     {
+        socio.PaisResidencia = NormalizarPais(socio.PaisResidencia);
         socio.Dni = NormalizarDni(socio.Dni);
+        socio.Telefono = ValidacionIdentidad.NormalizarTelefono(socio.Telefono);
+
+        // Validación de negocio en servidor (además de la de cliente): el país de
+        // residencia debe ser un código ISO real; el documento se valida según su TIPO
+        // declarado (letra si DNI/NIE); el teléfono en formato internacional E.164. Ni el
+        // país de residencia ni el idioma de la UI deciden la validación del documento.
+        if (!Paises.EsCodigoValido(socio.PaisResidencia))
+            return ResultadoAlta.PaisInvalido;
+        if (!ValidacionIdentidad.DocumentoValido(socio.Dni, socio.TipoDocumento))
+            return ResultadoAlta.DocumentoInvalido;
+        if (!ValidacionIdentidad.TelefonoValido(socio.Telefono))
+            return ResultadoAlta.TelefonoInvalido;
 
         var existente = await _db.Socios.AsNoTracking().FirstOrDefaultAsync(s => s.Dni == socio.Dni);
         if (existente is not null)
@@ -70,7 +85,18 @@ public class SocioService : ISocioService
         if (actual is null)
             return ResultadoActualizacion.NoEncontrado;
 
+        var pais = NormalizarPais(socio.PaisResidencia);
         var dni = NormalizarDni(socio.Dni);
+        var telefono = ValidacionIdentidad.NormalizarTelefono(socio.Telefono);
+
+        // Mismas reglas que en el alta (validación de negocio en servidor).
+        if (!Paises.EsCodigoValido(pais))
+            return ResultadoActualizacion.PaisInvalido;
+        if (!ValidacionIdentidad.DocumentoValido(dni, socio.TipoDocumento))
+            return ResultadoActualizacion.DocumentoInvalido;
+        if (!ValidacionIdentidad.TelefonoValido(telefono))
+            return ResultadoActualizacion.TelefonoInvalido;
+
         // ¿El DNI editado pisa a OTRO socio?
         var colision = await _db.Socios.AsNoTracking()
             .AnyAsync(s => s.Dni == dni && s.Id != socio.Id);
@@ -79,13 +105,14 @@ public class SocioService : ISocioService
 
         actual.Nombre = socio.Nombre;
         actual.Apellidos = socio.Apellidos;
+        actual.TipoDocumento = socio.TipoDocumento;
         actual.Dni = dni;
-        actual.Telefono = socio.Telefono;
+        actual.Telefono = telefono;
         actual.Email = socio.Email;
         actual.Direccion = socio.Direccion;
         actual.CodigoPostal = socio.CodigoPostal;
         actual.Localidad = socio.Localidad;
-        actual.Pais = socio.Pais;
+        actual.PaisResidencia = pais;
         actual.AceptaPrivacidad = socio.AceptaPrivacidad;
         // FechaAlta y FechaBaja no se tocan aquí (la baja/reactivación tienen sus propias acciones).
 

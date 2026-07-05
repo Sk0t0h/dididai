@@ -47,6 +47,12 @@ public enum ResultadoAlta
     DniDuplicadoActivo,
     /// <summary>Existe un socio con ese DNI pero dado de BAJA: la UI puede ofrecer reactivarlo.</summary>
     DniExisteDeBaja,
+    /// <summary>El país no es un código ISO válido del catálogo.</summary>
+    PaisInvalido,
+    /// <summary>El documento no es válido para el país indicado (p. ej. DNI/NIE español mal formado).</summary>
+    DocumentoInvalido,
+    /// <summary>El teléfono no está en formato internacional E.164.</summary>
+    TelefonoInvalido,
 }
 
 /// <summary>Resultado de una actualización de socio.</summary>
@@ -57,4 +63,10 @@ public enum ResultadoActualizacion
     DniDuplicado,
     /// <summary>El socio a actualizar no existe.</summary>
     NoEncontrado,
+    /// <summary>El país no es un código ISO válido del catálogo.</summary>
+    PaisInvalido,
+    /// <summary>El documento no es válido para el país indicado.</summary>
+    DocumentoInvalido,
+    /// <summary>El teléfono no está en formato internacional E.164.</summary>
+    TelefonoInvalido,
 }

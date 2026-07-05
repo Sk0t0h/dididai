@@ -44,6 +44,20 @@ public class EditModel : PageModel
                 ModelState.AddModelError("Socio.Dni", "Ya existe otro socio con ese DNI.");
                 return Page();
 
+            case ResultadoActualizacion.PaisInvalido:
+                ModelState.AddModelError("Socio.PaisResidencia", "Selecciona un país de residencia válido de la lista.");
+                return Page();
+
+            case ResultadoActualizacion.DocumentoInvalido:
+                ModelState.AddModelError("Socio.Dni",
+                    "El documento no es válido para el tipo indicado (DNI/NIE deben llevar la letra de control correcta).");
+                return Page();
+
+            case ResultadoActualizacion.TelefonoInvalido:
+                ModelState.AddModelError("Socio.Telefono",
+                    "El teléfono debe estar en formato internacional, con prefijo de país (p. ej. +34612345678).");
+                return Page();
+
             case ResultadoActualizacion.NoEncontrado:
                 return NotFound();
 

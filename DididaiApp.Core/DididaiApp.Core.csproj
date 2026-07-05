@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Necesario para IClientModelValidator (validación cliente+servidor unificada en
+         los atributos de Socio). El proyecto ya depende de ASP.NET Core vía Identity, así
+         que la referencia al framework no introduce una dependencia nueva de capa. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

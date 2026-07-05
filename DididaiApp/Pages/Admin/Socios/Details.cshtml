@@ -1,5 +1,6 @@
 @page "{id:int}"
 @model DididaiApp.Pages.Admin.Socios.DetailsModel
+@using DididaiApp.Core.Models
 @{
     ViewData["Title"] = "Ficha de socio";
 }
@@ -22,11 +23,12 @@
 }
 
 <dl class="row">
-    <dt class="col-sm-3">DNI</dt><dd class="col-sm-9">@Model.Socio.Dni</dd>
+    <dt class="col-sm-3">Documento</dt>
+    <dd class="col-sm-9">@Model.Socio.Dni <span class="text-muted">(@Html.DisplayFor(m => m.Socio.TipoDocumento))</span></dd>
     <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9">@Model.Socio.Telefono</dd>
     <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Socio.Email</dd>
     <dt class="col-sm-3">Dirección</dt>
-    <dd class="col-sm-9">@Model.Socio.Direccion, @Model.Socio.CodigoPostal @Model.Socio.Localidad (@Model.Socio.Pais)</dd>
+    <dd class="col-sm-9">@Model.Socio.Direccion, @Model.Socio.CodigoPostal @Model.Socio.Localidad (@Paises.Nombre(Model.Socio.PaisResidencia))</dd>
     <dt class="col-sm-3">Alta</dt><dd class="col-sm-9">@Model.Socio.FechaAlta.ToString("dd/MM/yyyy")</dd>
     @if (Model.Socio.FechaBaja is DateTime baja)
     {

@@ -63,7 +63,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
-| Gestión de socios (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único, validación internacional |
+| Gestión de socios (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos saldrán de `Colaboracion` |
 | Dashboards / informes visuales | PLANIFICADO (MVP) |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
@@ -71,6 +71,22 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-05 (tarde/noche) — Frente 1: validación de identidad por tipo de documento + país=residencia +
+  teléfono E.164 + paridad cliente/servidor**: refinamiento del CRUD de socios para una base internacional.
+  **Tres datos separados**: `PaisResidencia` (ISO 3166-1 alpha-2, domicilio, NO valida), `TipoDocumento` (enum
+  DNI español/NIE/Pasaporte/Otro — **decide** cómo se valida el documento) y `Dni` (validado según tipo:
+  DNI/NIE con letra de control, pasaporte/otro laxo). Resuelve el caso **"español residente en UK"** (declara
+  DNI español → se valida la letra, aunque resida fuera). **Teléfono E.164** con UI de prefijo (select) +
+  número (un solo campo en la entidad; la UI lo parte y recompone por JS externo). **Validación
+  cliente=servidor sin duplicar regla**: atributos `IClientModelValidator` (`[TelefonoE164]`,
+  `[DocumentoPorTipo]`) que validan en servidor y emiten `data-val-*`; adaptadores jquery-validation en
+  `validacion-socio.js` (CSP-safe) que aplican la misma regla en vivo y revalidan al cambiar el tipo.
+  Catálogos `Paises` y `PrefijosTelefonicos` **en código** (no BD; validez garantizada por desplegable +
+  servidor). Core pasa a referenciar `Microsoft.AspNetCore.App` (ya dependía vía Identity). Migración única
+  `SocioResidenciaYTipoDocumento` (drop `Pais` + add ambas columnas). **Verificado**: servidor 8 casos (incl.
+  español-en-UK aceptado; DNI/NIE inválidos, tel sin prefijo y residencia inexistente rechazados con mensaje);
+  cliente (paridad de lógica + glue del teléfono) probado en Node contra el fichero real (Playwright bloqueado
+  por el entorno). Build OK. **SIN commitear/desplegar al cerrar esta nota.** Ver `context/decisions.md`.
 - **2026-07-05 (tarde) — Infra de internacionalización (i18n) del front público**: localización estándar de
   ASP.NET Core (`AddViewLocalization` + `.resx` en `Resources/` + `RequestLocalizationMiddleware`). Idioma
   elegido por **selector en la cabecera** que persiste en **cookie** (`CookieRequestCultureProvider`); `es`

@@ -10,15 +10,23 @@
 **Finde 1 CERRADO** (esqueleto vivo y desplegado) + **CRUD de socios hecho** + **infra i18n del front público
 montada** (idioma ES/EN conmutable, extensible a N idiomas).
 
-**05-07 (tarde): infra i18n del front público.** Localización estándar de ASP.NET Core (`AddViewLocalization`
-+ `.resx` + `RequestLocalizationMiddleware`, cookie provider, `es` por defecto). Selector de idioma en la
-cabecera (JS externo, CSP-safe). Página `SetLanguage` (POST con antiforgery, sin open-redirect) fija la cookie
-de cultura. `_Layout` e `Index` localizados como prueba. **Solo front público**: el back `/Admin` queda en
-español a propósito. **Ampliar idioma = una línea en `Program.cs` + su `.resx`**, sin tocar infra ni meter
-`if (idioma=="en")`. **Verificado end-to-end** (default ES; cookie EN conmuta textos y `lang`; `/Admin` no
-afectado; CSRF protegido; build OK). Commit pendiente de tu OK. **SIN DESPLEGAR.** Racional en
-`context/decisions.md` (entrada 05-07, "Web multi-idioma"). **Decisión clave:** la validación de
-DNI/teléfono/IBAN se condicionará al **país del socio**, NUNCA al idioma de la web.
+**05-07 (tarde): infra i18n del front público (COMMITEADA, `a4dfa8d`).** Localización estándar de ASP.NET Core
+(`AddViewLocalization` + `.resx` + `RequestLocalizationMiddleware`, cookie provider, `es` por defecto).
+Selector de idioma en cabecera (JS externo, CSP-safe). Página `SetLanguage` (POST con antiforgery, sin
+open-redirect). **Solo front público**; `/Admin` en español. Ampliar idioma = una línea en `Program.cs` + su
+`.resx`. Verificado end-to-end.
+
+**05-07 (tarde/noche): Frente 1 — país=residencia + validación por tipo de documento + teléfono E.164 +
+paridad cliente/servidor (SIN commitear cuando se escribe esto).** Tres datos separados: `PaisResidencia`
+(ISO, domicilio, NO valida), `TipoDocumento` (enum DNI/NIE/Pasaporte/Otro, **dispara** la validación del
+documento) y `Dni` (valor, validado según tipo: DNI/NIE→letra, resto→laxo). **Caso resuelto: español
+residente en UK** declara "DNI español" y se le valida la letra aunque resida fuera. Teléfono E.164 con UI
+prefijo+número (un solo campo en la entidad, la UI lo parte/recompone por JS). **Validación cliente=servidor**
+sin duplicar regla: atributos `IClientModelValidator` (`[TelefonoE164]`, `[DocumentoPorTipo]`) + adaptadores
+jquery-validation (`validacion-socio.js`, CSP-safe) que revalidan al cambiar el tipo. Catálogos `Paises` y
+`PrefijosTelefonicos` en código (no BD). Migración única `SocioResidenciaYTipoDocumento`. **Verificado**:
+servidor 8 casos + cliente (paridad + glue teléfono) en Node. Racional en `context/decisions.md` (entrada
+05-07 "Frente 1"). **SIN DESPLEGAR.**
 
 Finde 1 (04-07): arquitectura multi-proyecto, capa de datos (EF Core 10 + SQLite, `Socio` 1:N `Colaboracion`
 TPH), autenticación (Identity, roles, verificada), README, y **despliegue en producción**. La web está viva:
@@ -50,20 +58,14 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 ## RETOMAR AQUÍ
 
-Dos cosas hechas y verificadas en local, **ninguna desplegada**: CRUD de socios (commiteado) e infra i18n
-(commit pendiente). Pendientes por orden sugerido:
+Todo verificado en local, **nada desplegado**. Pendientes por orden sugerido:
 
-0. **(Opcional) Commitear la infra i18n** si no se hizo en la sesión anterior.
-1. **Frente 1 — País ISO + validación por país** (ANTES del CRUD de Colaboraciones, es zona sensible:
-   entidad + migración). `Socio.Pais` (texto libre) → `PaisCodigo` ISO 3166-1 alpha-2 como única fuente de
-   verdad; desplegable con buscador, España por defecto; validación de DNI (letra si ES) / teléfono (E.164)
-   condicionada al país. Migración nueva. Ver `decisions.md` (entrada 05-07 "Web multi-idioma").
-2. **Desplegar a Azure** lo acumulado (CRUD + i18n [+ país si ya está]) (B1/Spain, bajo riesgo; migraciones
-   se aplican solas en arranque por el fix `MigrateAsync`). Verificar en producción. Runbook en
-   `context/deploy-azure.md`.
-3. **Limpiar la BD local**: quedó un socio de prueba (`id=1`, "Ana Maria Garcia Lopez", DNI 12345678Z) de la
-   verificación. Está en `dididai.db` (ignorada por git); borrarlo o recrear la BD antes de grabar demo. En
-   producción la BD está limpia.
+0. **Commitear el Frente 1** (i18n ya está en `a4dfa8d`; Frente 1 sin commitear al escribir esto).
+1. **Desplegar a Azure** lo acumulado (CRUD socios + i18n + Frente 1) (B1/Spain, bajo riesgo; migraciones
+   —incl. `SocioResidenciaYTipoDocumento`— se aplican solas en arranque por el fix `MigrateAsync`). Verificar
+   en producción: login admin → /Admin/Socios → alta (probar DNI ES, tipo documento, teléfono con prefijo).
+   Runbook en `context/deploy-azure.md`.
+2. **BD local**: se recrea limpia en cada arranque (se borró tras verificar). Nada pendiente aquí.
 
 Después, seguir el MVP:
 - **CRUD de Colaboraciones** (métodos de pago: cuota domiciliada, aportación única, Teaming). Aquí es donde
@@ -87,8 +89,9 @@ Pendientes administrativos/contenido (rápidos, sin riesgo):
 
 - **Capa de servicios en Core (`Services/`):** ✓ creada con el CRUD de socios (`ISocioService`). Los nuevos
   módulos (colaboraciones, económico) seguirán el mismo patrón: servicio en Core, páginas sin `DbContext`.
-- **Validación de formato por país (`Socio.Pais`):** fuera de MVP; hoy la validación es universal/laxa a
-  propósito (base de socios internacional). Reconsiderar solo si se pide. IBAN → mod-97 internacional.
+- **Validación de identidad:** ✓ HECHA (Frente 1, 05-07): por **tipo de documento** (no por país), país=
+  residencia, teléfono E.164, cliente=servidor. El **IBAN** (mod-97 internacional) queda para Colaboraciones,
+  siguiendo el mismo patrón de atributo `IClientModelValidator` en `ValidacionIdentidad`.
 - **Email real:** sustituir `LoggingEmailSender` (stub) por SendGrid/SMTP antes de que la recuperación de
   contraseña sea útil en producción. Nueva API key → gestionar como secreto (User Secrets / app settings).
 - **UI mobile-first:** principio acordado 04-07; aplicar al tocar el front público.

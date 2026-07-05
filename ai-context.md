@@ -98,13 +98,18 @@ periodicidad/IBAN, no tipo ni socio; `ActualizarAsync` por TDD; enlace por fila 
 ingresos vs gastos** (5ª gráfica, líneas 2 series, 6 meses; `ProyectarAsync` por TDD — extrapolación "si todo
 sigue igual", no predicción). `dashboard.js` soporta multi-serie. 93 tests verdes.
 
+**TODO EL NÚCLEO DEL MVP DESPLEGADO Y VIVO EN PRODUCCIÓN** (05-07): socios, colaboraciones (alta/editar/baja),
+económico, **dashboards con 5 gráficas** (incl. previsión 6 meses). Verificado por HTTP tras deploy
+(`/Admin/Economia` 200, 5 canvas, Chart.js servido). El usuario iba a probarlo online.
+
 Pendientes por orden sugerido:
 
-1. **Validar en el navegador** (lo que Playwright no puede aquí): 5 gráficas del dashboard (incl. la previsión
-   con 2 series) + editar colaboración. El combo de país y el form de cuota ya los validó el usuario OK.
-2. **Desplegar** todo lo acumulado sin desplegar (dashboards + fixes + editar colaboración + previsión; sin
-   migración nueva).
-3. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
+1. **Validación visual del usuario** en producción: 5 gráficas del dashboard + editar colaboración (lo que
+   Playwright no pudo verificar aquí por bloqueo de red del entorno). El combo de país y el form de cuota ya
+   los validó OK.
+2. **ÚNICO MÓDULO QUE QUEDA: Front público + look & feel** (mobile-first, marca DIDIDAI: logo/colores/textos de
+   www.dididai.org) + **traducir EN** el contenido (la infra i18n ya está lista esperando el contenido).
+3. Entregables no-código del TFM (README: credenciales demo; slides; vídeo). Deadline 20/07.
 
 Nota: en producción quedó un socio de prueba (`Prueba Produccion`); el usuario lo gestiona al preparar la demo.
 

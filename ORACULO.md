@@ -18,15 +18,16 @@ arquitectura multi-proyecto (Web + Core), capa de datos (EF Core + SQLite, `Soci
 **DESPLIEGUE en producción, estable y verificado end-to-end**: la web está viva en
 **https://dididai-ong.azurewebsites.net** (Azure App Service **B1**, región **Spain Central** por RGPD). Se
 abandonó F1 (se caía al arrancar por `QuotaExceeded`) por B1 sin cuota, financiado por el crédito. Front
-público abierto. **MVP en marcha y DESPLEGADO:** **CRUD de gestión de socios** (validación por tipo de
-documento, país=residencia, teléfono E.164, cliente=servidor), **infra i18n del front público** (ES/EN por
-selector+cookie, extensible a N idiomas; solo front) y **tests unitarios** (`DididaiApp.Tests`, xUnit, 55
-verdes sobre la validación y catálogos) — todo **vivo en producción** (05-07, verificado por HTTP).
-**Decisión transversal:** idioma de UI, país de residencia y validación de datos son ejes independientes; la
-validación la dispara el **tipo de documento**, no el país ni el idioma. **Forma de trabajo acordada (05-07):
-TDD en la lógica pura/de negocio** (IBAN mod-97, cálculos económicos, agregaciones), pragmático en
-páginas/plumbing. **Siguiente:** CRUD de Colaboraciones (empezando por TDD del IBAN) → módulo económico →
-dashboards. Detalle en `context/next-steps.md` y `context/decisions.md`.
+público abierto. **NÚCLEO DEL MVP COMPLETO Y DESPLEGADO EN PRODUCCIÓN (05-07):** gestión de **socios**
+(validación por tipo de documento, país=residencia, teléfono E.164, cliente=servidor), **colaboraciones**
+(alta/editar/baja, IBAN mod-97), **módulo económico** (gastos, balance) y **dashboards** (5 gráficas Chart.js
+local, incl. previsión 6 meses). Infra **i18n** del front público lista (ES/EN, N-idiomas, solo front).
+**93 tests verdes** (`DididaiApp.Tests`, xUnit); **TDD** en toda la lógica de negocio (IBAN, agregaciones,
+proyección). Todo verificado por HTTP en producción. **Decisión transversal:** idioma de UI, país de
+residencia y validación de datos son ejes independientes; la validación la dispara el **tipo de documento**.
+**ÚNICO MÓDULO QUE QUEDA: el front público + look & feel** (mobile-first, marca DIDIDAI) + traducir EN el
+contenido. Después, entregables no-código (README/slides/vídeo). Detalle en `context/next-steps.md` y
+`context/decisions.md`.
 
 ## Propósito real
 
@@ -67,14 +68,24 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
 | Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (05-07): 55 tests verdes sobre `ValidacionIdentidad` (DNI/NIE/E.164), `Paises`, `PrefijosTelefonicos`. `dotnet test` |
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
-| Gestión de Colaboraciones (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta (3 tipos, form con selector), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
-| Módulo económico simple (ingresos/gastos) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance), página `/Admin/Economia` con vista global de colaboraciones |
-| Dashboards / informes visuales | IMPLEMENTADO (05-07, verificado sin navegador, SIN desplegar): 4 gráficas Chart.js servido local (donut ingresos por tipo, barras ingresos/gastos/balance, barras gastos por categoría, líneas altas/mes) en `/Admin/Economia`; datos por `data-chart` + `dashboard.js` externo (CSP-safe). Pendiente validación visual del usuario |
+| Gestión de Colaboraciones (CRUD) | OPERATIVO (05-07, DESPLEGADO): alta (3 tipos, form con selector), **editar** (importe/periodicidad/IBAN), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
+| Módulo económico simple (ingresos/gastos) | OPERATIVO (05-07, DESPLEGADO): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance, **previsión**), página `/Admin/Economia` con vista global de colaboraciones |
+| Dashboards / informes visuales | OPERATIVO (05-07, DESPLEGADO): **5 gráficas** Chart.js servido local en `/Admin/Economia` (donut ingresos por tipo, barras ingresos/gastos/balance, barras gastos por categoría, líneas altas/mes, **líneas previsión 6 meses ingresos vs gastos**); datos por `data-chart` + `dashboard.js` externo (CSP-safe, multi-serie). Pendiente solo validación visual del usuario |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
 
+- **2026-07-05 (cierre de finde) — Editar colaboración + previsión + DESPLIEGUE de todo el núcleo**: tras
+  probar el módulo, el usuario pidió (a) **editar colaboración** (no solo borrar) y (b) una **previsión
+  ingresos vs gastos**. Hecho: `ColaboracionService.ActualizarAsync` (TDD; importe/periodicidad/IBAN, no tipo
+  ni socio) + página `Colaboraciones/Edit` + enlace por fila; `ResumenEconomicoService.ProyectarAsync` (TDD;
+  proyección "si todo sigue igual", no predicción) como 5ª gráfica (líneas 2 series, 6 meses; `dashboard.js`
+  ampliado a multi-serie). **93 tests verdes.** Antes, fixes reportados por el usuario: **combo de país**
+  (input+datalist, el select+buscador fallaba) y **selects de enum** (comparaban por nombre pero emiten valor
+  numérico → los campos de cuota no aparecían y el DNI no validaba en vivo; resuelto con `data-*`).
+  **Desplegado todo a producción** (RuntimeSuccessful, verificado: `/Admin/Economia` 200, 5 canvas, Chart.js
+  servido). El usuario iba a hacer pruebas online. Detalle en `context/decisions.md`.
 - **2026-07-05 (noche) — Dashboards (cuarto módulo del MVP)**: 4 gráficas en `/Admin/Economia` con **Chart.js
   servido en local** (no CDN → CSP-safe): donut de ingresos por tipo, barras ingresos/gastos/balance, barras
   de gastos por categoría y líneas de altas por mes. Datos serializados a JSON en `data-chart` de cada
@@ -191,9 +202,10 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 > Estado: ~~tachado~~ = RESUELTO. Resto: CRÍTICO / ALTO / MEDIO + PENDIENTE / CONFIRMADO.
 
-- **Plazo ajustado: quedan ~15 días para MVP funcional + slides + vídeo** — ALTO · PENDIENTE (el riesgo
-  dominante es alcance vs tiempo; mitigación: MVP recortado y roadmap para el resto. El esqueleto y el
-  despliegue ya están; falta el producto: CRUD socios + económico + dashboards).
+- **Plazo (deadline 20/07)** — BAJO/MEDIO · MUY MEJORADO (05-07): el **núcleo funcional del MVP está completo
+  y desplegado** (socios, colaboraciones, económico, dashboards). Queda solo el **front público + look & feel**
+  (contenido/diseño, no lógica) y los entregables no-código (README/slides/vídeo). El riesgo dominante ya no
+  es alcance funcional sino tiempo para pulir front + grabar. Colchón amplio hasta el 20/07.
 - ~~Crédito Azure caduca en ~30 días (Free Trial)~~ — RESUELTO (05-07): suscripción convertida a **Pago por
   uso** (`quotaId = PayAsYouGo`), ya no caduca; la web no se apagará. Coste controlado: se agota primero el
   crédito (~175 €), luego ~13 €/mes de B1, topado por tarjeta virtual + alerta de presupuesto (30 €/mes).

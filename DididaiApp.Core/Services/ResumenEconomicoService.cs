@@ -1,0 +1,68 @@
+using DididaiApp.Core.Data;
+using DididaiApp.Core.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace DididaiApp.Core.Services;
+
+/// <summary>
+/// Implementación de <see cref="IResumenEconomicoService"/> sobre EF Core. Las
+/// agregaciones que SQLite no resuelve bien en el servidor (agrupar por mes) se
+/// hacen en memoria tras traer los datos: el volumen de una ONG pequeña lo permite.
+/// </summary>
+public class ResumenEconomicoService : IResumenEconomicoService
+{
+    private readonly AppDbContext _db;
+
+    public ResumenEconomicoService(AppDbContext db) => _db = db;
+
+    public async Task<ResumenEconomico> ObtenerAsync()
+    {
+        // Colaboraciones activas (los ingresos vivos). Se traen a memoria para poder
+        // usar el patrón de tipos (is CuotaDomiciliada) y agrupar por mes sin fricción.
+        var activas = await _db.Colaboraciones.AsNoTracking().Where(c => c.Activa).ToListAsync();
+
+        // 1) Ingreso recurrente mensual: solo cuotas domiciliadas activas, anual/12.
+        decimal recurrente = activas
+            .OfType<CuotaDomiciliada>()
+            .Sum(c => c.Modalidad == ModalidadCuota.Anual ? c.Importe / 12m : c.Importe);
+
+        // 2) Ingresos por tipo (solo activas).
+        var porTipo = new Dictionary<TipoColaboracion, decimal>
+        {
+            [TipoColaboracion.CuotaDomiciliada] = activas.OfType<CuotaDomiciliada>().Sum(c => c.Importe),
+            [TipoColaboracion.AportacionUnica] = activas.OfType<AportacionUnica>().Sum(c => c.Importe),
+            [TipoColaboracion.Teaming] = activas.OfType<Teaming>().Sum(c => c.Importe),
+        };
+
+        // 3) Socios activos (no de baja) con al menos una colaboración activa.
+        var socioIdsActivos = await _db.Socios.AsNoTracking()
+            .Where(s => s.FechaBaja == null).Select(s => s.Id).ToListAsync();
+        int sociosConColab = activas
+            .Select(c => c.SocioId)
+            .Where(id => socioIdsActivos.Contains(id))
+            .Distinct()
+            .Count();
+
+        // 4) Altas de colaboraciones por mes (todas, activas o no), orden cronológico.
+        var fechas = await _db.Colaboraciones.AsNoTracking().Select(c => c.FechaInicio).ToListAsync();
+        var altasPorMes = fechas
+            .GroupBy(f => $"{f.Year:D4}-{f.Month:D2}")
+            .OrderBy(g => g.Key)
+            .Select(g => new AltasMes(g.Key, g.Count()))
+            .ToList();
+
+        // Totales y balance.
+        decimal totalIngresos = activas.Sum(c => c.Importe);
+        decimal totalGastos = await _db.Gastos.AsNoTracking().SumAsync(g => (decimal?)g.Importe) ?? 0m;
+
+        return new ResumenEconomico
+        {
+            IngresoRecurrenteMensual = recurrente,
+            IngresosPorTipo = porTipo,
+            SociosActivosConColaboracion = sociosConColab,
+            AltasPorMes = altasPorMes,
+            TotalIngresos = totalIngresos,
+            TotalGastos = totalGastos,
+        };
+    }
+}

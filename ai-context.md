@@ -58,8 +58,8 @@ ratos de diario solo tareas pequeñas y sin riesgo.
 
 ## RETOMAR AQUÍ
 
-**Socios (i18n + Frente 1) DESPLEGADO y vivo en producción** (05-07). **CRUD de Colaboraciones HECHO y
-verificado en local (05-07), SIN desplegar.** Tests: `DididaiApp.Tests` (xUnit), **79 verdes**
+**Socios (i18n + Frente 1) y CRUD de Colaboraciones DESPLEGADOS y vivos en producción** (05-07, verificados
+por HTTP: alta de cuota domiciliada + ficha muestra la colaboración con IBAN). Tests: `DididaiApp.Tests` (xUnit), **79 verdes**
 (ValidacionIdentidad, Paises, PrefijosTelefonicos, ValidacionIban por TDD, ColaboracionService integración).
 
 **05-07 — CRUD de Colaboraciones.** IBAN validado por **TDD** (`ValidacionIban`, mod-97 ISO 13616,
@@ -67,15 +67,21 @@ internacional) + atributo `[Iban]` (`IClientModelValidator`). `IColaboracionServ
 (reglas: socio existe, importe>0, IBAN válido solo si cuota domiciliada; **baja lógica** idempotente = "dejar
 de pagar" sin borrar). Gestión **desde la ficha del socio** (Details lista + alta + baja por fila); alta en
 un formulario con selector de tipo y campos de cuota que se muestran/ocultan por JS externo (CSP). Sin
-migración (solo atributos; el esquema TPH ya existía). E2E verificado por HTTP. Racional en `decisions.md`.
+migración (solo atributos; el esquema TPH ya existía). E2E verificado en local y en producción. Racional en
+`decisions.md`.
+
+**05-07 — Módulo económico (local, sin desplegar).** Entidad `Gasto` (CRUD, categorías ONG, migración
+`AddGasto`) + `ResumenEconomicoService` (cálculo por **TDD**: recurrente mensual [cuotas domiciliadas activas,
+anual/12], ingresos por tipo, socios con colaboración, altas/mes, balance ingresos−gastos) + página
+`/Admin/Economia` con vista global de colaboraciones. 85 tests verdes. E2E verificado.
 
 Pendientes por orden sugerido:
 
-1. **Desplegar** a Azure el CRUD de Colaboraciones (bajo riesgo, sin migración nueva; el runbook igual).
-2. **Módulo económico simple** (ingresos = suma de colaboraciones activas) + **vista global de
-   colaboraciones** (se pospuso aquí a propósito) → base de los dashboards. Aplicar **TDD** a las agregaciones.
-3. **Dashboards** (elegir librería de gráficas compatible con CSP).
-4. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
+1. **Desplegar** módulo económico a Azure (hay **migración nueva `AddGasto`** → se aplica sola en arranque por
+   `MigrateAsync`; bajo riesgo). Verificar `/Admin/Economia` en prod.
+2. **Dashboards** — enganchar gráficas sobre los números que ya da `/Admin/Economia`. **Elegir librería
+   compatible con CSP** (sin inline). Candidatas a valorar: Chart.js servido local (no CDN), o SVG propio.
+3. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
 
 Nota: en producción quedó un socio de prueba (`Prueba Produccion`); el usuario lo gestiona al preparar la demo.
 

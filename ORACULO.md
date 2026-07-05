@@ -68,13 +68,25 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (05-07): 55 tests verdes sobre `ValidacionIdentidad` (DNI/NIE/E.164), `Paises`, `PrefijosTelefonicos`. `dotnet test` |
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Gestión de Colaboraciones (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta (3 tipos, form con selector), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
-| Módulo económico simple (ingresos/gastos) | PLANIFICADO (MVP) — ingresos = suma de `Colaboracion` activas; incluye la vista global de colaboraciones (pospuesta a este módulo) |
-| Dashboards / informes visuales | PLANIFICADO (MVP) |
+| Módulo económico simple (ingresos/gastos) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance), página `/Admin/Economia` con vista global de colaboraciones |
+| Dashboards / informes visuales | PLANIFICADO (MVP) — la página económica ya da los números; falta enganchar gráficas (librería CSP-compatible por elegir) |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
 
+- **2026-07-05 (noche) — Módulo económico (tercer módulo del MVP)**: ingresos (desde colaboraciones) + gastos
+  + balance. Entidad `Gasto` (concepto/importe/fecha/`CategoriaGasto` genérica de ONG; borrado físico; migración
+  `AddGasto`) con CRUD (`IGastoService`). **Cálculo por TDD** (`ResumenEconomicoService`, 6 tests): ingreso
+  recurrente mensual (solo cuotas domiciliadas activas, anual/12), ingresos por tipo, socios activos con
+  colaboración activa, altas por mes, y balance = ingresos−gastos. Página `/Admin/Economia`: métricas en
+  cards, ingresos por tipo, alta/borrado de gastos y **vista global de colaboraciones** (la pospuesta). Card
+  de acceso en el panel. **85 tests verdes.** E2E verificado por HTTP (recurrente 20€ con anual/12, ingresos
+  630€, balance 430€). Los dashboards con gráficas quedan para el siguiente bloque. **SIN desplegar.** Ver
+  `context/decisions.md`.
+- **2026-07-05 (tarde) — CRUD de Colaboraciones desplegado**: el segundo módulo (abajo) se desplegó a
+  producción y se verificó por HTTP (alta de cuota domiciliada + ficha con IBAN). Socios + Colaboraciones
+  vivos en https://dididai-ong.azurewebsites.net.
 - **2026-07-05 (noche) — CRUD de Colaboraciones (segundo módulo del MVP)**: gestión de las aportaciones de un
   socio (cuota domiciliada / aportación única / Teaming, jerarquía TPH ya existente). **IBAN validado por TDD**
   (`ValidacionIban`, mod-97 ISO 13616, internacional; 17 tests rojo→verde) + atributo `[Iban]`

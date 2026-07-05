@@ -21,6 +21,12 @@ public class ColaboracionService : IColaboracionService
             .OrderByDescending(c => c.FechaInicio)
             .ToListAsync();
 
+    public async Task<IReadOnlyList<Colaboracion>> ListarTodasAsync()
+        => await _db.Colaboraciones.AsNoTracking()
+            .Include(c => c.Socio)
+            .OrderByDescending(c => c.FechaInicio)
+            .ToListAsync();
+
     public Task<Colaboracion?> ObtenerAsync(int id)
         => _db.Colaboraciones.FirstOrDefaultAsync(c => c.Id == id);
 

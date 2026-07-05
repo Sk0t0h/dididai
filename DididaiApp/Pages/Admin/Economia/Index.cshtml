@@ -1,0 +1,173 @@
+@page
+@model DididaiApp.Pages.Admin.Economia.IndexModel
+@using DididaiApp.Core.Models
+@using DididaiApp.Core.Services
+@{
+    ViewData["Title"] = "Economía";
+}
+
+<h1 class="h3">Economía</h1>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="alert">@mensaje</div>
+}
+
+@* --- Métricas --- *@
+<div class="row g-3 mt-1">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Ingreso recurrente / mes</h6>
+                <p class="h4 mb-0 mt-2">@Model.Resumen.IngresoRecurrenteMensual.ToString("N2") €</p>
+                <small class="text-muted">Cuotas domiciliadas activas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Socios con colaboración</h6>
+                <p class="h4 mb-0 mt-2">@Model.Resumen.SociosActivosConColaboracion</p>
+                <small class="text-muted">Activos con aportación activa</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Total ingresos</h6>
+                <p class="h4 mb-0 mt-2">@Model.Resumen.TotalIngresos.ToString("N2") €</p>
+                <small class="text-muted">Colaboraciones activas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle text-muted">Balance</h6>
+                <p class="h4 mb-0 mt-2 @(Model.Resumen.Balance >= 0 ? "text-success" : "text-danger")">
+                    @Model.Resumen.Balance.ToString("N2") €
+                </p>
+                <small class="text-muted">Ingresos − gastos (@Model.Resumen.TotalGastos.ToString("N2") €)</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* --- Ingresos por tipo --- *@
+<h2 class="h5 mt-4">Ingresos por tipo de colaboración</h2>
+<div class="table-responsive">
+    <table class="table table-sm w-auto">
+        <tbody>
+            <tr><th class="pe-4">Cuota domiciliada</th><td class="text-end">@Model.Resumen.IngresosPorTipo[TipoColaboracion.CuotaDomiciliada].ToString("N2") €</td></tr>
+            <tr><th class="pe-4">Aportación única</th><td class="text-end">@Model.Resumen.IngresosPorTipo[TipoColaboracion.AportacionUnica].ToString("N2") €</td></tr>
+            <tr><th class="pe-4">Teaming</th><td class="text-end">@Model.Resumen.IngresosPorTipo[TipoColaboracion.Teaming].ToString("N2") €</td></tr>
+        </tbody>
+    </table>
+</div>
+
+@* --- Gastos: alta + listado --- *@
+<h2 class="h5 mt-4">Gastos</h2>
+<form method="post" asp-page-handler="CrearGasto" class="row g-2 align-items-end mb-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-12 col-md-4">
+        <label asp-for="GastoNuevo.Concepto" class="form-label"></label>
+        <input asp-for="GastoNuevo.Concepto" class="form-control" />
+        <span asp-validation-for="GastoNuevo.Concepto" class="text-danger"></span>
+    </div>
+    <div class="col-6 col-md-2">
+        <label asp-for="GastoNuevo.Importe" class="form-label"></label>
+        <input asp-for="GastoNuevo.Importe" class="form-control" type="number" step="0.01" min="0.01" />
+        <span asp-validation-for="GastoNuevo.Importe" class="text-danger"></span>
+    </div>
+    <div class="col-6 col-md-2">
+        <label asp-for="GastoNuevo.Fecha" class="form-label"></label>
+        <input asp-for="GastoNuevo.Fecha" class="form-control" type="date" />
+    </div>
+    <div class="col-8 col-md-3">
+        <label asp-for="GastoNuevo.Categoria" class="form-label"></label>
+        <select asp-for="GastoNuevo.Categoria" class="form-select" asp-items="Html.GetEnumSelectList<CategoriaGasto>()"></select>
+    </div>
+    <div class="col-4 col-md-1">
+        <button type="submit" class="btn btn-primary w-100">Añadir</button>
+    </div>
+</form>
+
+@if (Model.Gastos.Count == 0)
+{
+    <p class="text-muted">No hay gastos registrados.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th class="text-end">Importe</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model.Gastos)
+                {
+                    <tr>
+                        <td>@g.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@g.Concepto</td>
+                        <td>@Html.DisplayFor(_ => g.Categoria)</td>
+                        <td class="text-end">@g.Importe.ToString("N2") €</td>
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="EliminarGasto" asp-route-id="@g.Id" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger js-confirm"
+                                        data-confirm="¿Eliminar este gasto? Esta acción no se puede deshacer.">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@* --- Vista global de colaboraciones --- *@
+<h2 class="h5 mt-4">Colaboraciones (todas)</h2>
+@if (Model.Colaboraciones.Count == 0)
+{
+    <p class="text-muted">No hay colaboraciones registradas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr><th>Socio</th><th>Tipo</th><th class="text-end">Importe</th><th>Desde</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.Colaboraciones)
+                {
+                    <tr>
+                        <td>@(c.Socio is null ? "—" : $"{c.Socio.Nombre} {c.Socio.Apellidos}")</td>
+                        <td>@(c switch { CuotaDomiciliada => "Cuota domiciliada", AportacionUnica => "Aportación única", Teaming => "Teaming", _ => "—" })</td>
+                        <td class="text-end">@c.Importe.ToString("N2") €</td>
+                        <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (c.Activa)
+                            {
+                                <span class="badge text-bg-success">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Finalizada</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="mt-4">
+    <a class="btn btn-outline-secondary" asp-page="/Admin/Index">Volver al panel</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -20,6 +20,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Socio> Socios => Set<Socio>();
     public DbSet<Colaboracion> Colaboraciones => Set<Colaboracion>();
+    public DbSet<Gasto> Gastos => Set<Gasto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         // Precisión explícita para el importe monetario (común a toda la jerarquía;
         // evita el warning de EF sobre decimal sin precisión y fija el formato en la BD).
         modelBuilder.Entity<Colaboracion>().Property(c => c.Importe).HasPrecision(10, 2);
+        modelBuilder.Entity<Gasto>().Property(g => g.Importe).HasPrecision(10, 2);
 
         // DNI único a nivel de BD: identifica inequívocamente a la persona; dos socios
         // con el mismo DNI es siempre un duplicado (aunque uno esté de baja → se reactiva

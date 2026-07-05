@@ -382,3 +382,31 @@
   servicio). E2E por HTTP: alta de los 3 tipos, IBAN inválido/ausente e importe cero rechazados con mensaje,
   baja lógica efectiva. Sin migración (solo atributos de validación; el esquema TPH ya existía). **SIN
   desplegar** al cerrar la nota.
+
+## 2026-07-05 · Módulo económico: ingresos (desde colaboraciones) + gastos + balance, cálculo por TDD
+
+- **Contexto:** tercer módulo del MVP ("económico simple, ingresos/gastos"). Los ingresos ya existían como
+  datos (colaboraciones); los gastos no estaban modelados.
+- **Decisión — entidad `Gasto`:** concepto, importe, fecha, `CategoriaGasto` (enum genérico de ONG: acción
+  directa / administración / personal / suministros / otros — permite mostrar cuánto va a acción directa,
+  refuerza el "99%"). Migración `AddGasto` (tabla nueva). **Borrado físico** (no baja lógica como socios/
+  colaboraciones): un gasto no tiene ciclo de vida que trazar; mal metido se corrige quitándolo.
+- **Decisión — cálculo por TDD:** `IResumenEconomicoService`/`ResumenEconomicoService` con 4 métricas +
+  balance, todo test-first (6 tests, SQLite en memoria):
+  1. **Ingreso recurrente mensual** = solo cuotas domiciliadas activas, anual/12 (Teaming y aportación única
+     NO son recurrentes).
+  2. **Ingresos por tipo** (solo activas).
+  3. **Socios activos con colaboración activa** (socio de baja no cuenta aunque tenga colaboración activa).
+  4. **Altas por mes** (serie temporal, orden cronológico).
+  - `Balance = TotalIngresos − TotalGastos`. La agrupación por mes se hace en memoria (SQLite no la resuelve
+    bien en el servidor; volumen de una ONG pequeña lo permite).
+- **Decisión — UI `/Admin/Economia`:** métricas en cards + ingresos por tipo + gestión de gastos (alta inline
+  + borrado) + **vista global de colaboraciones** (la que se pospuso al crear Colaboraciones). Card de acceso
+  en el panel `/Admin`. Los servicios hacen el cálculo; la página no toca el DbContext. Mobile-first.
+- **Alternativas descartadas:** gastos con baja lógica (innecesario, no hay que trazarlos); incluir Teaming en
+  el recurrente (no tiene periodicidad modelada); agrupar por mes en SQL (frágil en SQLite).
+- **Fuera de aquí:** los **dashboards con gráficas** (la página económica da los números; las gráficas se
+  enganchan después, eligiendo librería CSP-compatible).
+- **Estado:** **IMPLEMENTADO y verificado en local (05-07).** 85 tests verdes. E2E por HTTP: métricas
+  correctas en la página real (recurrente 20€ con anual/12, ingresos 630€, balance 430€ con gasto 200€, 1
+  socio con colaboración). **SIN desplegar** al cerrar la nota.

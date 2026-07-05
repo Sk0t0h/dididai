@@ -14,6 +14,12 @@ public interface IColaboracionService
     /// <summary>Colaboraciones de un socio, más recientes primero. Incluye las finalizadas.</summary>
     Task<IReadOnlyList<Colaboracion>> ListarPorSocioAsync(int socioId);
 
+    /// <summary>
+    /// Todas las colaboraciones (de todos los socios), con el socio cargado, más
+    /// recientes primero. Para la vista global del módulo económico.
+    /// </summary>
+    Task<IReadOnlyList<Colaboracion>> ListarTodasAsync();
+
     /// <summary>Obtiene una colaboración por id, o <c>null</c> si no existe.</summary>
     Task<Colaboracion?> ObtenerAsync(int id);
 

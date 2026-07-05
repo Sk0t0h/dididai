@@ -73,6 +73,8 @@ builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
 // Servicios de dominio (Core). Las páginas los inyectan; nunca el DbContext directo.
 builder.Services.AddScoped<ISocioService, SocioService>();
 builder.Services.AddScoped<IColaboracionService, ColaboracionService>();
+builder.Services.AddScoped<IResumenEconomicoService, ResumenEconomicoService>();
+builder.Services.AddScoped<IGastoService, GastoService>();
 
 var app = builder.Build();
 

@@ -139,6 +139,22 @@ public class ResumenEconomicoServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task GastosPorCategoria_AgrupaYSuma()
+    {
+        _db.Gastos.Add(new Gasto { Concepto = "a", Importe = 100m, Fecha = new DateTime(2026, 1, 1), Categoria = CategoriaGasto.AccionDirecta });
+        _db.Gastos.Add(new Gasto { Concepto = "b", Importe = 50m, Fecha = new DateTime(2026, 1, 2), Categoria = CategoriaGasto.AccionDirecta });
+        _db.Gastos.Add(new Gasto { Concepto = "c", Importe = 30m, Fecha = new DateTime(2026, 1, 3), Categoria = CategoriaGasto.Administracion });
+        _db.SaveChanges();
+
+        var r = await _sut.ObtenerAsync();
+
+        Assert.Equal(150m, r.GastosPorCategoria[CategoriaGasto.AccionDirecta]);
+        Assert.Equal(30m, r.GastosPorCategoria[CategoriaGasto.Administracion]);
+        // Categorías sin gastos no tienen por qué aparecer; si aparecen, deben ser 0.
+        Assert.False(r.GastosPorCategoria.TryGetValue(CategoriaGasto.Personal, out var p) && p != 0m);
+    }
+
+    [Fact]
     public async Task SinDatos_DevuelveCeros()
     {
         var r = await _sut.ObtenerAsync();

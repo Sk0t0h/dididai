@@ -55,6 +55,35 @@
     </div>
 </div>
 
+@* --- Gráficas (dashboard) --- *@
+<h2 class="h5 mt-4">Dashboard</h2>
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Ingresos por tipo</h6>
+            <div class="chart-box"><canvas data-chart="@Model.ChartIngresosPorTipo" aria-label="Ingresos por tipo de colaboración"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Ingresos vs gastos</h6>
+            <div class="chart-box"><canvas data-chart="@Model.ChartIngresosVsGastos" aria-label="Ingresos frente a gastos y balance"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Gastos por categoría</h6>
+            <div class="chart-box"><canvas data-chart="@Model.ChartGastosPorCategoria" aria-label="Gastos por categoría"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Altas de colaboraciones por mes</h6>
+            <div class="chart-box"><canvas data-chart="@Model.ChartAltasPorMes" aria-label="Altas de colaboraciones por mes"></canvas></div>
+        </div></div>
+    </div>
+</div>
+
 @* --- Ingresos por tipo --- *@
 <h2 class="h5 mt-4">Ingresos por tipo de colaboración</h2>
 <div class="table-responsive">
@@ -170,4 +199,6 @@ else
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
 }

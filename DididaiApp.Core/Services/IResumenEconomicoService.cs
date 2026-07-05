@@ -31,6 +31,10 @@ public record ResumenEconomico
     /// <summary>Suma de todos los gastos registrados.</summary>
     public decimal TotalGastos { get; init; }
 
+    /// <summary>Total de gastos por categoría (solo las categorías con gasto).</summary>
+    public IReadOnlyDictionary<CategoriaGasto, decimal> GastosPorCategoria { get; init; }
+        = new Dictionary<CategoriaGasto, decimal>();
+
     /// <summary>Suma de todos los ingresos (todas las colaboraciones activas).</summary>
     public decimal TotalIngresos { get; init; }
 

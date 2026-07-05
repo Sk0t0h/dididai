@@ -53,7 +53,11 @@ public class ResumenEconomicoService : IResumenEconomicoService
 
         // Totales y balance.
         decimal totalIngresos = activas.Sum(c => c.Importe);
-        decimal totalGastos = await _db.Gastos.AsNoTracking().SumAsync(g => (decimal?)g.Importe) ?? 0m;
+        var gastos = await _db.Gastos.AsNoTracking().ToListAsync();
+        decimal totalGastos = gastos.Sum(g => g.Importe);
+        var gastosPorCategoria = gastos
+            .GroupBy(g => g.Categoria)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Importe));
 
         return new ResumenEconomico
         {
@@ -63,6 +67,7 @@ public class ResumenEconomicoService : IResumenEconomicoService
             AltasPorMes = altasPorMes,
             TotalIngresos = totalIngresos,
             TotalGastos = totalGastos,
+            GastosPorCategoria = gastosPorCategoria,
         };
     }
 }

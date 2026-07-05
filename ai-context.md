@@ -75,13 +75,19 @@ migración (solo atributos; el esquema TPH ya existía). E2E verificado en local
 anual/12], ingresos por tipo, socios con colaboración, altas/mes, balance ingresos−gastos) + página
 `/Admin/Economia` con vista global de colaboraciones. 85 tests verdes. E2E verificado.
 
+**TODO el back de gestión desplegado y vivo en producción** (socios + colaboraciones + económico, 05-07).
+`/Admin/Economia` verificada en prod.
+
+**05-07 — Dashboards (local, sin desplegar).** 4 gráficas Chart.js **servido local** (CSP-safe) en
+`/Admin/Economia`: donut ingresos por tipo, barras ingresos/gastos/balance, barras gastos por categoría,
+líneas altas/mes. Datos por `data-chart` + `dashboard.js` externo. Nueva agregación `GastosPorCategoria` (TDD).
+86 tests verdes. **Render visual NO verificado** (Playwright bloqueado por el entorno) → validar en navegador.
+
 Pendientes por orden sugerido:
 
-1. **Desplegar** módulo económico a Azure (hay **migración nueva `AddGasto`** → se aplica sola en arranque por
-   `MigrateAsync`; bajo riesgo). Verificar `/Admin/Economia` en prod.
-2. **Dashboards** — enganchar gráficas sobre los números que ya da `/Admin/Economia`. **Elegir librería
-   compatible con CSP** (sin inline). Candidatas a valorar: Chart.js servido local (no CDN), o SVG propio.
-3. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
+1. **Validar dashboards en el navegador** (que las 4 gráficas pinten bien) y **desplegar** (sin migración
+   nueva; bajo riesgo).
+2. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
 
 Nota: en producción quedó un socio de prueba (`Prueba Produccion`); el usuario lo gestiona al preparar la demo.
 

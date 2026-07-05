@@ -410,3 +410,23 @@
 - **Estado:** **IMPLEMENTADO y verificado en local (05-07).** 85 tests verdes. E2E por HTTP: métricas
   correctas en la página real (recurrente 20€ con anual/12, ingresos 630€, balance 430€ con gasto 200€, 1
   socio con colaboración). **SIN desplegar** al cerrar la nota.
+
+## 2026-07-05 · Dashboards con Chart.js servido en local (CSP-safe)
+
+- **Contexto:** cuarto módulo del MVP (informes visuales). La página `/Admin/Economia` ya calculaba los
+  números; faltaban las gráficas. Restricción dura: la disciplina CSP del proyecto (sin inline, sin CDN).
+- **Decisión — librería:** **Chart.js 4.4.3 servido en local** (`wwwroot/lib/chartjs/chart.umd.min.js`, ~200
+  KB), NO desde CDN (rompería CSP). El arranque de las gráficas va en **`dashboard.js` externo** que lee los
+  datos de atributos `data-chart` de cada `<canvas>` (JSON serializado en servidor); no hay `<script>` inline
+  con datos incrustados → CSP-safe. Nota: hoy el proyecto **no** emite aún la cabecera CSP (es disciplina de
+  código para no romper cuando se añada); el enfoque es a prueba de futuro.
+- **Decisión — gráficas (4):** ingresos por tipo (donut), ingresos vs gastos vs balance (barras), gastos por
+  categoría (barras) y altas por mes (líneas). Los datos salen de `ResumenEconomicoService`.
+- **Decisión — nueva agregación por TDD:** `GastosPorCategoria` añadido al resumen (test-first). El resto de
+  datos ya existían.
+- **Alternativas descartadas:** Chart.js/D3 desde CDN (rompe CSP); SVG propio (más código por tipo de gráfica,
+  menos pulido, sin tooltips) — Chart.js local da más por menos.
+- **Estado:** **IMPLEMENTADO y verificado en local (05-07)** salvo el render visual (Playwright bloqueado por
+  el entorno). Verificado sin navegador: 4 canvas, Chart.js servido 200, `dashboard.js` sin errores de
+  sintaxis, `data-chart` = JSON válido y parseable con los valores correctos. 86 tests verdes. **Pendiente:
+  validación visual por el usuario en el navegador + desplegar.**

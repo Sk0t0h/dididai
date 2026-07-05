@@ -29,3 +29,10 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Contenedor de las gráficas del dashboard: alto fijo para que Chart.js
+   (maintainAspectRatio:false) se adapte al ancho sin desbordar. Responsive. */
+.chart-box {
+  position: relative;
+  height: 260px;
+}

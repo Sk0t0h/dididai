@@ -69,12 +69,19 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Gestión de Colaboraciones (CRUD) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): alta (3 tipos, form con selector), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
 | Módulo económico simple (ingresos/gastos) | IMPLEMENTADO (05-07, verificado en local, SIN desplegar): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance), página `/Admin/Economia` con vista global de colaboraciones |
-| Dashboards / informes visuales | PLANIFICADO (MVP) — la página económica ya da los números; falta enganchar gráficas (librería CSP-compatible por elegir) |
+| Dashboards / informes visuales | IMPLEMENTADO (05-07, verificado sin navegador, SIN desplegar): 4 gráficas Chart.js servido local (donut ingresos por tipo, barras ingresos/gastos/balance, barras gastos por categoría, líneas altas/mes) en `/Admin/Economia`; datos por `data-chart` + `dashboard.js` externo (CSP-safe). Pendiente validación visual del usuario |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
 
+- **2026-07-05 (noche) — Dashboards (cuarto módulo del MVP)**: 4 gráficas en `/Admin/Economia` con **Chart.js
+  servido en local** (no CDN → CSP-safe): donut de ingresos por tipo, barras ingresos/gastos/balance, barras
+  de gastos por categoría y líneas de altas por mes. Datos serializados a JSON en `data-chart` de cada
+  `<canvas>` y pintados por `dashboard.js` externo (sin inline). Nueva agregación `GastosPorCategoria` por
+  TDD. El módulo económico se **desplegó** antes de esto (verificado en prod). 86 tests verdes. Verificado sin
+  navegador (4 canvas, Chart.js 200, JSON parseable, JS sin errores); Playwright bloqueado por el entorno →
+  **pendiente validación visual del usuario** + desplegar dashboards. Ver `context/decisions.md`.
 - **2026-07-05 (noche) — Módulo económico (tercer módulo del MVP)**: ingresos (desde colaboraciones) + gastos
   + balance. Entidad `Gasto` (concepto/importe/fecha/`CategoriaGasto` genérica de ONG; borrado físico; migración
   `AddGasto`) con CRUD (`IGastoService`). **Cálculo por TDD** (`ResumenEconomicoService`, 6 tests): ingreso

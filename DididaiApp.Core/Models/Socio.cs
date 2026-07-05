@@ -69,8 +69,8 @@ public class Socio
     /// hace <see cref="TipoDocumento"/>). El nombre para mostrar se resuelve con
     /// <see cref="Paises.Nombre"/>. Único sitio donde vive el país; NO el idioma de la UI.
     /// </summary>
-    [Required]
-    [StringLength(2, MinimumLength = 2)]
+    [Required(ErrorMessage = "Selecciona un país de residencia de la lista.")]
+    [StringLength(2, MinimumLength = 2, ErrorMessage = "Selecciona un país de residencia válido de la lista.")]
     [Display(Name = "País de residencia")]
     public string PaisResidencia { get; set; } = Paises.CodigoPorDefecto;
 

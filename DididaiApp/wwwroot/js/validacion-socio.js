@@ -47,7 +47,8 @@
         var prefijo = scope.querySelector("[data-tel-prefijo]");
         var numero = scope.querySelector("[data-tel-numero]");
         var completo = scope.querySelector("[data-tel-completo]");
-        var paisSelect = scope.querySelector("[data-pais-select]");
+        var paisCombo = scope.querySelector("[data-pais-combo]");
+        var paisCodigo = scope.querySelector("[data-pais-codigo]");
         if (!prefijo || !numero || !completo) return;
 
         // Descomponer el valor E.164 existente (edición) en prefijo + resto.
@@ -82,12 +83,13 @@
         numero.addEventListener("input", componer);
         componer(); // fijar el estado inicial
 
-        // Comodidad: al cambiar el país de residencia, preseleccionar su prefijo si
-        // el número aún está vacío (no pisar una elección deliberada del usuario).
-        if (paisSelect) {
-            paisSelect.addEventListener("change", function () {
+        // Comodidad: al elegir país de residencia (combo), preseleccionar su prefijo si
+        // el número aún está vacío (no pisar una elección deliberada del usuario). El
+        // código ISO se lee del campo oculto que sincroniza site.js tras el input.
+        if (paisCombo && paisCodigo) {
+            paisCombo.addEventListener("input", function () {
                 if (numero.value) return;
-                var pais = paisSelect.value;
+                var pais = paisCodigo.value; // ya resuelto por el manejador de site.js
                 for (var i = 0; i < prefijo.options.length; i++) {
                     if (prefijo.options[i].getAttribute("data-pais") === pais) {
                         prefijo.value = prefijo.options[i].value;

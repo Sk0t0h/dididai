@@ -69,12 +69,20 @@
         <span asp-validation-for="Localidad" class="text-danger"></span>
     </div>
     <div class="col-12 col-md-5">
-        <label asp-for="PaisResidencia" class="form-label"></label>
-        <input type="search" class="form-control mb-1" placeholder="Buscar país…"
-               data-pais-buscador aria-label="Buscar país de residencia" autocomplete="off" />
-        <select asp-for="PaisResidencia" class="form-select" data-pais-select
-                asp-items="@(new SelectList(Paises.Todos, nameof(Paises.Pais.Codigo), nameof(Paises.Pais.Nombre), Model.PaisResidencia))">
-        </select>
+        <label for="PaisResidencia_Buscador" class="form-label">País de residencia</label>
+        @* Combo con buscador nativo: el usuario ve/teclea el NOMBRE (filtra por datalist);
+           el código ISO se guarda en el campo oculto PaisResidencia (el que se bindea y
+           valida). paises-combo.js sincroniza nombre->código y precarga el nombre en edición. *@
+        <input type="text" id="PaisResidencia_Buscador" class="form-control" list="PaisResidencia_Lista"
+               placeholder="Escribe un país…" autocomplete="off" data-pais-combo
+               value="@Paises.Nombre(Model.PaisResidencia)" />
+        <datalist id="PaisResidencia_Lista">
+            @foreach (var p in Paises.Todos)
+            {
+                <option value="@p.Nombre" data-codigo="@p.Codigo"></option>
+            }
+        </datalist>
+        <input type="hidden" asp-for="PaisResidencia" data-pais-codigo />
         <span asp-validation-for="PaisResidencia" class="text-danger"></span>
     </div>
 

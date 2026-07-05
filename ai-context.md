@@ -83,11 +83,18 @@ anual/12], ingresos por tipo, socios con colaboración, altas/mes, balance ingre
 líneas altas/mes. Datos por `data-chart` + `dashboard.js` externo. Nueva agregación `GastosPorCategoria` (TDD).
 86 tests verdes. **Render visual NO verificado** (Playwright bloqueado por el entorno) → validar en navegador.
 
+**05-07 — Fix del campo país** (bug reportado por el usuario: no se podía dar de alta, el select+buscador
+suelto fallaba con "min/max length 2"). Sustituido por **combo `<input list>`+`<datalist>`** con buscador
+nativo integrado; el usuario teclea el nombre y `site.js` (`data-pais-combo`) resuelve el código ISO al hidden
+`PaisResidencia` (`data-pais-codigo`). Verificado por HTTP (alta con España → 302; país vacío → rechazo con
+mensaje claro). 86 tests verdes.
+
 Pendientes por orden sugerido:
 
-1. **Validar dashboards en el navegador** (que las 4 gráficas pinten bien) y **desplegar** (sin migración
-   nueva; bajo riesgo).
-2. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
+1. **Validar en el navegador** (lo que el entorno impide verificar por Playwright): (a) que el **combo de
+   país** filtra bien al teclear y actualiza el código; (b) que las **4 gráficas** del dashboard pintan.
+2. **Desplegar** el acumulado sin desplegar (dashboards + fix del combo de país; sin migración nueva).
+3. **Front público + look & feel** (todo junto, mobile-first, marca DIDIDAI) + **traducir EN** el contenido.
 
 Nota: en producción quedó un socio de prueba (`Prueba Produccion`); el usuario lo gestiona al preparar la demo.
 

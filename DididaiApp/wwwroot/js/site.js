@@ -28,26 +28,34 @@ document.addEventListener("change", function (e) {
     }
 });
 
-// Buscador del desplegable de país: al teclear en el input marcado con
-// data-pais-buscador, filtra las opciones del <select data-pais-select> hermano
-// mostrando solo las que contienen el texto (sin distinguir mayúsculas/acentos).
-// Manejador externo (CSP): sin inline. El value guardado sigue siendo el código ISO.
+// Combo de país (input + datalist): el usuario ve/teclea el NOMBRE; este manejador
+// resuelve el código ISO correspondiente y lo escribe en el campo oculto que se
+// bindea y valida (data-pais-codigo). Manejador externo (CSP): sin inline.
+// Robusto: si el texto no corresponde a ningún país de la lista, el código queda
+// vacío y la validación de servidor lo rechaza con un mensaje claro.
 document.addEventListener("input", function (e) {
-    var buscador = e.target;
-    if (!buscador || !buscador.hasAttribute("data-pais-buscador")) return;
+    var combo = e.target;
+    if (!combo || !combo.hasAttribute("data-pais-combo")) return;
 
-    var contenedor = buscador.parentElement;
-    var select = contenedor ? contenedor.querySelector("[data-pais-select]") : null;
-    if (!select) return;
+    var contenedor = combo.parentElement;
+    var lista = contenedor ? contenedor.querySelector("datalist") : null;
+    var oculto = contenedor ? contenedor.querySelector("[data-pais-codigo]") : null;
+    if (!lista || !oculto) return;
 
-    var normaliza = function (s) {
-        return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-    };
-    var termino = normaliza(buscador.value.trim());
+    var valor = (combo.value || "").trim().toLowerCase();
+    var codigo = "";
+    for (var i = 0; i < lista.options.length; i++) {
+        if ((lista.options[i].value || "").trim().toLowerCase() === valor) {
+            codigo = lista.options[i].getAttribute("data-codigo") || "";
+            break;
+        }
+    }
+    oculto.value = codigo;
 
-    for (var i = 0; i < select.options.length; i++) {
-        var opt = select.options[i];
-        var coincide = termino === "" || normaliza(opt.text).indexOf(termino) !== -1;
-        opt.hidden = !coincide;
+    // Revalidar el campo oculto tras el cambio, si hay jquery-validation activo.
+    if (window.jQuery) {
+        var $o = window.jQuery(oculto);
+        var $f = $o.closest("form");
+        if ($f.length && $f.data("validator")) { $f.validate().element($o); }
     }
 });

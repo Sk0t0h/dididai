@@ -430,3 +430,22 @@
   el entorno). Verificado sin navegador: 4 canvas, Chart.js servido 200, `dashboard.js` sin errores de
   sintaxis, `data-chart` = JSON válido y parseable con los valores correctos. 86 tests verdes. **Pendiente:
   validación visual por el usuario en el navegador + desplegar.**
+
+## 2026-07-05 · Fix del campo país: combo input+datalist (el select con buscador suelto fallaba)
+
+- **Contexto:** el usuario reportó que no podía dar de alta un socio: el campo país mostraba "must be a string
+  with min/max length of 2" con España seleccionada, y además el buscador suelto encima del select era mala
+  UX. El patrón anterior (input `data-pais-buscador` que ocultaba `<option>` de un `<select>`) era frágil.
+- **Decisión:** sustituir por un **combo `<input list>` + `<datalist>`** con buscador nativo integrado (sin
+  caja separada). El usuario ve/teclea el **nombre**; un manejador externo (`site.js`, `data-pais-combo`)
+  resuelve el **código ISO** y lo escribe en un **campo oculto** `PaisResidencia` (`data-pais-codigo`), que es
+  el que se bindea y valida. En edición se precarga el nombre desde el código (`Paises.Nombre`). Si el texto
+  no corresponde a ningún país, el código queda vacío → el servidor lo rechaza con mensaje claro
+  ("Selecciona un país de residencia de la lista.", ya no el críptico de longitud).
+- **Ajuste asociado:** el preselect de prefijo telefónico por país (en `validacion-socio.js`) pasa a leer el
+  código del campo oculto y a escuchar el `input` del combo (antes escuchaba el `change` del select).
+- **Alternativas descartadas:** select nativo simple sin buscador (funcionaría pero el usuario quería buscador
+  integrado); arreglar el patrón input+select ocultando options (mantiene la fragilidad).
+- **Estado:** **corregido y verificado por HTTP (05-07):** alta con España → 302 (antes fallaba); país vacío
+  → rechazado con mensaje claro. 86 tests verdes. **Pendiente validación visual del usuario** (filtrado del
+  combo al teclear) + desplegar.

@@ -73,8 +73,31 @@ mejoras, ya HECHAS y commiteadas (SIN desplegar aún):
 Verificado por HTTP (sesión admin): `data-val-iban` en Create y Edit, tabla en Edit del socio con acciones,
 POST de baja desde Edit OK (302→Finalizada). Doble-click confirmado visualmente por el usuario. **93 tests
 verdes, build OK.** Playwright sigue bloqueado por el entorno (ERR_BLOCKED_BY_CLIENT en localhost, es el
-navegador headless del entorno, NO Norton — descartado probando ambos puertos). **PENDIENTE: desplegar** estas
-dos mejoras (se pueden desplegar ya o junto al front público).
+navegador headless del entorno, NO Norton — descartado probando ambos puertos). **DESPLEGADO a producción**
+(05-07, `RuntimeSuccessful`; verificado por HTTP: `data-val-iban` + `colaboracion-form.js` en el form de
+colaboración, tabla de colaboraciones en Edit del socio, home 200, /Admin 302). Commit `b95e146`.
+
+**05-07 (noche) — CSP estricta activada.** Se cerró el hueco: había disciplina anti-inline pero NO cabecera
+CSP. Middleware `SecurityHeadersMiddleware` emite `default-src 'self'` sin `unsafe-inline` (+ X-Content-Type,
+Referrer-Policy, X-Frame-Options) en cada respuesta; registrado tras `UseHttpsRedirection`. Quitado el
+`<script type="importmap">` vacío del layout. Auditado: 0 inline / 0 CDN en las vistas propias. Verificado en
+local (cabecera en home/login/back; login+Socios+Economia 200; escaneo de 5 páginas = 0 inline). Esto fija las
+reglas ANTES de escribir el front, que irá CSP-safe.
+
+## FRONT PÚBLICO — arranque (siguiente foco)
+
+Material listo para montar el front (bloque grande siguiente):
+- **Alcance acordado:** one-page informativa (Inicio/Actividad/Filosofía/Objetivos/Contacto con anclas, como
+  la web vieja) + **formulario público→BD** (reusa Socio/Colaboracion; zona sensible: antiforgery, validación
+  server, rate-limit/anti-bot, RGPD). Assets servidos en LOCAL (CSP).
+- **Marca:** logo `wwwroot/images/brand/logo.png`. Paleta: naranja `#f7941d` (CTA) + verde `#24b662` (acento)
+  + teal `#33667c` (títulos) sobre blanco, texto `#555`. Tipografía **Poppins** (descargar woff2 a local).
+- **Assets descargados** a `wwwroot/images/brand/` (logo + actividad/filosofia/objetivos.jpg) PERO las 3 fotos
+  sin optimizar (1-4 MB c/u) → **optimizar antes de usar** (redimensionar ~1600px, ~80% calidad, <300 KB).
+- **Contenido literal** extraído de www.dididai.org (textos de las 4 secciones + 7 objetivos de los Estatutos +
+  formulario con 3 opciones Socio/Donación/Microdonación). Detalle en el log semanal.
+- **AVISO seguridad:** el IBAN real de la ONG está expuesto en la web vieja; **NO copiarlo** al repo público
+  (usar datos ficticios en ejemplos). El nombre del orfanato es "BalMandir", Katmandú.
 
 ---
 

@@ -76,9 +76,20 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-05 (noche) — CSP estricta activada (endurecimiento previo al front público)**: el proyecto seguía
+  la disciplina anti-inline (todo el JS externo) pero NO tenía cabecera `Content-Security-Policy` activa. Se
+  añade middleware `SecurityHeadersMiddleware` que emite en cada respuesta una CSP `default-src 'self'` sin
+  `unsafe-inline` (script/style/img/font/connect self; img+`data:`; object-src none; base-uri/frame-ancestors/
+  form-action self) más `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer` y `X-Frame-Options:
+  SAMEORIGIN`. Registrado tras `UseHttpsRedirection` para cubrir estáticos e Identity. Quitado el `<script
+  type="importmap">` vacío del layout. Auditoría: 0 inline / 0 CDN en las vistas propias; verificado en local
+  (cabecera en home/login/back; login+Socios+Economia 200; escaneo de 5 páginas servidas = 0 inline). Fija las
+  reglas ANTES de escribir el front público (que se montará CSP-safe). Desplegado a producción tras verificar.
 - **2026-07-05 (tras validación del usuario) — Fix doble-click IBAN + gestión de colaboraciones desde Edit**:
   el usuario probó el núcleo en producción (5 gráficas + editar colaboración OK) y pidió dos mejoras, ya
-  hechas y commiteadas (**sin desplegar aún**). (1) **Doble-click al guardar IBAN**: el IBAN solo validaba en
+  hechas, commiteadas (`b95e146`) y **DESPLEGADAS a producción** (verificado por HTTP: `data-val-iban` +
+  `colaboracion-form.js` en el form de colaboración, tabla de colaboraciones en Edit del socio). (1)
+  **Doble-click al guardar IBAN**: el IBAN solo validaba en
   servidor, el mensaje de error persistía hasta una interacción y el primer submit se "gastaba" limpiándolo.
   Corregido con **validación de cliente real**: atributo `[Iban]` (`IClientModelValidator`, ya existía) en los
   ViewModels de Create/Edit de colaboración + adaptador jquery-validation `iban` en `colaboracion-form.js`
@@ -228,6 +239,12 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 - Repo público sin gestión de secretos establecida — MEDIO · MITIGADO EN CURSO (la connection string es solo
   la ruta del `.db`; **las credenciales del seed admin ya van por User Secrets**, no en el repo. Al desplegar,
   llevarlas a variables de entorno en Azure. El riesgo crece con API keys —email real, etc.).
+- ~~Sin CSP activa pese a la disciplina anti-inline~~ — RESUELTO (05-07): `SecurityHeadersMiddleware` emite una
+  CSP estricta `default-src 'self'` sin `unsafe-inline` en toda la app; verificado que no rompe front, login ni
+  back. El front público se montará respetándola.
+- **Formulario público→BD (pendiente, siguiente bloque)** — MEDIO · A DISEÑAR: el front público incluirá un
+  form de alta sin login que escribe en la BD. Superficie nueva: exige antiforgery, validación de servidor,
+  rate-limit / anti-bot (honeypot) y consentimiento RGPD. Diseñar con repaso de seguridad propio.
 - Datos personales de socios en repo/BD (RGPD) — MEDIO · MITIGADO PARCIALMENTE (`*.db` en `.gitignore`; falta
   garantizar datos anonimizados en la demo. `Dni`/`Iban` sin cifrar a nivel de columna: fuera de MVP).
 - ~~Alcance funcional sin especificar~~ — RESUELTO (MVP definido 2026-07-03).

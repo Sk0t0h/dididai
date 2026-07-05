@@ -100,6 +100,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Cabeceras de seguridad (CSP estricta + endurecimiento) en cada respuesta. Va
+// temprano para cubrir también los estáticos y las páginas de Identity.
+app.UseMiddleware<DididaiApp.Services.SecurityHeadersMiddleware>();
+
 // Aplica la cultura de la petición (cookie del selector → Accept-Language →
 // idioma por defecto) antes del enrutado, para que las vistas se localicen.
 app.UseRequestLocalization();

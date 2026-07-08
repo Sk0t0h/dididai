@@ -5,16 +5,70 @@
 
 // Confirmación de acciones sensibles (p. ej. dar de baja un socio) sin usar
 // manejadores inline (CSP): el botón lleva la clase .js-confirm y el mensaje en
-// data-confirm; si el usuario cancela, se detiene el envío del formulario.
-document.addEventListener("submit", function (e) {
-    var boton = e.submitter;
-    if (boton && boton.classList.contains("js-confirm")) {
-        var mensaje = boton.getAttribute("data-confirm") || "¿Confirmar la acción?";
-        if (!window.confirm(mensaje)) {
-            e.preventDefault();
+// data-confirm. En vez del window.confirm() nativo (feo y fuera de la marca), se
+// muestra una modal propia; el envío del formulario se reanuda solo si se confirma.
+(function () {
+    var modal = null;      // nodo de la modal (se crea una vez, perezosamente)
+    var textoEl = null;    // párrafo del mensaje
+    var btnOk = null;      // botón que ejecuta la acción
+    var btnCancel = null;  // botón cancelar
+    var pendiente = null;  // formulario cuyo envío está a la espera de confirmación
+
+    function crearModal() {
+        modal = document.createElement("div");
+        modal.className = "confirm-overlay";
+        modal.setAttribute("hidden", "");
+        modal.innerHTML =
+            '<div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="confirm-txt">' +
+            '  <p class="confirm-txt" id="confirm-txt"></p>' +
+            '  <div class="confirm-acciones">' +
+            '    <button type="button" class="btn btn-sm confirm-cancel" data-confirm-cancel>Cancelar</button>' +
+            '    <button type="button" class="btn btn-sm confirm-ok" data-confirm-ok>Confirmar</button>' +
+            '  </div>' +
+            '</div>';
+        document.body.appendChild(modal);
+        textoEl = modal.querySelector(".confirm-txt");
+        btnOk = modal.querySelector("[data-confirm-ok]");
+        btnCancel = modal.querySelector("[data-confirm-cancel]");
+
+        function cerrar() { modal.setAttribute("hidden", ""); pendiente = null; }
+        function confirmar() {
+            var form = pendiente;
+            cerrar();
+            // requestSubmit conserva el submitter (asp-page-handler) y respeta la
+            // validación; el submit ya pasó el interceptor con el flag de confirmado.
+            if (form) { form.dataset.confirmed = "1"; form.requestSubmit(); }
         }
+        btnCancel.addEventListener("click", cerrar);
+        btnOk.addEventListener("click", confirmar);
+        // Clic fuera del cuadro = cancelar; Esc = cancelar.
+        modal.addEventListener("click", function (e) { if (e.target === modal) cerrar(); });
+        document.addEventListener("keydown", function (e) {
+            if (!modal.hasAttribute("hidden") && e.key === "Escape") cerrar();
+        });
     }
-});
+
+    document.addEventListener("submit", function (e) {
+        var form = e.target;
+        var boton = e.submitter;
+        if (!boton || !boton.classList.contains("js-confirm")) return;
+        // Segundo paso: ya confirmado, dejar pasar el envío.
+        if (form.dataset.confirmed === "1") { delete form.dataset.confirmed; return; }
+
+        // Primer paso: frenar el envío y pedir confirmación en la modal.
+        e.preventDefault();
+        if (!modal) crearModal();
+        textoEl.textContent = boton.getAttribute("data-confirm") || "¿Confirmar la acción?";
+        // El texto del botón de acción refleja la acción real (p. ej. "Rechazar"),
+        // no un "Confirmar" genérico. Se toma de data-confirm-ok del botón que dispara.
+        btnOk.textContent = boton.getAttribute("data-confirm-ok") || "Confirmar";
+        pendiente = form;
+        modal.removeAttribute("hidden");
+        // En acciones potencialmente destructivas, el foco va a Cancelar (opción segura),
+        // no al botón que ejecuta.
+        btnCancel.focus();
+    });
+})();
 
 // Selector de idioma: al cambiar la opción, se envía el formulario que fija la
 // cultura en la cookie (manejador externo, sin inline, para respetar la CSP).

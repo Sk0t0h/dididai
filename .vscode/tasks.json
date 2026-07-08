@@ -1,0 +1,70 @@
+{
+    // Tareas del proyecto DIDIDAI (ASP.NET Core Razor Pages).
+    // El JS/CSS de wwwroot/ es estático: no hay pipeline propio, se sirve tal cual.
+    // El "build" real es el de .NET (dotnet build), que valida C# + Razor.
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // Build por defecto -> la dispara Ctrl+Alt+B (workbench.action.tasks.build).
+            "label": "build",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/DididaiApp.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiYellow"
+            },
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "clear": true
+            }
+        },
+        {
+            "label": "test",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "test",
+                "${workspaceFolder}/DididaiApp.sln",
+                "--nologo"
+            ],
+            "icon": {
+                "id": "beaker",
+                "color": "terminal.ansiGreen"
+            },
+            "problemMatcher": "$msCompile",
+            "group": "test"
+        },
+        {
+            // La app: dotnet run del proyecto web. La invoca Ctrl+Alt+R (args "run-all").
+            "label": "run-all",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/DididaiApp/DididaiApp.csproj"
+            ],
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiCyan"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}

@@ -114,7 +114,9 @@
   <data name="Col_TipoDonacionDesc" xml:space="preserve"><value>Aportación puntual</value></data>
   <data name="Col_TipoMicro" xml:space="preserve"><value>Microdonación</value></data>
   <data name="Col_TipoMicroDesc" xml:space="preserve"><value>1 €/mes · Teaming</value></data>
-  <data name="Col_TipoMicroEnlace" xml:space="preserve"><value>Unirme al grupo de Teaming →</value></data>
+  <data name="Col_TeamingLead" xml:space="preserve"><value>Dona 1 €/mes a través de nuestro grupo de Teaming. La gestión y el cobro los lleva Teaming, sin comisiones: no necesitamos tus datos aquí.</value></data>
+  <data name="Col_TeamingCta" xml:space="preserve"><value>Únete a mi Grupo</value></data>
+  <data name="Col_TeamingNota" xml:space="preserve"><value>Se abre teaming.net en una pestaña nueva.</value></data>
   <data name="Col_Gracias" xml:space="preserve"><value>¡Gracias! Hemos recibido tu solicitud. Nuestro equipo la revisará y te escribirá para confirmar los detalles.</value></data>
   <!-- Formulario (campos) -->
   <data name="Form_Nombre" xml:space="preserve"><value>Nombre</value></data>

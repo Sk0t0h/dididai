@@ -163,11 +163,21 @@
                     <div class="tipo @(tipoSel == 2 ? "sel" : "")" data-tipo="2" tabindex="0" role="button" aria-pressed="@(tipoSel == 2 ? "true" : "false")">
                         <span class="t-nombre">@Localizer["Col_TipoMicro"]</span>
                         <span class="t-desc">@Localizer["Col_TipoMicroDesc"]</span>
-                        <a class="t-link" href="https://www.teaming.net/dididaiong" target="_blank" rel="noopener" data-stop-tipo>@Localizer["Col_TipoMicroEnlace"]</a>
                     </div>
                 </div>
                 <input type="hidden" name="Colaborar.Tipo" value="@tipoSel" data-tipo-input />
 
+                @* Panel Teaming: la microdonación se gestiona en la plataforma de Teaming,
+                   NO por este formulario (no recogemos datos del socio). Al elegir ese tipo,
+                   front.js oculta los campos y muestra este panel con el enlace a Teaming. *@
+                <div class="teaming-panel" data-panel-teaming hidden>
+                    <p class="teaming-lead">@Localizer["Col_TeamingLead"]</p>
+                    <a class="btn-pill btn-naranja" href="https://www.teaming.net/dididaiong" target="_blank" rel="noopener">@Localizer["Col_TeamingCta"]</a>
+                    <p class="teaming-nota">@Localizer["Col_TeamingNota"]</p>
+                </div>
+
+                @* Campos del formulario: se ocultan cuando el tipo es microdonación. *@
+                <div data-form-campos>
                 <div class="row2">
                     <div class="campo">
                         <label asp-for="Colaborar.Nombre">@Localizer["Form_Nombre"]</label>
@@ -202,9 +212,7 @@
 
                 <div class="campo" data-campo-periodicidad>
                     <label asp-for="Colaborar.Periodicidad">@Localizer["Form_Periodicidad"]</label>
-                    <select asp-for="Colaborar.Periodicidad" asp-items="Html.GetEnumSelectList<ModalidadCuota>()">
-                        <option value="">@Localizer["Form_PeriodicidadDefault"]</option>
-                    </select>
+                    <select asp-for="Colaborar.Periodicidad" asp-items="Html.GetEnumSelectList<ModalidadCuota>()"></select>
                 </div>
 
                 @* Honeypot antispam: oculto para humanos, presente para bots. *@
@@ -221,6 +229,7 @@
 
                 <button type="submit" class="btn-enviar">@Localizer["Form_Enviar"]</button>
                 <p class="form-nota">@Localizer["Form_Nota"]</p>
+                </div>@* /data-form-campos *@
             </form>
         </div>
     </section>
@@ -238,7 +247,7 @@
 <footer class="site-footer">
     <div class="wrap bar">
         <div>@Localizer["Footer_Left"]</div>
-        <div><a href="#colaborar">@Localizer["Nav_Colaborar"]</a> · <a href="mailto:info@@dididai.org">info@@dididai.org</a> · <a asp-area="Identity" asp-page="/Account/Login">@Localizer["Footer_Acceso"]</a></div>
+        <div><a href="#colaborar">@Localizer["Nav_Colaborar"]</a> · <a href="mailto:info@@dididai.org">info@@dididai.org</a> · <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Admin">@Localizer["Footer_Acceso"]</a></div>
     </div>
 </footer>
 

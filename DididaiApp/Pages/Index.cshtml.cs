@@ -63,12 +63,8 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        // El consentimiento RGPD es obligatorio: un bool [Required] valida presencia, no
-        // que sea true; se comprueba explícitamente.
-        if (!Colaborar.AceptaPrivacidad)
-            ModelState.AddModelError("Colaborar.AceptaPrivacidad",
-                _localizer["Form_Error_Consentimiento"].Value);
-
+        // El consentimiento RGPD (obligatorio) lo valida [CasillaObligatoria] en el
+        // ViewModel, que añade el error al ModelState si la casilla no está marcada.
         if (!ModelState.IsValid)
             return Page();
 
@@ -142,14 +138,18 @@ public class IndexModel : PageModel
         [Display(Name = "Importe (€)")]
         public decimal? Importe { get; set; }
 
+        // Preseleccionada en Mensual: es el caso habitual y, sobre todo, lo que el
+        // usuario ve en el <select> coincide con lo que se guardará (nada oculto). Puede
+        // cambiarla a Anual. Solo aplica al tipo Socio.
         [Display(Name = "Periodicidad")]
-        public ModalidadCuota? Periodicidad { get; set; }
+        public ModalidadCuota? Periodicidad { get; set; } = ModalidadCuota.Mensual;
 
-        // El consentimiento RGPD es obligatorio. Un bool [Required] no basta (valida
-        // presencia, no que sea true); [Range(true,true)] fuerza el valor true y, además,
-        // emite el data-val que jquery-validation consume para bloquearlo en CLIENTE
-        // (evita el submit "gastado" cuando el usuario no marca la casilla).
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Necesitamos tu consentimiento para tratar tus datos y gestionar la colaboración.")]
+        // El consentimiento RGPD es obligatorio. [CasillaObligatoria] valida (servidor y
+        // cliente vía adaptador propio, por 'checked') que la casilla esté marcada.
+        // Debe ser bool no-nullable: asp-for type="checkbox" no admite bool?. El atributo
+        // se encarga además de eliminar el 'required' implícito que ASP.NET añade a los
+        // bool (mensaje en inglés y falso positivo por el hidden value="false").
+        [CasillaObligatoria(ErrorMessage = "Necesitamos tu consentimiento para tratar tus datos y gestionar la colaboración.")]
         [Display(Name = "Acepto la política de privacidad")]
         public bool AceptaPrivacidad { get; set; }
     }

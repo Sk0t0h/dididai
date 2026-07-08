@@ -27,13 +27,16 @@
 
   // ---------- Selector de tipo de colaboración + campos por tipo ----------
   // Cada tarjeta .tipo tiene data-tipo con el valor del enum (0/1/2).
-  // Al elegir, se marca visualmente, se escribe el hidden y se muestran/ocultan
-  // los campos que aplican: Socio -> periodicidad; Microdonación -> importe fijo 1€.
+  // Al elegir, se marca visualmente, se escribe el hidden y se ajusta el formulario:
+  //   Socio        -> muestra periodicidad.
+  //   Donación     -> importe puntual.
+  //   Microdonación-> NO usa este formulario (se gestiona en Teaming): se ocultan los
+  //                   campos y se muestra el panel con el enlace a Teaming.
   var tipos = Array.prototype.slice.call(document.querySelectorAll("[data-tipo]"));
   var hiddenTipo = document.querySelector("[data-tipo-input]");
-  var campoImporte = document.querySelector("[data-campo-importe]");
-  var inputImporte = document.querySelector("[data-input-importe]");
   var campoPeriodicidad = document.querySelector("[data-campo-periodicidad]");
+  var formCampos = document.querySelector("[data-form-campos]");
+  var panelTeaming = document.querySelector("[data-panel-teaming]");
 
   // Valores del enum TipoColaboracionSolicitada (deben coincidir con el back).
   var T_SOCIO = "0", T_DONACION = "1", T_MICRO = "2";
@@ -46,29 +49,18 @@
       t.setAttribute("aria-pressed", sel ? "true" : "false");
     });
 
+    // Microdonación se deriva a Teaming: sin campos ni envío por este formulario.
+    var esMicro = valor === T_MICRO;
+    if (formCampos) formCampos.hidden = esMicro;
+    if (panelTeaming) panelTeaming.hidden = !esMicro;
+
     // Periodicidad solo para "Hacerme socio/a".
     if (campoPeriodicidad) campoPeriodicidad.hidden = valor !== T_SOCIO;
-
-    // Microdonación: importe fijo 1 €/mes, no editable.
-    if (campoImporte && inputImporte) {
-      if (valor === T_MICRO) {
-        inputImporte.value = "1";
-        inputImporte.readOnly = true;
-      } else {
-        inputImporte.readOnly = false;
-        if (inputImporte.defaultValue === "" && inputImporte.value === "1") inputImporte.value = "";
-      }
-    }
   }
 
   tipos.forEach(function (t) {
     var valor = t.getAttribute("data-tipo");
-    t.addEventListener("click", function (e) {
-      // Un enlace dentro de la tarjeta (p. ej. Teaming) no debe seleccionar el tipo:
-      // dejar que el navegador siga el enlace sin más.
-      if (e.target.closest("[data-stop-tipo]")) return;
-      aplicarTipo(valor);
-    });
+    t.addEventListener("click", function () { aplicarTipo(valor); });
     t.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); aplicarTipo(valor); }
     });

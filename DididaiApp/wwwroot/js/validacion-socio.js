@@ -116,6 +116,14 @@
         });
         $.validator.unobtrusive.adapters.addBool("telefonoe164");
 
+        // Casilla obligatoria (consentimiento): válida solo si el checkbox está MARCADO.
+        // Se valida por element.checked, no por el value: para un bool ASP.NET añade un
+        // hidden value="false" con el mismo name que haría pasar un 'required' normal.
+        $.validator.addMethod("casillaobligatoria", function (value, element) {
+            return element.checked === true;
+        });
+        $.validator.unobtrusive.adapters.addBool("casillaobligatoria");
+
         // Documento por tipo: lee el <select> del tipo (mismo formulario) y revalida
         // el documento cuando ese tipo cambia.
         $.validator.addMethod("documentoportipo", function (value, element, params) {
@@ -140,12 +148,35 @@
         });
     }
 
+    // ASP.NET añade un 'required' implícito al checkbox (bool no-nullable). Con su hidden
+    // value="false" da un falso positivo (lo cuenta como relleno) y trae mensaje en inglés.
+    // Se retira ese data-val-required de los checkboxes que ya llevan casillaobligatoria y,
+    // si unobtrusive ya había parseado el form, se fuerza el reparseo para que la regla
+    // 'required' desaparezca de verdad y solo aplique 'casillaobligatoria'.
+    function limpiarRequiredDeCasillas() {
+        if (!window.jQuery || !window.jQuery.validator || !window.jQuery.validator.unobtrusive) return;
+        var $ = window.jQuery;
+        var casillas = document.querySelectorAll('input[type="checkbox"][data-val-casillaobligatoria][data-val-required]');
+        if (!casillas.length) return;
+        casillas.forEach(function (el) { el.removeAttribute("data-val-required"); });
+        // Reparsear cada formulario afectado: se descarta el validador ya construido y se
+        // vuelve a leer del DOM (ya sin el required).
+        casillas.forEach(function (el) {
+            var form = el.closest("form");
+            if (!form) return;
+            var $form = $(form);
+            $form.removeData("validator").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse(form);
+        });
+    }
+
     function init() {
         var forms = document.querySelectorAll("form");
         for (var i = 0; i < forms.length; i++) {
             if (forms[i].querySelector("[data-tel-completo]")) initTelefono(forms[i]);
         }
         initAdaptadores();
+        limpiarRequiredDeCasillas();
     }
 
     if (document.readyState === "loading") {

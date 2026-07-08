@@ -89,7 +89,7 @@
                                     asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Aprobada">
                                 Aprobar
                             </button>
-                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Rechazar esta solicitud?"
+                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Rechazar esta solicitud?" data-confirm-ok="Rechazar"
                                     asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Rechazada">
                                 Rechazar
                             </button>

@@ -265,11 +265,13 @@ body.front {
 .tipo.sel { border-color: var(--c-naranja); background: #fff6e9; box-shadow: 0 0 0 3px rgba(247, 148, 29, .12); }
 .tipo .t-nombre { font-weight: 600; color: var(--c-tinta); display: block; font-size: .92rem; }
 .tipo .t-desc { font-size: .74rem; color: var(--c-cuerpo); }
-.tipo .t-link {
-  display: inline-block; margin-top: .45rem; font-size: .72rem; font-weight: 600;
-  color: var(--c-naranja-osc); text-decoration: underline;
+/* Panel Teaming: se muestra en lugar de los campos cuando el tipo es microdonación. */
+.teaming-panel {
+  text-align: center; padding: 1.6rem 1rem; border: 1.6px dashed var(--c-arena);
+  border-radius: 12px; background: #fff8ee;
 }
-.tipo .t-link:hover { color: var(--c-terracota); }
+.teaming-lead { color: var(--c-tinta); font-size: .95rem; line-height: 1.55; margin: 0 auto 1.1rem; max-width: 34ch; }
+.teaming-nota { color: var(--c-cuerpo); font-size: .74rem; margin: .9rem 0 0; }
 
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .campo { margin-bottom: 1rem; }

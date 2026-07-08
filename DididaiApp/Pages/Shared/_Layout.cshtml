@@ -24,9 +24,29 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">@Localizer["Nav_Home"]</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
-                        </li>
+                        @* Menú de gestión: solo con sesión iniciada (back de admin). El
+                           front público usa _PublicLayout, así que aquí no aparece. *@
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Index">Panel</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
+                            </li>
+                        }
                     </ul>
                     <div class="d-flex align-items-center gap-3">
                         <form asp-page="/SetLanguage" method="post" class="mb-0" data-lang-form>

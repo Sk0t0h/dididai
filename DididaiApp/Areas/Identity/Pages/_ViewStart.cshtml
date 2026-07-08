@@ -1,0 +1,8 @@
+@{
+    // Las páginas de la Default UI de Identity (Login, Manage, etc.) vienen
+    // compiladas en su ensamblado y NO heredan el _ViewStart de /Pages. Sin esto
+    // usan su layout propio y salen sin los estilos del proyecto. Al fijar aquí el
+    // layout del back, todas las páginas de Identity adoptan la navbar de marca y
+    // site.css, sin necesidad de scaffoldear cada página.
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}

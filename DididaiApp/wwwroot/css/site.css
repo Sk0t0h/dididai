@@ -110,3 +110,87 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
 .footer {
   background-color: transparent;
 }
+
+/* ---------- Tablas del back: menos planas, con acento de marca ---------- */
+.table {
+  --bs-table-hover-bg: #fbf1e0;
+  --bs-table-striped-bg: #fdf8f0;
+  border-color: #eaddc8;
+}
+.table > thead th {
+  /* El fondo debe ir en la CELDA: Bootstrap pinta cada th con su propio
+     --bs-table-bg, que taparía un background puesto solo en <thead>. */
+  background-color: var(--c-tinta);
+  color: #fdf3e6;
+  font-weight: 600;
+  border-bottom: 2px solid var(--c-naranja);
+  white-space: nowrap;
+}
+.table > tbody tr:hover > * {
+  background-color: var(--bs-table-hover-bg);
+}
+.table > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--bs-table-striped-bg);
+}
+/* Tablas "de fichas" clave/valor (thead sin sentido): no oscurecer su cabecera. */
+.table.tabla-kv > thead th,
+.table.table-borderless > thead th {
+  background-color: transparent;
+  color: inherit;
+  border-bottom-color: #eaddc8;
+}
+
+/* ---------- Modal de confirmación (sustituye a window.confirm) ---------- */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(36, 26, 18, .55);
+}
+.confirm-overlay[hidden] { display: none; }
+.confirm-box {
+  background: #fff;
+  border-radius: 14px;
+  border-top: 4px solid var(--c-naranja);
+  box-shadow: 0 18px 50px rgba(36, 26, 18, .3);
+  max-width: 420px;
+  width: 100%;
+  padding: 1.4rem 1.4rem 1.1rem;
+}
+.confirm-txt {
+  margin: 0 0 1.1rem;
+  color: var(--c-tinta);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.confirm-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: .6rem;
+}
+/* Botón de acción: naranja suave (contorno), para no gritar en acciones destructivas.
+   Botón cancelar: neutro. El foco por defecto va a Cancelar (ver site.js). */
+.confirm-ok {
+  color: var(--c-naranja-osc);
+  background: #fff;
+  border: 1.5px solid var(--c-naranja);
+}
+.confirm-ok:hover,
+.confirm-ok:focus-visible {
+  color: #fff;
+  background: var(--c-naranja);
+  border-color: var(--c-naranja);
+}
+.confirm-cancel {
+  color: var(--c-tinta);
+  background: #f1e9db;
+  border: 1.5px solid transparent;
+}
+.confirm-cancel:hover,
+.confirm-cancel:focus-visible {
+  background: #e7dcc9;
+}

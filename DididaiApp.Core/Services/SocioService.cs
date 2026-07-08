@@ -51,6 +51,25 @@ public class SocioService : ISocioService
         return _db.Socios.FirstOrDefaultAsync(s => s.Dni == norm);
     }
 
+    public async Task<IReadOnlyList<Socio>> BuscarPosiblesCoincidenciasAsync(string? email, string? telefono)
+    {
+        // Email: normalizado igual que se busca (trim + minúsculas). Teléfono: normalizado
+        // con la misma función que en el alta (para comparar E.164 sin espacios/símbolos).
+        var mail = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
+        var tel = string.IsNullOrWhiteSpace(telefono) ? null : ValidacionIdentidad.NormalizarTelefono(telefono);
+
+        // Sin ningún criterio no se busca (evita devolver toda la tabla).
+        if (mail is null && tel is null)
+            return [];
+
+        return await _db.Socios.AsNoTracking()
+            .Where(s => s.FechaBaja == null &&
+                        ((mail != null && s.Email.ToLower() == mail) ||
+                         (tel != null && s.Telefono == tel)))
+            .OrderBy(s => s.Apellidos).ThenBy(s => s.Nombre)
+            .ToListAsync();
+    }
+
     public async Task<ResultadoAlta> CrearAsync(Socio socio)
     {
         socio.PaisResidencia = NormalizarPais(socio.PaisResidencia);

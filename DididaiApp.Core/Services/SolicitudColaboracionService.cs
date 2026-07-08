@@ -108,4 +108,19 @@ public class SolicitudColaboracionService : ISolicitudColaboracionService
         await _db.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> VincularSocioAsync(int solicitudId, int socioId)
+    {
+        var solicitud = await _db.SolicitudesColaboracion.FirstOrDefaultAsync(s => s.Id == solicitudId);
+        if (solicitud is null)
+            return false;
+
+        var existeSocio = await _db.Socios.AnyAsync(s => s.Id == socioId);
+        if (!existeSocio)
+            return false;
+
+        solicitud.SocioId = socioId;
+        await _db.SaveChangesAsync();
+        return true;
+    }
 }

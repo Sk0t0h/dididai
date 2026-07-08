@@ -71,69 +71,25 @@
                 </dl>
             </div>
         </div>
-    </div>
 
-    <div class="col-12 col-lg-5">
-        @if (s.Estado == EstadoSolicitud.Pendiente)
-        {
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Revisar</h5>
-                    <p class="card-text text-muted small">Aprobar o rechazar deja constancia de la revisión. Aprobar no da de alta al socio automáticamente: usa el botón para crear el socio con estos datos precargados.</p>
-                    <form method="post">
-                        <div class="mb-3">
-                            <label for="Nota" class="form-label">Nota (opcional)</label>
-                            <textarea class="form-control" id="Nota" name="Nota" rows="2" maxlength="500" placeholder="Motivo del rechazo, seguimiento…"></textarea>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" class="btn btn-success"
-                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Aprobada">
-                                Aprobar
-                            </button>
-                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Cancelar esta solicitud?" data-confirm-ok="Cancelar solicitud"
-                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Cancelada">
-                                Cancelar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        }
-
-        @if (s.Estado != EstadoSolicitud.Cancelada)
-        {
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Dar de alta al socio</h5>
-                    <p class="card-text text-muted small">Abre el alta de socio con nombre, apellidos, email y teléfono precargados. Completa el resto (documento, dirección y, si es cuota domiciliada, el IBAN).</p>
-                    <a class="btn btn-primary"
-                       asp-page="/Admin/Socios/Create"
-                       asp-route-nombre="@s.Nombre"
-                       asp-route-apellidos="@s.Apellidos"
-                       asp-route-email="@s.Email"
-                       asp-route-telefono="@s.Telefono">
-                        Crear socio con estos datos
-                    </a>
-                </div>
-            </div>
-        }
-
-        @* --- Historial de gestión --- *@
-        <div class="card mt-3">
+        @* --- Historial de gestión (columna izquierda, bajo los datos) --- *@
+        <div class="card mt-4">
             <div class="card-body">
                 <h5 class="card-title">Gestión</h5>
                 <p class="card-text text-muted small">Registra cada contacto o seguimiento. La primera acción pasa la solicitud a «Gestionando». Queda constancia de quién y cuándo.</p>
 
                 <form method="post" class="mb-3">
-                    <div class="mb-2">
-                        <label asp-for="AccionTipo" class="form-label">Tipo</label>
-                        <select asp-for="AccionTipo" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<TipoAccionSolicitud>()"></select>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-sm-4">
+                            <label asp-for="AccionTipo" class="form-label">Tipo</label>
+                            <select asp-for="AccionTipo" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<TipoAccionSolicitud>()"></select>
+                        </div>
+                        <div class="col-12 col-sm-8">
+                            <label asp-for="AccionNota" class="form-label">Nota</label>
+                            <textarea asp-for="AccionNota" class="form-control" rows="2" maxlength="1000" placeholder="Qué se hizo / habló, seguimiento…"></textarea>
+                        </div>
                     </div>
-                    <div class="mb-2">
-                        <label asp-for="AccionNota" class="form-label">Nota</label>
-                        <textarea asp-for="AccionNota" class="form-control" rows="2" maxlength="1000" placeholder="Qué se hizo / habló, seguimiento…"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-sm btn-primary" asp-page-handler="Accion" asp-route-id="@s.Id">Registrar acción</button>
+                    <button type="submit" class="btn btn-sm btn-primary mt-2" asp-page-handler="Accion" asp-route-id="@s.Id">Registrar acción</button>
                 </form>
 
                 @if (s.Acciones.Count == 0)
@@ -158,5 +114,88 @@
                 }
             </div>
         </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+        @* "Revisar" está disponible mientras la solicitud NO esté resuelta: tanto Pendiente
+           como Gestionando (aprobar/cancelar es justo el paso siguiente a gestionarla). *@
+        @if (s.Estado is EstadoSolicitud.Pendiente or EstadoSolicitud.Gestionando)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Revisar</h5>
+                    <p class="card-text text-muted small">Aprobar o cancelar deja constancia de la resolución. Aprobar no da de alta al socio automáticamente: usa el bloque «Socio» para vincularlo o crearlo.</p>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="Nota" class="form-label">Nota (opcional)</label>
+                            <textarea class="form-control" id="Nota" name="Nota" rows="2" maxlength="500" placeholder="Motivo del rechazo, seguimiento…"></textarea>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-success"
+                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Aprobada">
+                                Aprobar
+                            </button>
+                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Cancelar esta solicitud?" data-confirm-ok="Cancelar solicitud"
+                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Cancelada">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (s.Estado != EstadoSolicitud.Cancelada)
+        {
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Socio</h5>
+
+                    @if (Model.SocioVinculado is Socio vinc)
+                    {
+                        <p class="card-text small mb-2">Esta solicitud está vinculada al socio:</p>
+                        <p class="mb-2"><strong>@vinc.Apellidos, @vinc.Nombre</strong> <span class="text-muted">· @vinc.Email</span></p>
+                        <a class="btn btn-sm btn-outline-primary" asp-page="/Admin/Socios/Details" asp-route-id="@vinc.Id">Ver ficha del socio</a>
+                    }
+                    else
+                    {
+                        @if (Model.PosiblesCoincidencias.Count > 0)
+                        {
+                            <p class="card-text text-muted small">Hay socios que coinciden por email o teléfono. Si la persona ya colabora, vincúlala; si no, crea un socio nuevo.</p>
+                            <ul class="list-unstyled mb-3">
+                                @foreach (var c in Model.PosiblesCoincidencias)
+                                {
+                                    <li class="border-top py-2 d-flex justify-content-between align-items-center gap-2">
+                                        <span>
+                                            <strong>@c.Apellidos, @c.Nombre</strong>
+                                            <span class="text-muted small d-block">@c.Email · @c.Telefono</span>
+                                        </span>
+                                        <form method="post" class="mb-0">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap"
+                                                    asp-page-handler="Vincular" asp-route-id="@s.Id" asp-route-socioId="@c.Id">
+                                                Es este socio
+                                            </button>
+                                        </form>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="card-text text-muted small">No hay socios que coincidan por email o teléfono. Crea un socio nuevo con estos datos.</p>
+                        }
+
+                        <a class="btn btn-primary"
+                           asp-page="/Admin/Socios/Create"
+                           asp-route-nombre="@s.Nombre"
+                           asp-route-apellidos="@s.Apellidos"
+                           asp-route-email="@s.Email"
+                           asp-route-telefono="@s.Telefono">
+                            Crear socio con estos datos
+                        </a>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </div>

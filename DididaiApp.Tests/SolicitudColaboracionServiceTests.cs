@@ -235,6 +235,47 @@ public class SolicitudColaboracionServiceTests : IDisposable
         Assert.False(ok);
     }
 
+    // ---- Vinculación a socio existente (bloque C1) ----
+
+    [Fact]
+    public async Task VincularSocio_FijaSocioId()
+    {
+        await _sut.CrearAsync(Valida());
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = new Socio
+        {
+            Nombre = "Ada", Apellidos = "L", TipoDocumento = TipoDocumento.DniEspanol,
+            Dni = "12345678Z", Email = "ada@x.com", Telefono = "+34600111222",
+            PaisResidencia = "ES", AceptaPrivacidad = true, FechaAlta = DateTime.UtcNow,
+        };
+        _db.Socios.Add(socio);
+        await _db.SaveChangesAsync();
+
+        var ok = await _sut.VincularSocioAsync(solId, socio.Id);
+
+        Assert.True(ok);
+        Assert.Equal(socio.Id, (await _db.SolicitudesColaboracion.SingleAsync()).SocioId);
+    }
+
+    [Fact]
+    public async Task VincularSocio_SocioInexistente_DevuelveFalse()
+    {
+        await _sut.CrearAsync(Valida());
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+
+        var ok = await _sut.VincularSocioAsync(solId, 999);
+
+        Assert.False(ok);
+        Assert.Null((await _db.SolicitudesColaboracion.SingleAsync()).SocioId);
+    }
+
+    [Fact]
+    public async Task VincularSocio_SolicitudInexistente_DevuelveFalse()
+    {
+        var ok = await _sut.VincularSocioAsync(999, 1);
+        Assert.False(ok);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

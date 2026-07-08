@@ -23,6 +23,15 @@ public interface ISocioService
     Task<Socio?> ObtenerPorDniAsync(string dni);
 
     /// <summary>
+    /// Socios ACTIVOS que coinciden por email O por teléfono (normalizados) con los datos
+    /// dados. Es una SUGERENCIA para detectar si una solicitud pública es de alguien que ya
+    /// colabora: como el formulario no pide DNI (la identidad fiable), la coincidencia por
+    /// contacto no es concluyente (familias/gestores comparten email/teléfono) y la decide
+    /// el admin. Devuelve lista vacía si no hay email ni teléfono con los que buscar.
+    /// </summary>
+    Task<IReadOnlyList<Socio>> BuscarPosiblesCoincidenciasAsync(string? email, string? telefono);
+
+    /// <summary>
     /// Crea un socio nuevo. Fija <c>FechaAlta</c>. Falla si el DNI ya existe
     /// (ver <see cref="ResultadoAlta"/> para distinguir el caso "existe de baja").
     /// </summary>

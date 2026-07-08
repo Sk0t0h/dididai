@@ -48,6 +48,13 @@ public interface ISolicitudColaboracionService
     /// Devuelve false si la solicitud no existe o la nota está vacía.
     /// </summary>
     Task<bool> RegistrarAccionAsync(int solicitudId, TipoAccionSolicitud tipo, string nota, string usuario);
+
+    /// <summary>
+    /// Vincula la solicitud a un socio EXISTENTE (el admin ha confirmado que la persona ya
+    /// colabora). Fija <c>SocioId</c>. No cambia el estado (la aprobación es aparte).
+    /// Devuelve false si la solicitud o el socio no existen.
+    /// </summary>
+    Task<bool> VincularSocioAsync(int solicitudId, int socioId);
 }
 
 /// <summary>Resultado del alta de una solicitud pública.</summary>

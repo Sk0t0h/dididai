@@ -117,5 +117,46 @@
                 </div>
             </div>
         }
+
+        @* --- Historial de gestión --- *@
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Gestión</h5>
+                <p class="card-text text-muted small">Registra cada contacto o seguimiento. La primera acción pasa la solicitud a «Gestionando». Queda constancia de quién y cuándo.</p>
+
+                <form method="post" class="mb-3">
+                    <div class="mb-2">
+                        <label asp-for="AccionTipo" class="form-label">Tipo</label>
+                        <select asp-for="AccionTipo" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<TipoAccionSolicitud>()"></select>
+                    </div>
+                    <div class="mb-2">
+                        <label asp-for="AccionNota" class="form-label">Nota</label>
+                        <textarea asp-for="AccionNota" class="form-control" rows="2" maxlength="1000" placeholder="Qué se hizo / habló, seguimiento…"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary" asp-page-handler="Accion" asp-route-id="@s.Id">Registrar acción</button>
+                </form>
+
+                @if (s.Acciones.Count == 0)
+                {
+                    <p class="text-muted small mb-0">Sin acciones registradas.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var a in s.Acciones.OrderByDescending(x => x.Fecha))
+                        {
+                            <li class="border-top py-2">
+                                <div class="d-flex justify-content-between gap-2">
+                                    <span class="fw-semibold">@Html.DisplayFor(_ => a.Tipo)</span>
+                                    <span class="text-muted small text-nowrap">@a.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                                <div>@a.Nota</div>
+                                <div class="text-muted small">@a.Usuario</div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
     </div>
 </div>

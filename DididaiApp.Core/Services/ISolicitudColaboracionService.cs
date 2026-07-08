@@ -39,6 +39,15 @@ public interface ISolicitudColaboracionService
     /// solicitud como punto de partida. Idempotente sobre el estado destino.
     /// </summary>
     Task<bool> ResolverAsync(int id, EstadoSolicitud estado, string? nota);
+
+    /// <summary>
+    /// Registra una acción de gestión (contacto/nota) en el historial de la solicitud.
+    /// <paramref name="usuario"/> y la fecha los fija el llamante/servidor (auditoría; no
+    /// vienen del formulario). Si la solicitud estaba <see cref="EstadoSolicitud.Pendiente"/>,
+    /// pasa a <see cref="EstadoSolicitud.Gestionando"/> (no retrocede estados ya resueltos).
+    /// Devuelve false si la solicitud no existe o la nota está vacía.
+    /// </summary>
+    Task<bool> RegistrarAccionAsync(int solicitudId, TipoAccionSolicitud tipo, string nota, string usuario);
 }
 
 /// <summary>Resultado del alta de una solicitud pública.</summary>

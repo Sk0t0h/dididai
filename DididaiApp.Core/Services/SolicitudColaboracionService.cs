@@ -60,7 +60,9 @@ public class SolicitudColaboracionService : ISolicitudColaboracionService
         _db.SolicitudesColaboracion.CountAsync(s => s.Estado == EstadoSolicitud.Pendiente);
 
     public Task<SolicitudColaboracion?> ObtenerAsync(int id) =>
-        _db.SolicitudesColaboracion.FirstOrDefaultAsync(s => s.Id == id);
+        _db.SolicitudesColaboracion
+            .Include(s => s.Acciones)
+            .FirstOrDefaultAsync(s => s.Id == id);
 
     public async Task<bool> ResolverAsync(int id, EstadoSolicitud estado, string? nota)
     {
@@ -76,6 +78,33 @@ public class SolicitudColaboracionService : ISolicitudColaboracionService
         solicitud.Estado = estado;
         solicitud.NotaRevision = string.IsNullOrWhiteSpace(nota) ? null : nota.Trim();
         solicitud.FechaRevision = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RegistrarAccionAsync(int solicitudId, TipoAccionSolicitud tipo, string nota, string usuario)
+    {
+        if (string.IsNullOrWhiteSpace(nota))
+            return false;
+
+        var solicitud = await _db.SolicitudesColaboracion.FirstOrDefaultAsync(s => s.Id == solicitudId);
+        if (solicitud is null)
+            return false;
+
+        _db.AccionesSolicitud.Add(new AccionSolicitud
+        {
+            SolicitudId = solicitudId,
+            Tipo = tipo,
+            Nota = nota.Trim(),
+            Usuario = usuario,               // lo fija el llamante con el admin autenticado
+            Fecha = DateTime.UtcNow,
+        });
+
+        // La primera gestión saca la solicitud de "Pendiente"; nunca retrocede un estado
+        // ya resuelto (Aprobada/Cancelada) ni re-mueve una que ya está en Gestionando.
+        if (solicitud.Estado == EstadoSolicitud.Pendiente)
+            solicitud.Estado = EstadoSolicitud.Gestionando;
+
         await _db.SaveChangesAsync();
         return true;
     }

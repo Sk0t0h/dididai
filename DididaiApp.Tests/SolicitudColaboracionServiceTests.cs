@@ -172,6 +172,69 @@ public class SolicitudColaboracionServiceTests : IDisposable
         Assert.Equal(1, await _sut.ContarPendientesAsync());
     }
 
+    // ---- Acciones de gestión (bloque B) ----
+
+    [Fact]
+    public async Task RegistrarAccion_FijaUsuarioYFechaEnServidor()
+    {
+        await _sut.CrearAsync(Valida());
+        var id = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+
+        var ok = await _sut.RegistrarAccionAsync(id, TipoAccionSolicitud.Email, "  Contactada por email  ", "admin@dididai.org");
+
+        Assert.True(ok);
+        var accion = await _db.AccionesSolicitud.SingleAsync();
+        Assert.Equal(id, accion.SolicitudId);
+        Assert.Equal(TipoAccionSolicitud.Email, accion.Tipo);
+        Assert.Equal("Contactada por email", accion.Nota);       // recortada
+        Assert.Equal("admin@dididai.org", accion.Usuario);       // la fija el servidor
+        Assert.NotEqual(default, accion.Fecha);
+    }
+
+    [Fact]
+    public async Task RegistrarAccion_PrimeraAccion_PasaPendienteAGestionando()
+    {
+        await _sut.CrearAsync(Valida());
+        var id = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        Assert.Equal(EstadoSolicitud.Pendiente, (await _db.SolicitudesColaboracion.SingleAsync()).Estado);
+
+        await _sut.RegistrarAccionAsync(id, TipoAccionSolicitud.Telefono, "Llamada", "admin@dididai.org");
+
+        Assert.Equal(EstadoSolicitud.Gestionando, (await _db.SolicitudesColaboracion.SingleAsync()).Estado);
+    }
+
+    [Fact]
+    public async Task RegistrarAccion_NoRetrocedeEstadoSiYaResuelta()
+    {
+        await _sut.CrearAsync(Valida());
+        var id = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        await _sut.ResolverAsync(id, EstadoSolicitud.Aprobada, null);
+
+        // Registrar una acción sobre una solicitud ya aprobada no debe devolverla a Gestionando.
+        await _sut.RegistrarAccionAsync(id, TipoAccionSolicitud.Nota, "Seguimiento posterior", "admin@dididai.org");
+
+        Assert.Equal(EstadoSolicitud.Aprobada, (await _db.SolicitudesColaboracion.SingleAsync()).Estado);
+    }
+
+    [Fact]
+    public async Task RegistrarAccion_NotaVacia_DevuelveFalseYNoGuarda()
+    {
+        await _sut.CrearAsync(Valida());
+        var id = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+
+        var ok = await _sut.RegistrarAccionAsync(id, TipoAccionSolicitud.Nota, "   ", "admin@dididai.org");
+
+        Assert.False(ok);
+        Assert.Equal(0, await _db.AccionesSolicitud.CountAsync());
+    }
+
+    [Fact]
+    public async Task RegistrarAccion_SolicitudInexistente_DevuelveFalse()
+    {
+        var ok = await _sut.RegistrarAccionAsync(999, TipoAccionSolicitud.Nota, "x", "admin@dididai.org");
+        Assert.False(ok);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

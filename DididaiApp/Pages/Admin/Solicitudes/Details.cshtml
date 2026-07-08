@@ -6,9 +6,10 @@
     var s = Model.Solicitud;
     var badge = s.Estado switch
     {
-        EstadoSolicitud.Pendiente => "text-bg-warning",
+        EstadoSolicitud.Pendiente => "text-bg-secondary",
+        EstadoSolicitud.Gestionando => "text-bg-warning",
         EstadoSolicitud.Aprobada => "text-bg-success",
-        EstadoSolicitud.Rechazada => "text-bg-secondary",
+        EstadoSolicitud.Cancelada => "text-bg-danger",
         _ => "text-bg-light"
     };
 }
@@ -89,9 +90,9 @@
                                     asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Aprobada">
                                 Aprobar
                             </button>
-                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Rechazar esta solicitud?" data-confirm-ok="Rechazar"
-                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Rechazada">
-                                Rechazar
+                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Cancelar esta solicitud?" data-confirm-ok="Cancelar solicitud"
+                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Cancelada">
+                                Cancelar
                             </button>
                         </div>
                     </form>
@@ -99,7 +100,7 @@
             </div>
         }
 
-        @if (s.Estado != EstadoSolicitud.Rechazada)
+        @if (s.Estado != EstadoSolicitud.Cancelada)
         {
             <div class="card mt-3">
                 <div class="card-body">

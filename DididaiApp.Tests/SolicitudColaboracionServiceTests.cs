@@ -157,7 +157,7 @@ public class SolicitudColaboracionServiceTests : IDisposable
     [Fact]
     public async Task Resolver_IdInexistente_DevuelveFalse()
     {
-        var ok = await _sut.ResolverAsync(999, EstadoSolicitud.Rechazada, null);
+        var ok = await _sut.ResolverAsync(999, EstadoSolicitud.Cancelada, null);
         Assert.False(ok);
     }
 
@@ -167,7 +167,7 @@ public class SolicitudColaboracionServiceTests : IDisposable
         await _sut.CrearAsync(Valida());
         await _sut.CrearAsync(Valida());
         var id = (await _db.SolicitudesColaboracion.FirstAsync()).Id;
-        await _sut.ResolverAsync(id, EstadoSolicitud.Rechazada, null);
+        await _sut.ResolverAsync(id, EstadoSolicitud.Cancelada, null);
 
         Assert.Equal(1, await _sut.ContarPendientesAsync());
     }

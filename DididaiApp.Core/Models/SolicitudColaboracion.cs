@@ -20,17 +20,26 @@ public enum TipoColaboracionSolicitada
     Microdonacion = 2,
 }
 
-/// <summary>Estado de revisión de una <see cref="SolicitudColaboracion"/>.</summary>
+/// <summary>
+/// Estado de una <see cref="SolicitudColaboracion"/> en su ciclo de gestión:
+/// <c>Pendiente</c> (recién llegada, sin tocar) → <c>Gestionando</c> (el admin ha
+/// registrado alguna acción de contacto/seguimiento) → <c>Aprobada</c> (se dará/dio de
+/// alta) o <c>Cancelada</c> (no sigue adelante; el motivo, si lo hay, va en la nota de
+/// una acción, no en un estado aparte).
+/// </summary>
 public enum EstadoSolicitud
 {
     [Display(Name = "Pendiente")]
     Pendiente = 0,
 
-    [Display(Name = "Aprobada")]
-    Aprobada = 1,
+    [Display(Name = "Gestionando")]
+    Gestionando = 1,
 
-    [Display(Name = "Rechazada")]
-    Rechazada = 2,
+    [Display(Name = "Aprobada")]
+    Aprobada = 2,
+
+    [Display(Name = "Cancelada")]
+    Cancelada = 3,
 }
 
 /// <summary>
@@ -111,4 +120,22 @@ public class SolicitudColaboracion
     [StringLength(500)]
     [Display(Name = "Nota del revisor")]
     public string? NotaRevision { get; set; }
+
+    /// <summary>
+    /// Socio al que se ha vinculado esta solicitud (null = sin vincular). Puede apuntar a
+    /// un socio ya existente (la persona ya colaboraba) o al que se creó al darla de alta.
+    /// El vínculo lo decide SIEMPRE el admin: el matching por email/teléfono es solo una
+    /// sugerencia (no hay identificación fiable sin DNI, que el formulario público no pide).
+    /// </summary>
+    public int? SocioId { get; set; }
+
+    /// <summary>Navegación al socio vinculado (ver <see cref="SocioId"/>).</summary>
+    public Socio? Socio { get; set; }
+
+    /// <summary>
+    /// Historial de acciones de gestión (contactos, notas de seguimiento…) sobre esta
+    /// solicitud. Registrar la primera acción mueve la solicitud a
+    /// <see cref="EstadoSolicitud.Gestionando"/>.
+    /// </summary>
+    public ICollection<AccionSolicitud> Acciones { get; set; } = new List<AccionSolicitud>();
 }

@@ -64,8 +64,9 @@ public class SolicitudColaboracionService : ISolicitudColaboracionService
 
     public async Task<bool> ResolverAsync(int id, EstadoSolicitud estado, string? nota)
     {
-        // Solo son estados de resolución válidos Aprobada/Rechazada; "Pendiente" no resuelve.
-        if (estado is not (EstadoSolicitud.Aprobada or EstadoSolicitud.Rechazada))
+        // Solo son estados de resolución válidos Aprobada/Cancelada; Pendiente/Gestionando
+        // no "resuelven".
+        if (estado is not (EstadoSolicitud.Aprobada or EstadoSolicitud.Cancelada))
             return false;
 
         var solicitud = await _db.SolicitudesColaboracion.FirstOrDefaultAsync(s => s.Id == id);

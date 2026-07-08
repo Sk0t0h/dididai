@@ -51,17 +51,18 @@ public class Socio
     [StringLength(150)]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
+    // Dirección, CP y localidad son OPCIONALES: el formulario público de colaboración no
+    // los recoge, así que en las altas nacidas de una solicitud no se conocen de entrada.
+    // El admin puede darlos de alta sin ellos y completarlos más tarde.
     [StringLength(200)]
-    public string Direccion { get; set; } = string.Empty;
+    public string? Direccion { get; set; }
 
-    [Required]
     [StringLength(10)]
-    public string CodigoPostal { get; set; } = string.Empty;
+    [Display(Name = "Código postal")]
+    public string? CodigoPostal { get; set; }
 
-    [Required]
     [StringLength(100)]
-    public string Localidad { get; set; } = string.Empty;
+    public string? Localidad { get; set; }
 
     /// <summary>
     /// País de residencia del socio, en código ISO 3166-1 alpha-2 (<c>ES</c>, <c>GB</c>…).

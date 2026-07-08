@@ -34,7 +34,7 @@ public interface ISolicitudColaboracionService
 
     /// <summary>
     /// Marca una solicitud como resuelta (<see cref="EstadoSolicitud.Aprobada"/> o
-    /// <see cref="EstadoSolicitud.Rechazada"/>), fija <c>FechaRevision</c> y guarda la
+    /// <see cref="EstadoSolicitud.Cancelada"/>), fija <c>FechaRevision</c> y guarda la
     /// nota opcional. No crea el Socio: eso lo hace el admin en el alta, tomando esta
     /// solicitud como punto de partida. Idempotente sobre el estado destino.
     /// </summary>

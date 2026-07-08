@@ -44,6 +44,16 @@ tests). Migración única al inicio del bloque A con todo el esquema nuevo (no e
 cierre; push + deploy; validación visual del usuario. Sigue pendiente traducir EN del front (contenido ES
 puesto, EN cae a ES por fallback).
 
+## PENDIENTES SUELTOS (para después)
+
+- [ ] **Bug: "Acceso gestión" del front ignora la sesión activa.** El enlace del footer del front público lleva
+      SIEMPRE al login de admin, aunque ya haya sesión iniciada. Causa: el front usa `_PublicLayout`, un layout
+      DISTINTO del `_Layout` del back donde vive la lógica de sesión y el menú admin; `_PublicLayout` no
+      comprueba autenticación. **Arreglo acordado con el usuario (08-07):** en el menú del front público, cuando
+      haya sesión activa, mostrar las opciones del menú de gestión (las mismas del back), **quitando "Inicio"**
+      (el logo ya lleva al front) y **renombrando "Panel" → "Admin"**. Valorar además un acceso al login de
+      admin ahí arriba (en la cabecera del front), no solo en el footer.
+
 ---
 
 ## (Histórico) Plan original por findes — SUPERADO

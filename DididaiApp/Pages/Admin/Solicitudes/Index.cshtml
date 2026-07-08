@@ -8,9 +8,10 @@
 @functions {
     static string BadgeEstado(EstadoSolicitud e) => e switch
     {
-        EstadoSolicitud.Pendiente => "text-bg-warning",
-        EstadoSolicitud.Aprobada => "text-bg-success",
-        EstadoSolicitud.Rechazada => "text-bg-secondary",
+        EstadoSolicitud.Pendiente => "text-bg-secondary",   // gris: sin tocar
+        EstadoSolicitud.Gestionando => "text-bg-warning",   // amarillo: en curso
+        EstadoSolicitud.Aprobada => "text-bg-success",      // verde
+        EstadoSolicitud.Cancelada => "text-bg-danger",      // rojo
         _ => "text-bg-light"
     };
 }
@@ -29,8 +30,9 @@
 <div class="btn-group mb-3" role="group" aria-label="Filtrar por estado">
     <a class="btn btn-sm @(Model.Estado is null ? "btn-primary" : "btn-outline-primary")" asp-page="Index">Todas</a>
     <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Pendiente ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Pendiente">Pendientes</a>
+    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Gestionando ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Gestionando">Gestionando</a>
     <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Aprobada ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Aprobada">Aprobadas</a>
-    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Rechazada ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Rechazada">Rechazadas</a>
+    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Cancelada ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Cancelada">Canceladas</a>
 </div>
 
 @if (Model.Solicitudes.Count == 0)

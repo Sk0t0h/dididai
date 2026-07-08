@@ -58,13 +58,85 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Title" xml:space="preserve">
-    <value>Inicio</value>
-  </data>
-  <data name="Welcome" xml:space="preserve">
-    <value>Bienvenido/a</value>
-  </data>
-  <data name="Intro" xml:space="preserve">
-    <value>Web de la ONG DIDIDAI.</value>
-  </data>
+  <data name="Meta_Title" xml:space="preserve"><value>Inicio</value></data>
+  <!-- Navegación -->
+  <data name="Nav_Aria" xml:space="preserve"><value>Principal</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Abrir menú</value></data>
+  <data name="Nav_Actividad" xml:space="preserve"><value>Actividad</value></data>
+  <data name="Nav_Filosofia" xml:space="preserve"><value>Filosofía</value></data>
+  <data name="Nav_Objetivos" xml:space="preserve"><value>Objetivos</value></data>
+  <data name="Nav_Contacto" xml:space="preserve"><value>Contacto</value></data>
+  <data name="Nav_Colaborar" xml:space="preserve"><value>Colaborar</value></data>
+  <data name="Language_Label" xml:space="preserve"><value>Idioma</value></data>
+  <!-- Hero -->
+  <data name="Hero_ImgAlt" xml:space="preserve"><value>Voluntarios de DIDIDAI con niños del orfanato de Katmandú</value></data>
+  <data name="Hero_Eyebrow" xml:space="preserve"><value>Educación especial · Katmandú, Nepal</value></data>
+  <data name="Hero_Titular" xml:space="preserve"><value>De cada euro, 99 céntimos llegan a los niños.</value></data>
+  <data name="Hero_Sub" xml:space="preserve"><value>Sin gastos de administración ni marketing. Nuestro equipo es voluntario. Cuidamos y educamos a niños y jóvenes con diversidad funcional en un orfanato de Katmandú.</value></data>
+  <data name="Hero_CtaColaborar" xml:space="preserve"><value>Quiero colaborar</value></data>
+  <data name="Hero_CtaConocer" xml:space="preserve"><value>Conocer la ONG</value></data>
+  <!-- Actividad -->
+  <data name="Act_Eyebrow" xml:space="preserve"><value>Qué hacemos</value></data>
+  <data name="Act_Titulo" xml:space="preserve"><value>Educar y cuidar, cada día, en Katmandú</value></data>
+  <data name="Act_Texto" xml:space="preserve"><value>La actividad de DIDIDAI se desarrolla en Nepal: la educación de niños y jóvenes con diversidad funcional de un orfanato de Katmandú, con innovadores recursos educativos, estimulación multisensorial y desarrollo creativo, además de apoyo terapéutico y médico.</value></data>
+  <!-- Filosofía -->
+  <data name="Fil_Eyebrow" xml:space="preserve"><value>Por qué así</value></data>
+  <data name="Fil_Titulo" xml:space="preserve"><value>Acciones sostenibles, cerca de la gente</value></data>
+  <data name="Fil_Texto" xml:space="preserve"><value>Queremos que la Convención sobre los Derechos del Niño y la Declaración Universal de los Derechos Humanos sean una realidad allí donde estemos. Buscamos acciones sostenibles que mejoren la calidad de vida a largo plazo, apoyándonos en los medios del propio país para dar continuidad al trabajo y crear recursos en el entorno.</value></data>
+  <!-- Transparencia -->
+  <data name="Trans_Eyebrow" xml:space="preserve"><value>Transparencia</value></data>
+  <data name="Trans_Titulo" xml:space="preserve"><value>¿A dónde va tu ayuda?</value></data>
+  <data name="Trans_Texto" xml:space="preserve"><value>No hay gastos de administración, ni de marketing, ni apenas bancarios. El trabajo de nuestros colaboradores es desinteresado y no retribuido.</value></data>
+  <data name="Trans_Stat1" xml:space="preserve"><value>de los ingresos a acción directa</value></data>
+  <data name="Trans_Stat2" xml:space="preserve"><value>en administración y marketing</value></data>
+  <data name="Trans_Stat3" xml:space="preserve"><value>trabajo voluntario</value></data>
+  <!-- Objetivos (los 7 de los Estatutos) -->
+  <data name="Obj_Eyebrow" xml:space="preserve"><value>Nuestros estatutos</value></data>
+  <data name="Obj_Titulo" xml:space="preserve"><value>Siete objetivos</value></data>
+  <data name="Obj_1" xml:space="preserve"><value>La &lt;b&gt;defensa de los derechos del niño&lt;/b&gt; en toda su extensión.</value></data>
+  <data name="Obj_2" xml:space="preserve"><value>Favorecer el desarrollo de la Educación, y en particular de la &lt;b&gt;Educación Especial&lt;/b&gt;, donde se detecten más carencias.</value></data>
+  <data name="Obj_3" xml:space="preserve"><value>Promover la &lt;b&gt;concienciación pública&lt;/b&gt; sobre discapacidades en dichos países.</value></data>
+  <data name="Obj_4" xml:space="preserve"><value>Apoyar la creación de &lt;b&gt;Centros de Referencia&lt;/b&gt; en Educación Especial y atención a los discapacitados.</value></data>
+  <data name="Obj_5" xml:space="preserve"><value>Facilitar la &lt;b&gt;mejora de la calidad de vida&lt;/b&gt; de toda la comunidad de esos Centros: residentes y trabajadores.</value></data>
+  <data name="Obj_6" xml:space="preserve"><value>Cubrir las &lt;b&gt;necesidades básicas&lt;/b&gt; de estos jóvenes: fisioterapia, logopedia, terapia ocupacional, comunicación aumentativa, apoyo a la movilidad…</value></data>
+  <data name="Obj_7" xml:space="preserve"><value>Nuestra &lt;b&gt;zona preferente de trabajo&lt;/b&gt;: Nepal y el orfanato de BalMandir, en Katmandú, con una educación de calidad, personalizada y adecuada a cada niño.</value></data>
+  <!-- Colaborar -->
+  <data name="Col_Eyebrow" xml:space="preserve"><value>Súmate</value></data>
+  <data name="Col_Titulo" xml:space="preserve"><value>Colabora con DIDIDAI</value></data>
+  <data name="Col_Texto" xml:space="preserve"><value>Elige cómo quieres ayudar y envíanos tus datos. Te escribiremos para confirmar los detalles — no se te cobra nada hasta entonces.</value></data>
+  <data name="Col_Punto1" xml:space="preserve"><value>Tu solicitud llega a nuestro equipo, que la revisa antes de darte de alta.</value></data>
+  <data name="Col_Punto2" xml:space="preserve"><value>El IBAN, si eliges cuota domiciliada, se pide en el paso de confirmación — nunca en este formulario público.</value></data>
+  <data name="Col_Punto3" xml:space="preserve"><value>Tratamos tus datos según el RGPD y no los publicamos ni cedemos.</value></data>
+  <data name="Col_TipoAria" xml:space="preserve"><value>Tipo de colaboración</value></data>
+  <data name="Col_TipoSocio" xml:space="preserve"><value>Hacerme socio/a</value></data>
+  <data name="Col_TipoSocioDesc" xml:space="preserve"><value>Cuota periódica</value></data>
+  <data name="Col_TipoDonacion" xml:space="preserve"><value>Donación</value></data>
+  <data name="Col_TipoDonacionDesc" xml:space="preserve"><value>Aportación puntual</value></data>
+  <data name="Col_TipoMicro" xml:space="preserve"><value>Microdonación</value></data>
+  <data name="Col_TipoMicroDesc" xml:space="preserve"><value>1 €/mes · Teaming</value></data>
+  <data name="Col_TipoMicroEnlace" xml:space="preserve"><value>Unirme al grupo de Teaming →</value></data>
+  <data name="Col_Gracias" xml:space="preserve"><value>¡Gracias! Hemos recibido tu solicitud. Nuestro equipo la revisará y te escribirá para confirmar los detalles.</value></data>
+  <!-- Formulario (campos) -->
+  <data name="Form_Nombre" xml:space="preserve"><value>Nombre</value></data>
+  <data name="Form_NombrePh" xml:space="preserve"><value>Tu nombre</value></data>
+  <data name="Form_Apellidos" xml:space="preserve"><value>Apellidos</value></data>
+  <data name="Form_ApellidosPh" xml:space="preserve"><value>Tus apellidos</value></data>
+  <data name="Form_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Form_EmailPh" xml:space="preserve"><value>tucorreo@ejemplo.org</value></data>
+  <data name="Form_Telefono" xml:space="preserve"><value>Teléfono</value></data>
+  <data name="Form_Importe" xml:space="preserve"><value>Importe (€)</value></data>
+  <data name="Form_Periodicidad" xml:space="preserve"><value>Periodicidad</value></data>
+  <data name="Form_PeriodicidadDefault" xml:space="preserve"><value>Elige una periodicidad…</value></data>
+  <data name="Form_Consentimiento" xml:space="preserve"><value>He leído y acepto la &lt;a href="/Privacy"&gt;política de privacidad&lt;/a&gt; y autorizo el tratamiento de mis datos para gestionar mi colaboración.</value></data>
+  <data name="Form_Enviar" xml:space="preserve"><value>Enviar solicitud</value></data>
+  <data name="Form_Nota" xml:space="preserve"><value>Tus datos viajan cifrados y no se publican.</value></data>
+  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>Necesitamos tu consentimiento para tratar tus datos y gestionar la colaboración.</value></data>
+  <data name="Form_Error_Telefono" xml:space="preserve"><value>El teléfono debe estar en formato internacional, con prefijo de país (p. ej. +34612345678).</value></data>
+  <!-- Contacto -->
+  <data name="Con_Eyebrow" xml:space="preserve"><value>Hablemos</value></data>
+  <data name="Con_Titulo" xml:space="preserve"><value>Contacto</value></data>
+  <data name="Con_Texto" xml:space="preserve"><value>¿Dudas sobre cómo colaborar o sobre el proyecto? Escríbenos a &lt;a href="mailto:info@dididai.org"&gt;info@dididai.org&lt;/a&gt; y te respondemos.</value></data>
+  <!-- Footer -->
+  <data name="Footer_Left" xml:space="preserve"><value>© DIDIDAI · derechos infantiles y educación especial · Katmandú, Nepal</value></data>
+  <data name="Footer_Acceso" xml:space="preserve"><value>Acceso gestión</value></data>
 </root>

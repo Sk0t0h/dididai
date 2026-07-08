@@ -36,3 +36,77 @@ body {
   position: relative;
   height: 260px;
 }
+
+/* ============================================================
+   Tema de marca del backoffice — alinea el back (Bootstrap) con la
+   identidad del front público (naranja #f7941d, tinta cálida) SIN
+   reescribir Bootstrap: solo variables y unos pocos componentes.
+   ============================================================ */
+:root {
+  --c-naranja: #f7941d;
+  --c-naranja-osc: #d97408;
+  --c-tinta: #241a12;
+  --c-crema: #fbf4e9;
+
+  /* Redefinición de la marca de Bootstrap = naranja DIDIDAI. */
+  --bs-primary: #f7941d;
+  --bs-primary-rgb: 247, 148, 29;
+}
+
+body {
+  background-color: var(--c-crema);
+}
+
+/* Barra de navegación oscura con el acento de marca. */
+.navbar.bg-white {
+  background-color: var(--c-tinta) !important;
+  border-bottom: 3px solid var(--c-naranja) !important;
+}
+.navbar.bg-white .navbar-brand,
+.navbar.bg-white .nav-link,
+.navbar.bg-white .nav-link.text-dark,
+.navbar.bg-white .btn-link {
+  color: #fdf3e6 !important;
+}
+.navbar.bg-white .navbar-brand {
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.navbar.bg-white .nav-link:hover,
+.navbar.bg-white .btn-link:hover {
+  color: var(--c-naranja) !important;
+}
+
+/* Botón primario y foco en naranja de marca (no el azul de plantilla). */
+.btn-primary {
+  --bs-btn-bg: var(--c-naranja);
+  --bs-btn-border-color: var(--c-naranja);
+  --bs-btn-hover-bg: var(--c-naranja-osc);
+  --bs-btn-hover-border-color: var(--c-naranja-osc);
+  --bs-btn-active-bg: var(--c-naranja-osc);
+  --bs-btn-active-border-color: var(--c-naranja-osc);
+  --bs-btn-disabled-bg: var(--c-naranja);
+  --bs-btn-disabled-border-color: var(--c-naranja);
+}
+.btn:focus, .btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem var(--c-naranja);
+  border-color: var(--c-naranja);
+}
+
+/* Enlaces y títulos: tinta cálida en vez del gris de plantilla. */
+a { color: var(--c-naranja-osc); }
+a:hover { color: var(--c-naranja); }
+h1, h2, h3, .card-title { color: var(--c-tinta); }
+
+/* Tarjetas del panel: borde y sombra suave alineados con el front. */
+.card {
+  border-color: #e8ddcb;
+  border-radius: 12px;
+}
+
+.footer {
+  background-color: transparent;
+}

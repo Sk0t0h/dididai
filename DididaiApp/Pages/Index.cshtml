@@ -1,11 +1,250 @@
-﻿@page
+@page
+@using System.Globalization
+@using DididaiApp.Core.Models
 @model IndexModel
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = Localizer["Title"].Value;
+    ViewData["Title"] = Localizer["Meta_Title"].Value;
+    Layout = "_PublicLayout";
+    var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var esActiva = culture == "es";
+    var returnUrl = "/";
 }
 
-<div class="text-center">
-    <h1 class="display-4">@Localizer["Welcome"]</h1>
-    <p>@Localizer["Intro"]</p>
-</div>
+<header class="site-header">
+    <div class="wrap bar">
+        <a class="brand" href="#top" aria-label="DIDIDAI inicio">
+            <img src="~/images/brand/logo.png" alt="Logo de DIDIDAI" />
+        </a>
+        <nav class="site-nav" aria-label="@Localizer["Nav_Aria"]">
+            <div class="nav-links" data-nav-links>
+                <a href="#actividad">@Localizer["Nav_Actividad"]</a>
+                <a href="#filosofia">@Localizer["Nav_Filosofia"]</a>
+                <a href="#objetivos">@Localizer["Nav_Objetivos"]</a>
+                <a href="#contacto">@Localizer["Nav_Contacto"]</a>
+                <a href="#colaborar" class="nav-cta-mobile">@Localizer["Nav_Colaborar"]</a>
+            </div>
+            <span class="lang" aria-label="@Localizer["Language_Label"]">
+                <form asp-page="/SetLanguage" method="post" class="d-inline">
+                    <input type="hidden" name="culture" value="es" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="@(esActiva ? "is-active" : "")">ES</button>
+                </form>
+                <form asp-page="/SetLanguage" method="post" class="d-inline">
+                    <input type="hidden" name="culture" value="en" />
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="@(!esActiva ? "is-active" : "")">EN</button>
+                </form>
+            </span>
+            <a class="btn-pill btn-naranja" href="#colaborar">@Localizer["Nav_Colaborar"]</a>
+            <button type="button" class="menu-btn" data-menu-btn aria-label="@Localizer["Nav_Menu"]" aria-expanded="false">☰</button>
+        </nav>
+    </div>
+</header>
+
+<main id="top">
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg" data-plx-hero role="img" aria-label="@Localizer["Hero_ImgAlt"]"></div>
+        <div class="hero-veil"></div>
+        <div class="wrap hero-fg" data-hero-fg>
+            <div class="hero-inner">
+                <p class="eyebrow hero-eyebrow" data-hero>@Localizer["Hero_Eyebrow"]</p>
+                <div class="hero-num" data-hero>99<span>%</span></div>
+                <h1 data-hero>@Localizer["Hero_Titular"]</h1>
+                <p class="hero-sub" data-hero>@Localizer["Hero_Sub"]</p>
+                <div class="hero-cta" data-hero>
+                    <a class="btn-pill btn-naranja" href="#colaborar">@Localizer["Hero_CtaColaborar"]</a>
+                    <a class="btn-pill btn-ghost" href="#actividad">@Localizer["Hero_CtaConocer"]</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACTIVIDAD -->
+    <section id="actividad" class="sec">
+        <div class="wrap split foto-primero">
+            <div data-rv="left">
+                <p class="eyebrow">@Localizer["Act_Eyebrow"]</p>
+                <h2 class="h-sec">@Localizer["Act_Titulo"]</h2>
+                <p class="lead-sec">@Localizer["Act_Texto"]</p>
+            </div>
+            <div class="foto foto-act" data-rv="fade"></div>
+        </div>
+    </section>
+
+    <!-- FILOSOFÍA -->
+    <section id="filosofia" class="sec sec-crema">
+        <div class="wrap split">
+            <div class="foto foto-fil" data-rv="fade"></div>
+            <div data-rv="right">
+                <p class="eyebrow">@Localizer["Fil_Eyebrow"]</p>
+                <h2 class="h-sec">@Localizer["Fil_Titulo"]</h2>
+                <p class="lead-sec">@Localizer["Fil_Texto"]</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRANSPARENCIA -->
+    <section class="sec sec-oscura">
+        <div class="wrap">
+            <div class="trans-cab" data-rv>
+                <p class="eyebrow on-dark">@Localizer["Trans_Eyebrow"]</p>
+                <h2 class="h-sec on-dark">@Localizer["Trans_Titulo"]</h2>
+                <p class="lead-sec">@Localizer["Trans_Texto"]</p>
+            </div>
+            <div class="stats" data-stagger>
+                <div data-rv>
+                    <div class="stat-num" data-count="99" data-suffix="%">99%</div>
+                    <div class="stat-lbl">@Localizer["Trans_Stat1"]</div>
+                </div>
+                <div data-rv>
+                    <div class="stat-num">0 €</div>
+                    <div class="stat-lbl">@Localizer["Trans_Stat2"]</div>
+                </div>
+                <div data-rv>
+                    <div class="stat-num" data-count="100" data-suffix="%">100%</div>
+                    <div class="stat-lbl">@Localizer["Trans_Stat3"]</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OBJETIVOS -->
+    <section id="objetivos" class="sec">
+        <div class="wrap">
+            <p class="eyebrow" data-rv>@Localizer["Obj_Eyebrow"]</p>
+            <h2 class="h-sec" data-rv>@Localizer["Obj_Titulo"]</h2>
+            <ol class="obj-ol" data-stagger>
+                <li data-rv>@Localizer["Obj_1"]</li>
+                <li data-rv>@Localizer["Obj_2"]</li>
+                <li data-rv>@Localizer["Obj_3"]</li>
+                <li data-rv>@Localizer["Obj_4"]</li>
+                <li data-rv>@Localizer["Obj_5"]</li>
+                <li data-rv>@Localizer["Obj_6"]</li>
+                <li data-rv>@Localizer["Obj_7"]</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- COLABORAR -->
+    <section id="colaborar" class="sec sec-crema-3">
+        <div class="wrap form-grid">
+            <div data-rv="left">
+                <p class="eyebrow">@Localizer["Col_Eyebrow"]</p>
+                <h2 class="h-sec">@Localizer["Col_Titulo"]</h2>
+                <p class="lead-sec col-texto">@Localizer["Col_Texto"]</p>
+                <div class="punto"><span class="dot"></span><span>@Localizer["Col_Punto1"]</span></div>
+                <div class="punto"><span class="dot"></span><span>@Localizer["Col_Punto2"]</span></div>
+                <div class="punto"><span class="dot"></span><span>@Localizer["Col_Punto3"]</span></div>
+            </div>
+
+            <form method="post" autocomplete="on" data-rv="right" class="form-card">
+                @if (Model.Enviado)
+                {
+                    <div class="aviso-ok" role="status">@Localizer["Col_Gracias"]</div>
+                }
+
+                <div asp-validation-summary="ModelOnly" class="field-error"></div>
+
+                @* Selector de tipo (data-tipo = valor NUMÉRICO del enum, para que case con front.js).
+                   La tarjeta del tipo activo lleva .sel ya en el render del servidor, para que salga
+                   marcada aunque el JS aún no haya corrido (evita parpadeo / "sin marcar"). *@
+                @{ var tipoSel = (int)Model.Colaborar.Tipo; }
+                <div class="tipos" role="group" aria-label="@Localizer["Col_TipoAria"]">
+                    <div class="tipo @(tipoSel == 0 ? "sel" : "")" data-tipo="0" tabindex="0" role="button" aria-pressed="@(tipoSel == 0 ? "true" : "false")">
+                        <span class="t-nombre">@Localizer["Col_TipoSocio"]</span>
+                        <span class="t-desc">@Localizer["Col_TipoSocioDesc"]</span>
+                    </div>
+                    <div class="tipo @(tipoSel == 1 ? "sel" : "")" data-tipo="1" tabindex="0" role="button" aria-pressed="@(tipoSel == 1 ? "true" : "false")">
+                        <span class="t-nombre">@Localizer["Col_TipoDonacion"]</span>
+                        <span class="t-desc">@Localizer["Col_TipoDonacionDesc"]</span>
+                    </div>
+                    <div class="tipo @(tipoSel == 2 ? "sel" : "")" data-tipo="2" tabindex="0" role="button" aria-pressed="@(tipoSel == 2 ? "true" : "false")">
+                        <span class="t-nombre">@Localizer["Col_TipoMicro"]</span>
+                        <span class="t-desc">@Localizer["Col_TipoMicroDesc"]</span>
+                        <a class="t-link" href="https://www.teaming.net/dididaiong" target="_blank" rel="noopener" data-stop-tipo>@Localizer["Col_TipoMicroEnlace"]</a>
+                    </div>
+                </div>
+                <input type="hidden" name="Colaborar.Tipo" value="@tipoSel" data-tipo-input />
+
+                <div class="row2">
+                    <div class="campo">
+                        <label asp-for="Colaborar.Nombre">@Localizer["Form_Nombre"]</label>
+                        <input asp-for="Colaborar.Nombre" placeholder="@Localizer["Form_NombrePh"]" autocomplete="given-name" />
+                        <span asp-validation-for="Colaborar.Nombre" class="field-error"></span>
+                    </div>
+                    <div class="campo">
+                        <label asp-for="Colaborar.Apellidos">@Localizer["Form_Apellidos"]</label>
+                        <input asp-for="Colaborar.Apellidos" placeholder="@Localizer["Form_ApellidosPh"]" autocomplete="family-name" />
+                        <span asp-validation-for="Colaborar.Apellidos" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Colaborar.Email">@Localizer["Form_Email"]</label>
+                    <input asp-for="Colaborar.Email" placeholder="@Localizer["Form_EmailPh"]" autocomplete="email" />
+                    <span asp-validation-for="Colaborar.Email" class="field-error"></span>
+                </div>
+
+                <div class="row2">
+                    <div class="campo">
+                        <label asp-for="Colaborar.Telefono">@Localizer["Form_Telefono"]</label>
+                        <input asp-for="Colaborar.Telefono" placeholder="+34 600 000 000" autocomplete="tel" />
+                        <span asp-validation-for="Colaborar.Telefono" class="field-error"></span>
+                    </div>
+                    <div class="campo" data-campo-importe>
+                        <label asp-for="Colaborar.Importe">@Localizer["Form_Importe"]</label>
+                        <input asp-for="Colaborar.Importe" type="number" min="1" step="1" placeholder="20" data-input-importe />
+                        <span asp-validation-for="Colaborar.Importe" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="campo" data-campo-periodicidad>
+                    <label asp-for="Colaborar.Periodicidad">@Localizer["Form_Periodicidad"]</label>
+                    <select asp-for="Colaborar.Periodicidad" asp-items="Html.GetEnumSelectList<ModalidadCuota>()">
+                        <option value="">@Localizer["Form_PeriodicidadDefault"]</option>
+                    </select>
+                </div>
+
+                @* Honeypot antispam: oculto para humanos, presente para bots. *@
+                <div class="hp-field" aria-hidden="true">
+                    <label for="Web">No rellenar</label>
+                    <input type="text" id="Web" name="Web" tabindex="-1" autocomplete="off" value="" />
+                </div>
+
+                <label class="consent">
+                    <input asp-for="Colaborar.AceptaPrivacidad" type="checkbox" />
+                    <span>@Localizer["Form_Consentimiento"]</span>
+                </label>
+                <span asp-validation-for="Colaborar.AceptaPrivacidad" class="field-error"></span>
+
+                <button type="submit" class="btn-enviar">@Localizer["Form_Enviar"]</button>
+                <p class="form-nota">@Localizer["Form_Nota"]</p>
+            </form>
+        </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section id="contacto" class="sec sec-crema">
+        <div class="wrap" data-rv>
+            <p class="eyebrow">@Localizer["Con_Eyebrow"]</p>
+            <h2 class="h-sec">@Localizer["Con_Titulo"]</h2>
+            <p class="lead-sec">@Localizer["Con_Texto"]</p>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="wrap bar">
+        <div>@Localizer["Footer_Left"]</div>
+        <div><a href="#colaborar">@Localizer["Nav_Colaborar"]</a> · <a href="mailto:info@@dididai.org">info@@dididai.org</a> · <a asp-area="Identity" asp-page="/Account/Login">@Localizer["Footer_Acceso"]</a></div>
+    </div>
+</footer>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @* Adaptador jquery-validation del teléfono E.164 (misma regla que el servidor).
+       Debe ir DESPUÉS de unobtrusive: registra $.validator.unobtrusive.adapters. *@
+    <script src="~/js/validacion-socio.js" asp-append-version="true"></script>
+}

@@ -26,6 +26,19 @@
             </div>
         </div>
     </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Solicitudes
+                    @if (Model.SolicitudesPendientes > 0)
+                    {
+                        <span class="badge text-bg-warning ms-1">@Model.SolicitudesPendientes pendientes</span>
+                    }
+                </h5>
+                <p class="card-text">Solicitudes de colaboración recibidas desde el formulario público de la web.</p>
+                <a class="btn btn-primary" asp-page="/Admin/Solicitudes/Index">Revisar solicitudes</a>
+            </div>
+        </div>
+    </div>
 </div>
-
-<p class="text-muted mt-4">Los dashboards con gráficas llegarán en la próxima fase.</p>

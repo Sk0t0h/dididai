@@ -1,0 +1,24 @@
+@using System.Globalization
+@inject IViewLocalizer Localizer
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · DIDIDAI</title>
+    <meta name="description" content="@Localizer["Meta_Description"]" />
+    @* Precarga de las fuentes principales del hero para evitar el parpadeo. *@
+    <link rel="preload" href="~/fonts/fraunces-600-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="~/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/css/front.css" asp-append-version="true" />
+</head>
+<body class="front">
+    @RenderBody()
+    @* jQuery + validación: el formulario público usa validación de cliente unobtrusive
+       (jquery-validation), que depende de jQuery. Se cargan desde ~/lib (local, CSP-safe).
+       jQuery ANTES del partial de validación (que lo asume ya cargado). *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/front.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

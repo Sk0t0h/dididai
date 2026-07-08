@@ -1,10 +1,12 @@
 using System.Globalization;
+using System.Threading.RateLimiting;
 using DididaiApp.Core.Data;
 using DididaiApp.Core.Services;
 using DididaiApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,6 +77,31 @@ builder.Services.AddScoped<ISocioService, SocioService>();
 builder.Services.AddScoped<IColaboracionService, ColaboracionService>();
 builder.Services.AddScoped<IResumenEconomicoService, ResumenEconomicoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
+builder.Services.AddScoped<ISolicitudColaboracionService, SolicitudColaboracionService>();
+
+// Rate limiting del formulario público de colaboración: frena el spam de bots
+// limitando los ENVÍOS (POST) por IP. Solo afecta a la política "colaborar" (la
+// landing); el resto de la app no se toca. Importante: solo se cuentan los POST —
+// las visitas a la página (GET) NO se limitan, para no bloquear a quien solo navega.
+// Ventana fija: pocos envíos por IP y ventana. Al superarse, 429 (sin cola).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("colaborar", httpContext =>
+    {
+        // Los GET (y demás verbos no mutantes) pasan sin límite.
+        if (!HttpMethods.IsPost(httpContext.Request.Method))
+            return RateLimitPartition.GetNoLimiter("_sin_limite");
+
+        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "desconocida";
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 5,
+            Window = TimeSpan.FromMinutes(5),
+            QueueLimit = 0,
+        });
+    });
+});
 
 var app = builder.Build();
 
@@ -109,6 +136,10 @@ app.UseMiddleware<DididaiApp.Services.SecurityHeadersMiddleware>();
 app.UseRequestLocalization();
 
 app.UseRouting();
+
+// Rate limiter tras el enrutado (necesita el endpoint resuelto para aplicar su
+// política) y antes de la autorización.
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -21,8 +21,18 @@ public class CreateModel : PageModel
     /// <summary>Id del socio de baja que coincide en DNI (para ofrecer reactivarlo), si lo hay.</summary>
     public int? IdReactivable { get; private set; }
 
-    public void OnGet()
+    /// <summary>
+    /// Alta en blanco, o precargada desde una solicitud pública aprobada: si llegan los
+    /// parámetros opcionales por querystring (enlace "Dar de alta" de la ficha de
+    /// solicitud), se rellenan los campos coincidentes. Todo lo demás (documento, IBAN…)
+    /// lo completa el admin, que sigue siendo quien controla el alta real.
+    /// </summary>
+    public void OnGet(string? nombre, string? apellidos, string? email, string? telefono)
     {
+        if (!string.IsNullOrWhiteSpace(nombre)) Socio.Nombre = nombre;
+        if (!string.IsNullOrWhiteSpace(apellidos)) Socio.Apellidos = apellidos;
+        if (!string.IsNullOrWhiteSpace(email)) Socio.Email = email;
+        if (!string.IsNullOrWhiteSpace(telefono)) Socio.Telefono = telefono;
     }
 
     public async Task<IActionResult> OnPostAsync()

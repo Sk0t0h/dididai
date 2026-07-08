@@ -1,0 +1,120 @@
+@page "{id:int}"
+@using DididaiApp.Core.Models
+@model DididaiApp.Pages.Admin.Solicitudes.DetailsModel
+@{
+    ViewData["Title"] = "Solicitud de colaboración";
+    var s = Model.Solicitud;
+    var badge = s.Estado switch
+    {
+        EstadoSolicitud.Pendiente => "text-bg-warning",
+        EstadoSolicitud.Aprobada => "text-bg-success",
+        EstadoSolicitud.Rechazada => "text-bg-secondary",
+        _ => "text-bg-light"
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">Solicitud de colaboración</h1>
+    <a class="btn btn-outline-secondary" asp-page="Index">Volver al listado</a>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-info" role="alert">@mensaje</div>
+}
+
+<div class="row g-4">
+    <div class="col-12 col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title mb-0">@s.Nombre @s.Apellidos</h5>
+                    <span class="badge @badge">@Html.DisplayFor(m => m.Solicitud.Estado)</span>
+                </div>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8"><a href="mailto:@s.Email">@s.Email</a></dd>
+
+                    <dt class="col-sm-4">Teléfono</dt>
+                    <dd class="col-sm-8">@s.Telefono</dd>
+
+                    <dt class="col-sm-4">Tipo</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(m => m.Solicitud.Tipo)</dd>
+
+                    @if (s.Importe is decimal importe)
+                    {
+                        <dt class="col-sm-4">Importe indicado</dt>
+                        <dd class="col-sm-8">@importe.ToString("N2") €</dd>
+                    }
+
+                    @if (s.Periodicidad is ModalidadCuota periodicidad)
+                    {
+                        <dt class="col-sm-4">Periodicidad</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(m => m.Solicitud.Periodicidad)</dd>
+                    }
+
+                    <dt class="col-sm-4">Recibida</dt>
+                    <dd class="col-sm-8">@s.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    @if (s.FechaRevision is DateTime revision)
+                    {
+                        <dt class="col-sm-4">Revisada</dt>
+                        <dd class="col-sm-8">@revision.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(s.NotaRevision))
+                    {
+                        <dt class="col-sm-4">Nota</dt>
+                        <dd class="col-sm-8">@s.NotaRevision</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+        @if (s.Estado == EstadoSolicitud.Pendiente)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Revisar</h5>
+                    <p class="card-text text-muted small">Aprobar o rechazar deja constancia de la revisión. Aprobar no da de alta al socio automáticamente: usa el botón para crear el socio con estos datos precargados.</p>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="Nota" class="form-label">Nota (opcional)</label>
+                            <textarea class="form-control" id="Nota" name="Nota" rows="2" maxlength="500" placeholder="Motivo del rechazo, seguimiento…"></textarea>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-success"
+                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Aprobada">
+                                Aprobar
+                            </button>
+                            <button type="submit" class="btn btn-outline-danger js-confirm" data-confirm="¿Rechazar esta solicitud?"
+                                    asp-page-handler="Resolver" asp-route-id="@s.Id" asp-route-estado="@EstadoSolicitud.Rechazada">
+                                Rechazar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (s.Estado != EstadoSolicitud.Rechazada)
+        {
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Dar de alta al socio</h5>
+                    <p class="card-text text-muted small">Abre el alta de socio con nombre, apellidos, email y teléfono precargados. Completa el resto (documento, dirección y, si es cuota domiciliada, el IBAN).</p>
+                    <a class="btn btn-primary"
+                       asp-page="/Admin/Socios/Create"
+                       asp-route-nombre="@s.Nombre"
+                       asp-route-apellidos="@s.Apellidos"
+                       asp-route-email="@s.Email"
+                       asp-route-telefono="@s.Telefono">
+                        Crear socio con estos datos
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

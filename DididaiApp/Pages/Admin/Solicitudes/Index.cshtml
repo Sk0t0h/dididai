@@ -1,0 +1,71 @@
+@page
+@using DididaiApp.Core.Models
+@model DididaiApp.Pages.Admin.Solicitudes.IndexModel
+@{
+    ViewData["Title"] = "Solicitudes de colaboración";
+}
+
+@functions {
+    static string BadgeEstado(EstadoSolicitud e) => e switch
+    {
+        EstadoSolicitud.Pendiente => "text-bg-warning",
+        EstadoSolicitud.Aprobada => "text-bg-success",
+        EstadoSolicitud.Rechazada => "text-bg-secondary",
+        _ => "text-bg-light"
+    };
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">Solicitudes de colaboración</h1>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="alert">@mensaje</div>
+}
+
+<p class="text-muted">Solicitudes enviadas desde el formulario público de la web. Revisa cada una y, si procede, da de alta al socio desde la sección de Socios.</p>
+
+<div class="btn-group mb-3" role="group" aria-label="Filtrar por estado">
+    <a class="btn btn-sm @(Model.Estado is null ? "btn-primary" : "btn-outline-primary")" asp-page="Index">Todas</a>
+    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Pendiente ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Pendiente">Pendientes</a>
+    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Aprobada ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Aprobada">Aprobadas</a>
+    <a class="btn btn-sm @(Model.Estado == EstadoSolicitud.Rechazada ? "btn-primary" : "btn-outline-primary")" asp-page="Index" asp-route-estado="@EstadoSolicitud.Rechazada">Rechazadas</a>
+</div>
+
+@if (Model.Solicitudes.Count == 0)
+{
+    <p class="text-muted">No hay solicitudes que coincidan con el criterio.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Nombre</th>
+                    <th class="d-none d-md-table-cell">Email</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Solicitudes)
+                {
+                    <tr>
+                        <td class="text-nowrap">@s.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@s.Apellidos, @s.Nombre</td>
+                        <td class="d-none d-md-table-cell">@s.Email</td>
+                        <td>@Html.DisplayFor(_ => s.Tipo)</td>
+                        <td><span class="badge @BadgeEstado(s.Estado)">@Html.DisplayFor(_ => s.Estado)</span></td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@s.Id">Ver</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

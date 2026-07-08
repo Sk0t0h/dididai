@@ -1,7 +1,54 @@
 # Next Steps — Continuidad de ejecución
 
-> Acciones concretas y ejecutables. Actualizado: 2026-07-03.
-> Deadline TFM: **domingo 20/07/2026**. Hoy: viernes 03/07/2026.
+> Acciones concretas y ejecutables. Actualizado: 2026-07-08.
+> Deadline TFM: **domingo 20/07/2026**.
+
+## PLAN VIGENTE (08-07) — Rediseño del flujo de solicitudes de colaboración
+
+Rediseño del módulo de solicitudes (formulario público → gestión → alta de socio). Acordado con el usuario
+tras la revisión visual del front. **Se ejecuta en 3 bloques, un commit por bloque** (cada uno compilable +
+tests). Migración única al inicio del bloque A con todo el esquema nuevo (no encadenar 3 migraciones).
+
+**Decisiones de diseño (cerradas 08-07):**
+- **Máquina de estados** nueva: `Pendiente (gris) → Gestionando (amarillo) → Aprobada (verde) / Cancelada
+  (rojo)`. Se elimina "Rechazada" como estado (el motivo va en la nota). Enum reordenado a orden lógico
+  `Pendiente=0, Gestionando=1, Aprobada=2, Cancelada=3`; **se resetean los datos de prueba** (el módulo no
+  está en producción, en local solo hay solicitudes de prueba) para evitar reinterpretar valores guardados.
+- **Log de acciones de gestión** (entidad nueva `AccionSolicitud`): `Tipo` (Email/Teléfono/Nota/Otro),
+  `Nota`, `Fecha` (auto UTC), `Usuario` (**el admin logueado; NO editable, lo fija el servidor**). Historial
+  ordenado en la ficha. **Registrar la 1ª acción mueve Pendiente → Gestionando automáticamente.**
+- **Matching con socios = SUGERENCIA, sin unicidad.** Email y teléfono NO llevan índice único (familias/
+  gestores comparten contacto; la identidad real es el DNI, que el formulario público no pide). Al abrir la
+  ficha se listan socios que coinciden por email o teléfono como "posibles coincidencias"; **el admin decide**
+  vincular a uno existente o crear socio nuevo. Nunca enlaza automático.
+- **Vinculación** solicitud↔socio: `SolicitudColaboracion.SocioId` (FK nullable). Al crear socio desde
+  solicitud, se le asocian sus solicitudes; las pendientes de esa persona también quedan ligadas.
+- **Direcciones opcionales:** `Direccion`/`CodigoPostal`/`Localidad` del `Socio` pasan a opcionales
+  (`string?`, sin `[Required]`) — el formulario público no los recoge; el admin los completa luego.
+- **Privacidad preseleccionada** en el alta SI viene de una solicitud (ya consintió en el formulario público);
+  en alta manual sigue siendo obligatoria marcarla.
+- **Al aprobar+crear socio se crea también su Colaboración** (tipo/importe/periodicidad leídos de la BD por
+  `solicitudId`, NO de la URL). Excepción: microdonación/Teaming NO genera colaboración (se gestiona en Teaming).
+
+**Troceo (un commit por bloque):**
+- [ ] **Bloque A — Estados + colores + migración.** Enum nuevo, badges (gris/amarillo/verde/rojo), migración
+      única con TODO el esquema nuevo (SocioId en solicitud, tabla `AccionSolicitud`, direcciones nullable,
+      enum). Reset de datos de prueba. Pequeño y visible.
+- [ ] **Bloque B — Log de acciones.** Entidad + servicio (usuario del admin logueado, no editable) + UI en la
+      ficha + transición automática a Gestionando al registrar la 1ª acción. TDD.
+- [ ] **Bloque C — Matching + vinculación + alta desde solicitud.** Buscar socios coincidentes (sugerencia),
+      vincular o crear socio con datos precargados, crear la colaboración, asociar solicitudes. Direcciones
+      opcionales en la UI + privacidad preseleccionada. El bloque grande. TDD.
+
+**Cerrar al terminar:** borrar solicitudes/socios de prueba de la BD local; actualizar memoria; commit de
+cierre; push + deploy; validación visual del usuario. Sigue pendiente traducir EN del front (contenido ES
+puesto, EN cae a ES por fallback).
+
+---
+
+## (Histórico) Plan original por findes — SUPERADO
+> El plan de abajo es del arranque (03-07) y quedó superado: el núcleo del MVP se completó y desplegó el 05-07
+> y el front público el 07-07. Se conserva como referencia de los requisitos formales del TFM.
 
 ## Ritmo de trabajo (condicionante real)
 

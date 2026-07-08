@@ -3,7 +3,30 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-05 (noche, tras validación del usuario).
+> Actualizado: 2026-07-08 (front público validado + pulido del back; arranca rediseño de solicitudes).
+
+## FOCO ACTUAL (08-07) — Rediseño del flujo de solicitudes de colaboración
+
+Tras validar visualmente el front público, el usuario replanteó el flujo de solicitudes. **Plan detallado y
+decisiones de diseño cerradas en `context/next-steps.md` (sección "PLAN VIGENTE 08-07")**. Resumen: nueva
+máquina de estados (Pendiente→Gestionando→Aprobada/Cancelada), log de acciones de gestión (entidad
+`AccionSolicitud`), matching con socios por email/teléfono como sugerencia (sin unicidad), vinculación
+solicitud↔socio (`SocioId`), direcciones opcionales, privacidad preseleccionada si viene de solicitud, y crear
+la colaboración al dar de alta desde solicitud. **3 bloques, un commit por bloque**, migración única al inicio.
+
+**Estado de commits (rama `main`, SIN push todavía):**
+- `58de45c` — Front público (landing + formulario→BD).
+- `3782ab3` — Pulido del back + fixes del formulario tras revisión visual (modal de confirmación, tablas con
+  tema de marca, menú admin, Identity con estilos, checkbox RGPD cliente=servidor, teléfono cliente, panel
+  Teaming, periodicidad preseleccionada, `.vscode/tasks.json`).
+- Pendiente: los 3 bloques del rediseño de solicitudes; luego push + deploy + validación visual.
+
+**Verificado por HTTP** (defensa servidor del formulario): sin consentimiento / teléfono sin prefijo → no
+registran; datos válidos → registran. La validación de CLIENTE (checkbox, panel Teaming, modal) la valida el
+usuario en navegador (Playwright bloqueado por el entorno).
+
+---
+
 
 ## Estado actual
 
@@ -84,20 +107,46 @@ Referrer-Policy, X-Frame-Options) en cada respuesta; registrado tras `UseHttpsRe
 local (cabecera en home/login/back; login+Socios+Economia 200; escaneo de 5 páginas = 0 inline). Esto fija las
 reglas ANTES de escribir el front, que irá CSP-safe.
 
-## FRONT PÚBLICO — arranque (siguiente foco)
+## FRONT PÚBLICO — IMPLEMENTADO (07-07), SIN COMMITEAR / SIN DESPLEGAR
 
-Material listo para montar el front (bloque grande siguiente):
-- **Alcance acordado:** one-page informativa (Inicio/Actividad/Filosofía/Objetivos/Contacto con anclas, como
-  la web vieja) + **formulario público→BD** (reusa Socio/Colaboracion; zona sensible: antiforgery, validación
-  server, rate-limit/anti-bot, RGPD). Assets servidos en LOCAL (CSP).
-- **Marca:** logo `wwwroot/images/brand/logo.png`. Paleta: naranja `#f7941d` (CTA) + verde `#24b662` (acento)
-  + teal `#33667c` (títulos) sobre blanco, texto `#555`. Tipografía **Poppins** (descargar woff2 a local).
-- **Assets descargados** a `wwwroot/images/brand/` (logo + actividad/filosofia/objetivos.jpg) PERO las 3 fotos
-  sin optimizar (1-4 MB c/u) → **optimizar antes de usar** (redimensionar ~1600px, ~80% calidad, <300 KB).
-- **Contenido literal** extraído de www.dididai.org (textos de las 4 secciones + 7 objetivos de los Estatutos +
-  formulario con 3 opciones Socio/Donación/Microdonación). Detalle en el log semanal.
-- **AVISO seguridad:** el IBAN real de la ONG está expuesto en la web vieja; **NO copiarlo** al repo público
-  (usar datos ficticios en ejemplos). El nombre del orfanato es "BalMandir", Katmandú.
+**07-07: front público montado desde la exportación de Claude Design.** Último módulo del MVP. El prototipo
+(formato `x-dc`, inline) se recreó como **Razor + CSS/JS externos, CSP-safe** (0 inline verificado por HTTP).
+`Index.cshtml` reemplaza la home de plantilla; layout público propio `_PublicLayout.cshtml` (el back sigue con
+Bootstrap `_Layout`). **103 tests verdes, build OK, verificado E2E con la app corriendo.**
+
+Qué se hizo (detalle fino en el commit cuando se haga; racional en el log W27 07-07):
+- **Landing** one-page: header sticky (menú móvil + ES/EN + CTA), hero (foto + 99% gigante + tesis), Actividad,
+  Filosofía, franja Transparencia (stats con count-up), 7 Objetivos, formulario Colaborar, Contacto, footer.
+  Paleta `#f7941d` naranja al mando + `#241a12` + crema. Fuentes **Fraunces+Poppins autoalojadas** en
+  `wwwroot/fonts/` (el prototipo las cargaba de Google Fonts → violaba la CSP). Imágenes en `wwwroot/images/front/`.
+- **Formulario con campos por tipo** (arreglada la queja de que estaba "cojo"): Socio→periodicidad;
+  Donación→importe puntual; Microdonación→1 €/mes fijo. Mostrar/ocultar por `front.js` (CSP-safe).
+- **Flujo pago = solicitud → revisa el admin** (Stripe/SEPA 0,8 % = roadmap, NO MVP). Entidad
+  **`SolicitudColaboracion`** + migración aditiva `AddSolicitudColaboracion` + `ISolicitudColaboracionService`
+  (10 tests). **IBAN NUNCA en el form público.** `Program.cs` registra servicio + rate limiter.
+- **Admin `/Admin/Solicitudes`** (listado con filtro + ficha aprobar/rechazar con nota) + badge de pendientes en
+  el panel. Aprobar → enlace al alta de Socio con datos precargados (`Socios/Create.OnGet` acepta query params).
+- **Defensas OWASP:** antiforgery + honeypot + **rate-limit por IP solo en POST** (5/5 min; los GET no se
+  limitan) + validación server + mensaje neutro.
+- **i18n:** contenido **ES** en `Index.resx`; **EN pendiente** (cae a ES por fallback). Infra i18n ya existía.
+
+**07-07 (noche) — 1ª revisión visual del usuario: 6 fixes aplicados** (build OK, 103 verdes, SIN
+commitear/desplegar). Detalle en log W27. Resumen: (1) textos HTML salían como el nombre del tipo
+`LocalizedHtmlString` por usar `@Html.Raw(Localizer[..])` → `@Localizer[..]` directo; **esto causaba el
+overflow horizontal** (era el grueso del "responsive roto"). (2) placeholder email mangleado → a resx. (3)
+validación cliente no enganchaba: `_PublicLayout` no cargaba jQuery → añadido. (4) tipo sin marcar: `asp-for`
+emitía el nombre del enum, `front.js` compara el número → emitir número + marcar `.sel` server-side. (5)(6)
+formulario y header ajustados en móvil. **Falta re-verificar visualmente (lo hace el usuario).**
+
+**HANDICAP a resolver (prioridad próxima sesión):** el entorno bloquea el navegador headless (Playwright
+`ERR_BLOCKED_BY_CLIENT` en localhost, ambos puertos/IPs) → no se puede verificar el render visual desde aquí,
+solo por HTTP/estructura. El front visual se está desarrollando a ciegas. Investigar alternativa (config de
+red del sandbox, otro runner, o verificación asistida por el usuario con screenshots).
+
+**PENDIENTE inmediato:** re-verificar los fixes en navegador (usuario); commitear + desplegar; traducir EN;
+borrar la solicitud de prueba de la BD local.
+**AVISO seguridad (vigente):** el IBAN real de la ONG está en la web vieja; **NO copiarlo** al repo público.
+Orfanato = "BalMandir", Katmandú. Contenido literal versionado en `context/contenido-front.md`.
 
 ---
 

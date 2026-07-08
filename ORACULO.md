@@ -6,7 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-05 (noche, tras validación del usuario).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-08 (front público commiteado + pulido del
+> back; arranca el rediseño del flujo de solicitudes).
 
 ## Active Focus
 
@@ -25,9 +26,21 @@ local, incl. previsión 6 meses). Infra **i18n** del front público lista (ES/EN
 **93 tests verdes** (`DididaiApp.Tests`, xUnit); **TDD** en toda la lógica de negocio (IBAN, agregaciones,
 proyección). Todo verificado por HTTP en producción. **Decisión transversal:** idioma de UI, país de
 residencia y validación de datos son ejes independientes; la validación la dispara el **tipo de documento**.
-**ÚNICO MÓDULO QUE QUEDA: el front público + look & feel** (mobile-first, marca DIDIDAI) + traducir EN el
-contenido. Después, entregables no-código (README/slides/vídeo). Detalle en `context/next-steps.md` y
-`context/decisions.md`.
+**FRONT PÚBLICO COMMITEADO (08-07)** y validado visualmente por el usuario: landing one-page (hero 99%,
+Actividad, Filosofía, Transparencia, 7 Objetivos, Colaborar, Contacto) recreada desde el diseño de Claude
+Design como Razor + CSS/JS externos **CSP-safe** (0 inline), Fraunces+Poppins autoalojadas; **formulario
+público→BD** vía entidad `SolicitudColaboracion` (el admin revisa/aprueba, IBAN nunca en público) con
+antiforgery + honeypot + rate-limit + RGPD; pantalla `/Admin/Solicitudes`. Commits `58de45c` (front) y
+`3782ab3` (pulido del back + fixes: modal de confirmación, tablas con tema de marca, menú admin, Identity con
+estilos, validación cliente=servidor del checkbox RGPD y del teléfono, panel Teaming, periodicidad
+preseleccionada). **104 tests verdes.** **SIN PUSH / SIN DESPLEGAR todavía.**
+
+**FOCO ACTUAL (08-07): rediseño del flujo de solicitudes de colaboración** (plan cerrado, sin código). Nueva
+máquina de estados (Pendiente→Gestionando→Aprobada/Cancelada), log de acciones de gestión, matching con socios
+por email/teléfono como sugerencia (sin unicidad), vinculación solicitud↔socio, direcciones opcionales,
+creación de la colaboración al dar de alta. **3 bloques, un commit por bloque.** Detalle en
+`context/next-steps.md` (sección "PLAN VIGENTE 08-07"). Queda además: push + deploy, traducir **EN** (ES
+puesto, EN cae a ES por fallback), entregables no-código (README/slides/vídeo).
 
 ## Propósito real
 
@@ -65,8 +78,9 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
-| Front público (home, quiénes somos, contacto) | PLANIFICADO (MVP) — UI mobile-first, contenido localizable |
-| Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (05-07): 55 tests verdes sobre `ValidacionIdentidad` (DNI/NIE/E.164), `Paises`, `PrefijosTelefonicos`. `dotnet test` |
+| **Front público (landing one-page + formulario→BD)** | **IMPLEMENTADO (07-07, SIN desplegar)**: `Index.cshtml` recreado desde el diseño de Claude Design (hero 99%, Actividad, Filosofía, Transparencia, 7 Objetivos, Colaborar, Contacto), layout propio `_PublicLayout`, CSS/JS externos **CSP-safe** (`front.css`/`front.js`, 0 inline), Fuentes Fraunces+Poppins autoalojadas. Formulario con **campos por tipo**. Contenido ES (`Index.resx`); EN pendiente (fallback a ES). Verificado E2E por HTTP |
+| **Solicitudes de colaboración (formulario público→BD)** | **IMPLEMENTADO (07-07, SIN desplegar)**: entidad `SolicitudColaboracion` (migración aditiva) + `ISolicitudColaboracionService` (tests) + pantalla admin `/Admin/Solicitudes` (listar/filtrar/aprobar/rechazar) + badge en el panel. El form anónimo crea una solicitud que el admin revisa y convierte a Socio (datos precargados). **IBAN nunca en público.** Defensas: antiforgery + honeypot + rate-limit por IP solo POST + RGPD + mensaje neutro |
+| Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (07-07): **103 tests verdes** (`ValidacionIdentidad`, `Paises`, `PrefijosTelefonicos`, `ValidacionIban`, `ColaboracionService`, `ResumenEconomicoService`, **`SolicitudColaboracionService`**). `dotnet test` |
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Gestión de Colaboraciones (CRUD) | OPERATIVO (05-07, DESPLEGADO): alta (3 tipos, form con selector), **editar** (importe/periodicidad/IBAN), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
 | Módulo económico simple (ingresos/gastos) | OPERATIVO (05-07, DESPLEGADO): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance, **previsión**), página `/Admin/Economia` con vista global de colaboraciones |
@@ -76,6 +90,24 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-07 — Front público implementado (landing + formulario→BD) desde el diseño de Claude Design**:
+  último módulo del MVP. Llegó el handoff bundle de Claude Design; el prototipo (formato `x-dc`, con estilos y
+  handlers **inline**) se recreó como **Razor + CSS/JS externos, CSP-safe** (0 inline verificado por HTTP), no
+  copiando su estructura interna sino su salida visual. `Index.cshtml` sustituye la home de plantilla; layout
+  público propio `_PublicLayout.cshtml` (el back sigue con Bootstrap `_Layout`). **Fuentes Fraunces+Poppins
+  autoalojadas** en `wwwroot/fonts/` (el prototipo las traía de Google Fonts → violaba la CSP). Imágenes
+  optimizadas en `wwwroot/images/front/`. **Formulario con campos por tipo** (Socio→periodicidad,
+  Donación→importe, Microdonación→1€/mes fijo; mostrar/ocultar por `front.js`). **Flujo pago = solicitud →
+  revisa el admin** (Stripe/SEPA = roadmap, no MVP): entidad **`SolicitudColaboracion`** + migración aditiva
+  `AddSolicitudColaboracion` (tabla nueva, no toca las existentes) + `ISolicitudColaboracionService` (10 tests)
+  + pantalla **`/Admin/Solicitudes`** (listar/filtrar/aprobar/rechazar con nota) + badge de pendientes; aprobar
+  enlaza al alta de Socio con datos precargados (`Socios/Create.OnGet` acepta query params). **IBAN NUNCA en el
+  form público.** Defensas OWASP: antiforgery + **honeypot** (respuesta neutra) + **rate-limit por IP solo en
+  POST** (5/5 min; bug corregido en verificación: el atributo limitaba también los GET/visitas) + validación
+  server + mensaje neutro. i18n: contenido **ES** en `Index.resx`; **EN pendiente** (cae a ES por fallback).
+  **Verificado E2E** con la app corriendo (home 200 + CSP + 0 inline; assets 200; form válido→BD y visible en
+  admin; honeypot→no guarda; login→ficha→aprobar cambia estado y baja el badge). **103 tests verdes.** **SIN
+  COMMITEAR / SIN DESPLEGAR.** Detalle en el log W27 (07-07) y en el commit.
 - **2026-07-05 (noche) — CSP estricta activada (endurecimiento previo al front público)**: el proyecto seguía
   la disciplina anti-inline (todo el JS externo) pero NO tenía cabecera `Content-Security-Policy` activa. Se
   añade middleware `SecurityHeadersMiddleware` que emite en cada respuesta una CSP `default-src 'self'` sin
@@ -242,9 +274,13 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 - ~~Sin CSP activa pese a la disciplina anti-inline~~ — RESUELTO (05-07): `SecurityHeadersMiddleware` emite una
   CSP estricta `default-src 'self'` sin `unsafe-inline` en toda la app; verificado que no rompe front, login ni
   back. El front público se montará respetándola.
-- **Formulario público→BD (pendiente, siguiente bloque)** — MEDIO · A DISEÑAR: el front público incluirá un
-  form de alta sin login que escribe en la BD. Superficie nueva: exige antiforgery, validación de servidor,
-  rate-limit / anti-bot (honeypot) y consentimiento RGPD. Diseñar con repaso de seguridad propio.
+- ~~Formulario público→BD~~ — RESUELTO (07-07): implementado con entidad aparte `SolicitudColaboracion` (el
+  admin revisa, no alta directa de Socio) + antiforgery + honeypot + rate-limit por IP (solo POST) + validación
+  server + consentimiento RGPD + mensaje neutro. **IBAN nunca en el form público.** Verificado E2E (incl.
+  honeypot descarta el bot). Falta: repaso de seguridad final antes de desplegar (p. ej. `/security-review`).
+- **Front público sin commitear/desplegar** — BAJO · PENDIENTE (07-07): todo el módulo está en local, verificado,
+  103 tests verdes, pero **sin commit ni deploy**. Al desplegar, la migración `AddSolicitudColaboracion` se
+  aplica sola al arrancar (aditiva). Traducir EN pendiente (contenido ES puesto; EN cae a ES por fallback).
 - Datos personales de socios en repo/BD (RGPD) — MEDIO · MITIGADO PARCIALMENTE (`*.db` en `.gitignore`; falta
   garantizar datos anonimizados en la demo. `Dni`/`Iban` sin cifrar a nivel de columna: fuera de MVP).
 - ~~Alcance funcional sin especificar~~ — RESUELTO (MVP definido 2026-07-03).

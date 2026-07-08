@@ -13,17 +13,22 @@ public class DetailsModel : PageModel
 {
     private readonly ISocioService _socios;
     private readonly IColaboracionService _colaboraciones;
+    private readonly ISolicitudColaboracionService _solicitudes;
 
-    public DetailsModel(ISocioService socios, IColaboracionService colaboraciones)
+    public DetailsModel(ISocioService socios, IColaboracionService colaboraciones, ISolicitudColaboracionService solicitudes)
     {
         _socios = socios;
         _colaboraciones = colaboraciones;
+        _solicitudes = solicitudes;
     }
 
     public Socio Socio { get; private set; } = new();
 
     /// <summary>Colaboraciones del socio (activas e históricas), más recientes primero.</summary>
     public IReadOnlyList<Colaboracion> Colaboraciones { get; private set; } = [];
+
+    /// <summary>Solicitudes públicas vinculadas a este socio (trazabilidad).</summary>
+    public IReadOnlyList<SolicitudColaboracion> Solicitudes { get; private set; } = [];
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -33,6 +38,7 @@ public class DetailsModel : PageModel
 
         Socio = socio;
         Colaboraciones = await _colaboraciones.ListarPorSocioAsync(id);
+        Solicitudes = await _solicitudes.ListarPorSocioAsync(id);
         return Page();
     }
 

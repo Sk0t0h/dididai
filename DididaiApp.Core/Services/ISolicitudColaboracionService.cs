@@ -55,6 +55,19 @@ public interface ISolicitudColaboracionService
     /// Devuelve false si la solicitud o el socio no existen.
     /// </summary>
     Task<bool> VincularSocioAsync(int solicitudId, int socioId);
+
+    /// <summary>Solicitudes vinculadas a un socio, más recientes primero (para su ficha).</summary>
+    Task<IReadOnlyList<SolicitudColaboracion>> ListarPorSocioAsync(int socioId);
+
+    /// <summary>
+    /// Crea la <see cref="Colaboracion"/> que corresponde al tipo de una solicitud, para el
+    /// socio al que está vinculada, con el importe (y, si es cuota domiciliada, la
+    /// periodicidad e IBAN) que confirma el admin. Enlaza la solicitud con la colaboración
+    /// creada (<c>ColaboracionId</c>) para no duplicarla. La microdonación (Teaming) no
+    /// genera colaboración (se gestiona en Teaming). Ver <see cref="ResultadoCrearColaboracion"/>.
+    /// </summary>
+    Task<ResultadoCrearColaboracion> CrearColaboracionDesdeSolicitudAsync(
+        int solicitudId, decimal importe, ModalidadCuota modalidad, string? iban);
 }
 
 /// <summary>Resultado del alta de una solicitud pública.</summary>
@@ -66,4 +79,23 @@ public enum ResultadoSolicitud
     FaltaConsentimiento,
     /// <summary>El teléfono no está en formato internacional E.164.</summary>
     TelefonoInvalido,
+}
+
+/// <summary>Resultado de crear la colaboración a partir de una solicitud.</summary>
+public enum ResultadoCrearColaboracion
+{
+    /// <summary>Colaboración creada y enlazada a la solicitud.</summary>
+    Creada,
+    /// <summary>La solicitud no existe.</summary>
+    SolicitudNoEncontrada,
+    /// <summary>La solicitud no está vinculada a ningún socio (hay que vincularla antes).</summary>
+    SinSocioVinculado,
+    /// <summary>La solicitud ya tiene una colaboración creada (no se duplica).</summary>
+    YaTieneColaboracion,
+    /// <summary>El tipo de la solicitud es microdonación/Teaming: no genera colaboración aquí.</summary>
+    TipoSinColaboracion,
+    /// <summary>El importe debe ser mayor que cero.</summary>
+    ImporteInvalido,
+    /// <summary>La cuota domiciliada requiere un IBAN válido (mod-97).</summary>
+    IbanInvalido,
 }

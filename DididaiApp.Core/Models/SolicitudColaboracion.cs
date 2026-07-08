@@ -133,6 +133,16 @@ public class SolicitudColaboracion
     public Socio? Socio { get; set; }
 
     /// <summary>
+    /// Colaboración generada a partir de esta solicitud (null = aún no se ha creado). Evita
+    /// crear dos veces la colaboración de la misma solicitud y da trazabilidad directa
+    /// solicitud → colaboración. En microdonación/Teaming queda null (se gestiona en Teaming).
+    /// </summary>
+    public int? ColaboracionId { get; set; }
+
+    /// <summary>Navegación a la colaboración generada (ver <see cref="ColaboracionId"/>).</summary>
+    public Colaboracion? Colaboracion { get; set; }
+
+    /// <summary>
     /// Historial de acciones de gestión (contactos, notas de seguimiento…) sobre esta
     /// solicitud. Registrar la primera acción mueve la solicitud a
     /// <see cref="EstadoSolicitud.Gestionando"/>.

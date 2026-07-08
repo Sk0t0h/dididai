@@ -53,6 +53,11 @@ puesto, EN cae a ES por fallback).
       haya sesión activa, mostrar las opciones del menú de gestión (las mismas del back), **quitando "Inicio"**
       (el logo ya lleva al front) y **renombrando "Panel" → "Admin"**. Valorar además un acceso al login de
       admin ahí arriba (en la cabecera del front), no solo en el footer.
+- [ ] **Decidir (a validar con C2 completo):** una solicitud de tipo "Socio" puede quedar **Aprobada sin
+      cuota creada** — aprobar y "Crear colaboración" son acciones distintas (el IBAN se pide solo al crear la
+      cuota, no al aprobar; esto es intencional: aprobar ya, pedir IBAN al socio y crear la cuota después).
+      Revisar si el flujo debe avisar/forzar la creación de la cuota, o dejarlo así con un indicador visible de
+      "aprobada, cuota pendiente". Observado por el usuario el 08-07.
 
 ---
 

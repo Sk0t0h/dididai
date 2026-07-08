@@ -123,4 +123,62 @@ public class SolicitudColaboracionService : ISolicitudColaboracionService
         await _db.SaveChangesAsync();
         return true;
     }
+
+    public async Task<IReadOnlyList<SolicitudColaboracion>> ListarPorSocioAsync(int socioId) =>
+        await _db.SolicitudesColaboracion.AsNoTracking()
+            .Where(s => s.SocioId == socioId)
+            .OrderByDescending(s => s.FechaSolicitud)
+            .ToListAsync();
+
+    public async Task<ResultadoCrearColaboracion> CrearColaboracionDesdeSolicitudAsync(
+        int solicitudId, decimal importe, ModalidadCuota modalidad, string? iban)
+    {
+        var solicitud = await _db.SolicitudesColaboracion.FirstOrDefaultAsync(s => s.Id == solicitudId);
+        if (solicitud is null)
+            return ResultadoCrearColaboracion.SolicitudNoEncontrada;
+        if (solicitud.SocioId is not int socioId)
+            return ResultadoCrearColaboracion.SinSocioVinculado;
+        if (solicitud.ColaboracionId is not null)
+            return ResultadoCrearColaboracion.YaTieneColaboracion;
+        if (importe <= 0)
+            return ResultadoCrearColaboracion.ImporteInvalido;
+
+        // El tipo de la solicitud decide el subtipo de colaboración (TPH). La microdonación
+        // (Teaming) se gestiona en la plataforma de Teaming: aquí no se crea colaboración.
+        Colaboracion colaboracion;
+        switch (solicitud.Tipo)
+        {
+            case TipoColaboracionSolicitada.Socio:
+                var norm = ValidacionIban.Normalizar(iban ?? string.Empty);
+                if (!ValidacionIban.EsValido(norm))
+                    return ResultadoCrearColaboracion.IbanInvalido;
+                colaboracion = new CuotaDomiciliada { Modalidad = modalidad, Iban = norm };
+                break;
+
+            case TipoColaboracionSolicitada.Donacion:
+                colaboracion = new AportacionUnica { Fecha = DateTime.UtcNow };
+                break;
+
+            default: // Microdonacion / Teaming
+                return ResultadoCrearColaboracion.TipoSinColaboracion;
+        }
+
+        colaboracion.SocioId = socioId;
+        colaboracion.Importe = importe;
+        colaboracion.FechaInicio = DateTime.UtcNow;
+        colaboracion.FechaFin = null;
+        colaboracion.Activa = true;
+
+        _db.Colaboraciones.Add(colaboracion);
+        await _db.SaveChangesAsync();   // asigna Id a la colaboración
+
+        // Enlaza la solicitud con la colaboración creada (evita duplicar) y, si aún no
+        // estaba resuelta, la deja aprobada (el socio ya tiene su colaboración real).
+        solicitud.ColaboracionId = colaboracion.Id;
+        if (solicitud.Estado != EstadoSolicitud.Cancelada)
+            solicitud.Estado = EstadoSolicitud.Aprobada;
+        await _db.SaveChangesAsync();
+
+        return ResultadoCrearColaboracion.Creada;
+    }
 }

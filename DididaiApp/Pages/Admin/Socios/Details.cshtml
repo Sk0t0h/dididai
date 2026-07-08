@@ -28,7 +28,18 @@
     <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9">@Model.Socio.Telefono</dd>
     <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Socio.Email</dd>
     <dt class="col-sm-3">Dirección</dt>
-    <dd class="col-sm-9">@Model.Socio.Direccion, @Model.Socio.CodigoPostal @Model.Socio.Localidad (@Paises.Nombre(Model.Socio.PaisResidencia))</dd>
+    <dd class="col-sm-9">
+        @{
+            var partes = new[] { Model.Socio.Direccion, Model.Socio.CodigoPostal, Model.Socio.Localidad }
+                .Where(p => !string.IsNullOrWhiteSpace(p));
+            var domicilio = string.Join(", ", partes);
+        }
+        @if (!string.IsNullOrWhiteSpace(domicilio))
+        {
+            @domicilio<text> </text>
+        }
+        <span class="text-muted">(@Paises.Nombre(Model.Socio.PaisResidencia))</span>
+    </dd>
     <dt class="col-sm-3">Alta</dt><dd class="col-sm-9">@Model.Socio.FechaAlta.ToString("dd/MM/yyyy")</dd>
     @if (Model.Socio.FechaBaja is DateTime baja)
     {
@@ -39,6 +50,47 @@
 </dl>
 
 <partial name="_TablaColaboraciones" model="new DididaiApp.Pages.Admin.Socios.TablaColaboracionesModel { SocioId = Model.Socio.Id, Colaboraciones = Model.Colaboraciones }" />
+
+@* Solicitudes públicas vinculadas a este socio (trazabilidad: de dónde vino cada colaboración). *@
+@if (Model.Solicitudes.Count > 0)
+{
+    <h2 class="h5 mt-4">Solicitudes vinculadas</h2>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Colaboración</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sol in Model.Solicitudes)
+                {
+                    var badge = sol.Estado switch
+                    {
+                        EstadoSolicitud.Pendiente => "text-bg-secondary",
+                        EstadoSolicitud.Gestionando => "text-bg-warning",
+                        EstadoSolicitud.Aprobada => "text-bg-success",
+                        EstadoSolicitud.Cancelada => "text-bg-danger",
+                        _ => "text-bg-light"
+                    };
+                    <tr>
+                        <td class="text-nowrap">@sol.FechaSolicitud.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td>@Html.DisplayFor(_ => sol.Tipo)</td>
+                        <td><span class="badge @badge">@Html.DisplayFor(_ => sol.Estado)</span></td>
+                        <td>@(sol.ColaboracionId is null ? "—" : "Creada")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="/Admin/Solicitudes/Details" asp-route-id="@sol.Id">Ver</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
 <div class="d-flex flex-wrap gap-2 mt-4">
     <a class="btn btn-outline-secondary" asp-page="Index">Volver</a>

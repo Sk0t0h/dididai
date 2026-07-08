@@ -156,6 +156,40 @@
                         <p class="card-text small mb-2">Esta solicitud está vinculada al socio:</p>
                         <p class="mb-2"><strong>@vinc.Apellidos, @vinc.Nombre</strong> <span class="text-muted">· @vinc.Email</span></p>
                         <a class="btn btn-sm btn-outline-primary" asp-page="/Admin/Socios/Details" asp-route-id="@vinc.Id">Ver ficha del socio</a>
+
+                        @* Crear la colaboración de esta solicitud para el socio vinculado. *@
+                        @if (s.ColaboracionId is not null)
+                        {
+                            <p class="text-success small mt-3 mb-0">✓ Colaboración creada y asociada al socio.</p>
+                        }
+                        else if (s.Tipo == TipoColaboracionSolicitada.Microdonacion)
+                        {
+                            <p class="text-muted small mt-3 mb-0">La microdonación se gestiona en Teaming; no genera colaboración aquí.</p>
+                        }
+                        else
+                        {
+                            <hr />
+                            <h6>Crear colaboración</h6>
+                            <p class="card-text text-muted small">Confirma los datos para registrar la colaboración de este socio a partir de la solicitud.</p>
+                            <form method="post">
+                                <div class="mb-2">
+                                    <label asp-for="ColabImporte" class="form-label">Importe (€)</label>
+                                    <input asp-for="ColabImporte" type="number" min="0.01" step="0.01" class="form-control form-control-sm" value="@(s.Importe ?? 0m)" />
+                                </div>
+                                @if (s.Tipo == TipoColaboracionSolicitada.Socio)
+                                {
+                                    <div class="mb-2">
+                                        <label asp-for="ColabModalidad" class="form-label">Periodicidad</label>
+                                        <select asp-for="ColabModalidad" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<ModalidadCuota>()"></select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label asp-for="ColabIban" class="form-label">IBAN</label>
+                                        <input asp-for="ColabIban" class="form-control form-control-sm" placeholder="ES91 2100 0418 4502 0005 1332" autocomplete="off" />
+                                    </div>
+                                }
+                                <button type="submit" class="btn btn-sm btn-primary" asp-page-handler="CrearColaboracion" asp-route-id="@s.Id">Crear colaboración</button>
+                            </form>
+                        }
                     }
                     else
                     {
@@ -187,10 +221,7 @@
 
                         <a class="btn btn-primary"
                            asp-page="/Admin/Socios/Create"
-                           asp-route-nombre="@s.Nombre"
-                           asp-route-apellidos="@s.Apellidos"
-                           asp-route-email="@s.Email"
-                           asp-route-telefono="@s.Telefono">
+                           asp-route-solicitudId="@s.Id">
                             Crear socio con estos datos
                         </a>
                     }

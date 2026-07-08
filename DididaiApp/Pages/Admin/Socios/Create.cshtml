@@ -9,6 +9,13 @@
 <form method="post" class="mt-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    @* Conserva el origen (solicitud) entre GET y POST para vincularla tras el alta. *@
+    @if (Model.SolicitudId is int solId)
+    {
+        <input type="hidden" asp-for="SolicitudId" value="@solId" />
+        <div class="alert alert-info">Alta a partir de una solicitud de colaboración. Al guardar, se vinculará y podrás crear su colaboración.</div>
+    }
+
     <partial name="_CamposSocio" for="Socio" />
 
     @if (Model.IdReactivable is int reactId)

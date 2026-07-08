@@ -12,27 +12,46 @@ namespace DididaiApp.Pages.Admin.Socios;
 public class CreateModel : PageModel
 {
     private readonly ISocioService _socios;
+    private readonly ISolicitudColaboracionService _solicitudes;
 
-    public CreateModel(ISocioService socios) => _socios = socios;
+    public CreateModel(ISocioService socios, ISolicitudColaboracionService solicitudes)
+    {
+        _socios = socios;
+        _solicitudes = solicitudes;
+    }
 
     [BindProperty]
     public Socio Socio { get; set; } = new();
+
+    /// <summary>
+    /// Id de la solicitud pública desde la que se está dando de alta (si aplica). Se
+    /// mantiene entre GET y POST para, al crear el socio, vincular la solicitud a él. La
+    /// colaboración NO se crea aquí: se hace después desde la ficha de la solicitud (que ya
+    /// tendrá socio vinculado), en un único sitio y sin mezclar la lógica económica.
+    /// </summary>
+    [BindProperty(SupportsGet = true)]
+    public int? SolicitudId { get; set; }
 
     /// <summary>Id del socio de baja que coincide en DNI (para ofrecer reactivarlo), si lo hay.</summary>
     public int? IdReactivable { get; private set; }
 
     /// <summary>
-    /// Alta en blanco, o precargada desde una solicitud pública aprobada: si llegan los
-    /// parámetros opcionales por querystring (enlace "Dar de alta" de la ficha de
-    /// solicitud), se rellenan los campos coincidentes. Todo lo demás (documento, IBAN…)
-    /// lo completa el admin, que sigue siendo quien controla el alta real.
+    /// Alta en blanco, o precargada desde una solicitud pública: con <see cref="SolicitudId"/>
+    /// se leen los datos de la solicitud de la BD (fuente de verdad, no la URL) y se marca el
+    /// consentimiento (ya se dio en el formulario público). El resto (documento, dirección…)
+    /// lo completa el admin, que controla el alta real.
     /// </summary>
-    public void OnGet(string? nombre, string? apellidos, string? email, string? telefono)
+    public async Task OnGetAsync()
     {
-        if (!string.IsNullOrWhiteSpace(nombre)) Socio.Nombre = nombre;
-        if (!string.IsNullOrWhiteSpace(apellidos)) Socio.Apellidos = apellidos;
-        if (!string.IsNullOrWhiteSpace(email)) Socio.Email = email;
-        if (!string.IsNullOrWhiteSpace(telefono)) Socio.Telefono = telefono;
+        if (SolicitudId is int solId && await _solicitudes.ObtenerAsync(solId) is SolicitudColaboracion sol)
+        {
+            Socio.Nombre = sol.Nombre;
+            Socio.Apellidos = sol.Apellidos;
+            Socio.Email = sol.Email;
+            Socio.Telefono = sol.Telefono;
+            // La persona ya consintió la privacidad en el formulario público.
+            Socio.AceptaPrivacidad = true;
+        }
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -49,6 +68,15 @@ public class CreateModel : PageModel
         switch (resultado)
         {
             case ResultadoAlta.Creado:
+                // Si el alta viene de una solicitud, vincularla al socio recién creado (la
+                // colaboración se crea luego desde la ficha de la solicitud). Se vuelve a
+                // esa ficha para continuar el flujo.
+                if (SolicitudId is int solId)
+                {
+                    await _solicitudes.VincularSocioAsync(solId, Socio.Id);
+                    TempData["Mensaje"] = $"Socio «{Socio.Nombre} {Socio.Apellidos}» dado de alta y vinculado. Ahora puedes crear su colaboración.";
+                    return RedirectToPage("/Admin/Solicitudes/Details", new { id = solId });
+                }
                 TempData["Mensaje"] = $"Socio «{Socio.Nombre} {Socio.Apellidos}» dado de alta.";
                 return RedirectToPage("Index");
 

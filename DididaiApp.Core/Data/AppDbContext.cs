@@ -66,5 +66,13 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             .WithMany(s => s.Acciones)
             .HasForeignKey(a => a.SolicitudId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Solicitud → Colaboración generada: vínculo opcional 1:1 lógico. Si se borra la
+        // colaboración, la solicitud conserva el registro con ColaboracionId a null.
+        modelBuilder.Entity<SolicitudColaboracion>()
+            .HasOne(s => s.Colaboracion)
+            .WithMany()
+            .HasForeignKey(s => s.ColaboracionId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

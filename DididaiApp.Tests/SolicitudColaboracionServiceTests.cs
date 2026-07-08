@@ -276,6 +276,122 @@ public class SolicitudColaboracionServiceTests : IDisposable
         Assert.False(ok);
     }
 
+    // ---- Crear colaboración desde solicitud (bloque C2a) ----
+
+    private async Task<Socio> SembrarSocioAsync()
+    {
+        var socio = new Socio
+        {
+            Nombre = "Ada", Apellidos = "L", TipoDocumento = TipoDocumento.DniEspanol,
+            Dni = "12345678Z", Email = "ada@x.com", Telefono = "+34600111222",
+            PaisResidencia = "ES", AceptaPrivacidad = true, FechaAlta = DateTime.UtcNow,
+        };
+        _db.Socios.Add(socio);
+        await _db.SaveChangesAsync();
+        return socio;
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_Donacion_CreaAportacionUnicaYEnlaza()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Donacion;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = await SembrarSocioAsync();
+        await _sut.VincularSocioAsync(solId, socio.Id);
+
+        var r = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 50m, ModalidadCuota.Mensual, null);
+
+        Assert.Equal(ResultadoCrearColaboracion.Creada, r);
+        var colab = await _db.Colaboraciones.SingleAsync();
+        Assert.IsType<AportacionUnica>(colab);
+        Assert.Equal(50m, colab.Importe);
+        Assert.Equal(socio.Id, colab.SocioId);
+        var sol = await _db.SolicitudesColaboracion.SingleAsync();
+        Assert.Equal(colab.Id, sol.ColaboracionId);
+        Assert.Equal(EstadoSolicitud.Aprobada, sol.Estado);
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_Socio_ExigeIbanValido()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Socio;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = await SembrarSocioAsync();
+        await _sut.VincularSocioAsync(solId, socio.Id);
+
+        var malo = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 20m, ModalidadCuota.Mensual, "ES00 MAL");
+        Assert.Equal(ResultadoCrearColaboracion.IbanInvalido, malo);
+
+        var bueno = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 20m, ModalidadCuota.Mensual, "ES9121000418450200051332");
+        Assert.Equal(ResultadoCrearColaboracion.Creada, bueno);
+        Assert.IsType<CuotaDomiciliada>(await _db.Colaboraciones.SingleAsync());
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_Microdonacion_NoGeneraColaboracion()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Microdonacion;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = await SembrarSocioAsync();
+        await _sut.VincularSocioAsync(solId, socio.Id);
+
+        var r = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 1m, ModalidadCuota.Mensual, null);
+
+        Assert.Equal(ResultadoCrearColaboracion.TipoSinColaboracion, r);
+        Assert.Equal(0, await _db.Colaboraciones.CountAsync());
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_SinSocioVinculado_Devuelve()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Donacion;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+
+        var r = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 50m, ModalidadCuota.Mensual, null);
+
+        Assert.Equal(ResultadoCrearColaboracion.SinSocioVinculado, r);
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_NoDuplica()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Donacion;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = await SembrarSocioAsync();
+        await _sut.VincularSocioAsync(solId, socio.Id);
+        await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 50m, ModalidadCuota.Mensual, null);
+
+        var segunda = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 99m, ModalidadCuota.Mensual, null);
+
+        Assert.Equal(ResultadoCrearColaboracion.YaTieneColaboracion, segunda);
+        Assert.Equal(1, await _db.Colaboraciones.CountAsync());
+    }
+
+    [Fact]
+    public async Task CrearColaboracion_ImporteInvalido_Devuelve()
+    {
+        var s = Valida();
+        s.Tipo = TipoColaboracionSolicitada.Donacion;
+        await _sut.CrearAsync(s);
+        var solId = (await _db.SolicitudesColaboracion.SingleAsync()).Id;
+        var socio = await SembrarSocioAsync();
+        await _sut.VincularSocioAsync(solId, socio.Id);
+
+        var r = await _sut.CrearColaboracionDesdeSolicitudAsync(solId, 0m, ModalidadCuota.Mensual, null);
+
+        Assert.Equal(ResultadoCrearColaboracion.ImporteInvalido, r);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

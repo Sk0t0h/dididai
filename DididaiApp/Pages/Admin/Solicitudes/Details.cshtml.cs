@@ -45,6 +45,16 @@ public class DetailsModel : PageModel
     [BindProperty]
     public string? AccionNota { get; set; }
 
+    /// <summary>Datos que el admin confirma al crear la colaboración desde la solicitud.</summary>
+    [BindProperty]
+    public decimal ColabImporte { get; set; }
+
+    [BindProperty]
+    public ModalidadCuota ColabModalidad { get; set; } = ModalidadCuota.Mensual;
+
+    [BindProperty]
+    public string? ColabIban { get; set; }
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var s = await _solicitudes.ObtenerAsync(id);
@@ -122,6 +132,28 @@ public class DetailsModel : PageModel
         TempData["Mensaje"] = ok
             ? "Solicitud vinculada al socio."
             : "No se pudo vincular al socio.";
+        return RedirectToPage("Details", new { id });
+    }
+
+    /// <summary>
+    /// Crea la colaboración que corresponde a la solicitud, para el socio vinculado, con el
+    /// importe (y periodicidad/IBAN si es cuota) que confirma el admin.
+    /// </summary>
+    public async Task<IActionResult> OnPostCrearColaboracionAsync(int id)
+    {
+        var r = await _solicitudes.CrearColaboracionDesdeSolicitudAsync(id, ColabImporte, ColabModalidad, ColabIban);
+        if (r == ResultadoCrearColaboracion.SolicitudNoEncontrada) return NotFound();
+
+        TempData["Mensaje"] = r switch
+        {
+            ResultadoCrearColaboracion.Creada => "Colaboración creada y asociada al socio.",
+            ResultadoCrearColaboracion.SinSocioVinculado => "Vincula la solicitud a un socio antes de crear la colaboración.",
+            ResultadoCrearColaboracion.YaTieneColaboracion => "Esta solicitud ya tiene una colaboración creada.",
+            ResultadoCrearColaboracion.TipoSinColaboracion => "La microdonación se gestiona en Teaming; no genera colaboración.",
+            ResultadoCrearColaboracion.ImporteInvalido => "Introduce un importe mayor que cero.",
+            ResultadoCrearColaboracion.IbanInvalido => "El IBAN no es válido.",
+            _ => "No se pudo crear la colaboración.",
+        };
         return RedirectToPage("Details", new { id });
     }
 }

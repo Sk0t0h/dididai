@@ -6,8 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-08 (front público commiteado + pulido del
-> back; arranca el rediseño del flujo de solicitudes).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-08 (cierre: rediseño del flujo de solicitudes
+> COMPLETO + acceso a gestión unificado front/back; sin push/deploy).
 
 ## Active Focus
 
@@ -35,12 +35,17 @@ antiforgery + honeypot + rate-limit + RGPD; pantalla `/Admin/Solicitudes`. Commi
 estilos, validación cliente=servidor del checkbox RGPD y del teléfono, panel Teaming, periodicidad
 preseleccionada). **104 tests verdes.** **SIN PUSH / SIN DESPLEGAR todavía.**
 
-**FOCO ACTUAL (08-07): rediseño del flujo de solicitudes de colaboración** (plan cerrado, sin código). Nueva
-máquina de estados (Pendiente→Gestionando→Aprobada/Cancelada), log de acciones de gestión, matching con socios
-por email/teléfono como sugerencia (sin unicidad), vinculación solicitud↔socio, direcciones opcionales,
-creación de la colaboración al dar de alta. **3 bloques, un commit por bloque.** Detalle en
-`context/next-steps.md` (sección "PLAN VIGENTE 08-07"). Queda además: push + deploy, traducir **EN** (ES
-puesto, EN cae a ES por fallback), entregables no-código (README/slides/vídeo).
+**REDISEÑO DEL FLUJO DE SOLICITUDES COMPLETO (08-07, commiteado en local, SIN push/deploy).** Máquina de
+estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo); log de acciones de gestión
+(`AccionSolicitud`, usuario del admin no editable); matching por email/teléfono como sugerencia (sin unicidad)
++ vincular a socio existente; alta de socio nuevo desde solicitud (precarga+privacidad+vínculo); crear la
+colaboración desde la solicitud (`ColaboracionId`, no duplica; microdonación→Teaming no genera). **Disociación
+clave:** solicitud (intención) ≠ socio (identidad) ≠ colaboración (aportación real); aprobar ≠ crear
+colaboración (el IBAN solo entra al crear). **125 tests verdes.** Además: acceso a gestión desde el front
+(menú con sesión) y cabecera del back rediseñada para replicar el front. **Queda:** push + **deploy** (ojo al
+enum en datos de PRODUCCIÓN), pulir páginas de **Identity** (login/cuenta: traducir ES + quitar lo que no
+aplica; 09-07), traducir **EN** del front, entregables no-código (README/slides/vídeo). Detalle en
+`context/next-steps.md`.
 
 ## Propósito real
 
@@ -79,8 +84,8 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
 | **Front público (landing one-page + formulario→BD)** | **IMPLEMENTADO (07-07, SIN desplegar)**: `Index.cshtml` recreado desde el diseño de Claude Design (hero 99%, Actividad, Filosofía, Transparencia, 7 Objetivos, Colaborar, Contacto), layout propio `_PublicLayout`, CSS/JS externos **CSP-safe** (`front.css`/`front.js`, 0 inline), Fuentes Fraunces+Poppins autoalojadas. Formulario con **campos por tipo**. Contenido ES (`Index.resx`); EN pendiente (fallback a ES). Verificado E2E por HTTP |
-| **Solicitudes de colaboración (formulario público→BD)** | **IMPLEMENTADO (07-07, SIN desplegar)**: entidad `SolicitudColaboracion` (migración aditiva) + `ISolicitudColaboracionService` (tests) + pantalla admin `/Admin/Solicitudes` (listar/filtrar/aprobar/rechazar) + badge en el panel. El form anónimo crea una solicitud que el admin revisa y convierte a Socio (datos precargados). **IBAN nunca en público.** Defensas: antiforgery + honeypot + rate-limit por IP solo POST + RGPD + mensaje neutro |
-| Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (07-07): **103 tests verdes** (`ValidacionIdentidad`, `Paises`, `PrefijosTelefonicos`, `ValidacionIban`, `ColaboracionService`, `ResumenEconomicoService`, **`SolicitudColaboracionService`**). `dotnet test` |
+| **Solicitudes de colaboración (flujo completo)** | **IMPLEMENTADO (08-07, SIN desplegar)**: formulario público→BD + gestión completa. **Máquina de estados** Pendiente/Gestionando/Aprobada/Cancelada; **log de acciones** de gestión (`AccionSolicitud`, usuario del admin no editable, 1ª acción→Gestionando); **matching** por email/teléfono (sugerencia, sin unicidad) → vincular a socio existente; **alta de socio nuevo** desde solicitud (precarga+privacidad+vínculo); **crear la colaboración** desde la solicitud (`ColaboracionId`, no duplica; Donación→AportacionUnica, Socio→CuotaDomiciliada con IBAN, Microdonación→Teaming no genera). Ficha del socio muestra "Solicitudes vinculadas". **IBAN nunca en público** (solo al crear la colaboración). Defensas del form: antiforgery + honeypot + rate-limit por IP solo POST + RGPD. Disociación solicitud≠socio≠colaboración |
+| Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (08-07): **125 tests verdes** (`ValidacionIdentidad`, `Paises`, `PrefijosTelefonicos`, `ValidacionIban`, `ColaboracionService`, `ResumenEconomicoService`, `SolicitudColaboracionService` [+acciones/matching/vinculación/crear-colaboración], **`SocioService`** [matching]). `dotnet test` |
 | Gestión de socios (CRUD) | OPERATIVO (05-07, DESPLEGADO y verificado en prod): alta/listado/ficha/edición, baja lógica+reactivar, DNI único, Email no único. **Validación por TIPO de documento** (DNI/NIE letra, pasaporte/otro laxo), **país=residencia** (ISO, desplegable+buscador), **teléfono E.164** (prefijo+número), **cliente=servidor** (atributos IClientModelValidator + adaptadores jquery-validation) |
 | Gestión de Colaboraciones (CRUD) | OPERATIVO (05-07, DESPLEGADO): alta (3 tipos, form con selector), **editar** (importe/periodicidad/IBAN), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
 | Módulo económico simple (ingresos/gastos) | OPERATIVO (05-07, DESPLEGADO): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance, **previsión**), página `/Admin/Economia` con vista global de colaboraciones |

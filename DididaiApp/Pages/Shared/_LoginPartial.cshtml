@@ -5,9 +5,8 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Index">Gestión</a>
-    </li>
+    @* El acceso a las secciones (Admin/Socios/…) vive en el menú principal; aquí solo la
+       zona de cuenta: perfil del usuario y salir. *@
     <li class="nav-item">
         <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gestionar">@User.Identity?.Name</a>
     </li>

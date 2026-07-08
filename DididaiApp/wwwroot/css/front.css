@@ -160,6 +160,19 @@ body.front {
   color: #33667c;
 }
 .lang .is-active { background: var(--c-tinta); color: #fff; }
+
+/* Acceso a gestión desde la cabecera del front (discreto, tono secundario). */
+.admin-links { display: flex; gap: .9rem; align-items: center; font-size: .82rem; }
+.admin-links a, .admin-acceso {
+  text-decoration: none; color: #33667c; font-weight: 500; white-space: nowrap;
+}
+.admin-links a:hover, .admin-acceso:hover { color: var(--c-naranja-osc); text-decoration: underline; }
+.admin-acceso { font-size: .82rem; }
+.link-salir {
+  border: none; background: none; cursor: pointer; font: inherit; font-size: .82rem;
+  color: #b8560f; padding: 0;
+}
+.link-salir:hover { text-decoration: underline; }
 .menu-btn {
   display: none; align-items: center; justify-content: center; background: none;
   border: 1.6px solid var(--c-borde); font-size: 1.2rem; line-height: 1;

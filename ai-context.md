@@ -5,25 +5,36 @@
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
 > Actualizado: 2026-07-08 (front público validado + pulido del back; arranca rediseño de solicitudes).
 
-## FOCO ACTUAL (08-07) — Rediseño del flujo de solicitudes de colaboración
+## FOCO ACTUAL (08-07 cierre) — Rediseño de solicitudes COMPLETO; mañana pulir Identity
 
-Tras validar visualmente el front público, el usuario replanteó el flujo de solicitudes. **Plan detallado y
-decisiones de diseño cerradas en `context/next-steps.md` (sección "PLAN VIGENTE 08-07")**. Resumen: nueva
-máquina de estados (Pendiente→Gestionando→Aprobada/Cancelada), log de acciones de gestión (entidad
-`AccionSolicitud`), matching con socios por email/teléfono como sugerencia (sin unicidad), vinculación
-solicitud↔socio (`SocioId`), direcciones opcionales, privacidad preseleccionada si viene de solicitud, y crear
-la colaboración al dar de alta desde solicitud. **3 bloques, un commit por bloque**, migración única al inicio.
+**Rediseño del flujo de solicitudes TERMINADO** (4 bloques A-C2), validado visualmente por el usuario y
+commiteado en local. Máquina de estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo);
+log de acciones de gestión (`AccionSolicitud`, usuario del admin no editable, 1ª acción→Gestionando); matching
+por email/teléfono como sugerencia (sin unicidad) + vincular a socio existente; alta de socio nuevo desde
+solicitud (precarga + privacidad + vínculo); crear la colaboración desde la solicitud (`ColaboracionId`, no
+duplica; microdonación→Teaming no genera); direcciones del socio opcionales. **Disociación clave:** solicitud
+(intención revocable) ≠ socio (identidad) ≠ colaboración (aportación real, lo que cuenta en el económico);
+aprobar ≠ crear colaboración (el IBAN solo entra al crear la colaboración). Además, **acceso a gestión desde el
+front arreglado** (menú con sesión) y **cabecera del back rediseñada** para replicar el front (logo+crema).
 
-**Estado de commits (rama `main`, SIN push todavía):**
+**Estado de commits (rama `main`, TODO SIN push todavía):**
 - `58de45c` — Front público (landing + formulario→BD).
-- `3782ab3` — Pulido del back + fixes del formulario tras revisión visual (modal de confirmación, tablas con
-  tema de marca, menú admin, Identity con estilos, checkbox RGPD cliente=servidor, teléfono cliente, panel
-  Teaming, periodicidad preseleccionada, `.vscode/tasks.json`).
-- Pendiente: los 3 bloques del rediseño de solicitudes; luego push + deploy + validación visual.
+- `3782ab3` — Pulido del back + fixes del formulario tras revisión visual.
+- `8dac961` — Memoria + plan del rediseño.
+- `3dd5900` — Rediseño A: estados + esquema + colores (migración `RediseñoFlujoSolicitudes`).
+- `f25e62d` — Rediseño B: log de acciones de gestión.
+- `a69293c` — Rediseño C1: matching + vinculación a socio existente.
+- `0b5f6fe` — Rediseño C2: alta desde solicitud + crear colaboración (migración `SolicitudColaboracionId`).
+- **Pendiente de commitear al cerrar hoy:** acceso a gestión desde el front + cabecera del back rediseñada.
 
-**Verificado por HTTP** (defensa servidor del formulario): sin consentimiento / teléfono sin prefijo → no
-registran; datos válidos → registran. La validación de CLIENTE (checkbox, panel Teaming, modal) la valida el
-usuario en navegador (Playwright bloqueado por el entorno).
+**RETOMAR MAÑANA (09-07):** pulir las páginas de **Identity** (login, gestión de cuenta): traducir a ES y quitar
+lo que no aplica (registrarse, proveedores externos, confirmar email). Ya usan el `_Layout` del back vía
+`Areas/Identity/Pages/_ViewStart`, pero el contenido interno es la Default UI → requiere **scaffold** (zona
+sensible: auth). Ver `context/next-steps.md`. **Y antes o después: push + deploy** (¡ojo al enum en datos de
+PRODUCCIÓN — ver next-steps!).
+
+**Verificado por HTTP** todo el rediseño (estados, acciones, matching, vinculación, alta desde solicitud, crear
+colaboración por tipo, no duplicar). La validación VISUAL la hace el usuario (Playwright bloqueado por el entorno).
 
 ---
 

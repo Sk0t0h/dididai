@@ -12,6 +12,33 @@
 </head>
 <body>
     <header>
+      @if (User.Identity?.IsAuthenticated == true)
+      {
+        @* Cabecera de GESTIÓN: mismo lenguaje visual que el front (logo + claro/crema),
+           sin selector de idioma (el back es solo español). Logo y usuario a la izquierda;
+           secciones a la derecha. *@
+        <nav class="admin-header">
+            <div class="container admin-bar">
+                <a class="admin-brand" asp-area="" asp-page="/Index" aria-label="DIDIDAI inicio">
+                    <img src="~/images/brand/logo.png" alt="Logo de DIDIDAI" />
+                </a>
+                <a class="admin-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gestionar mi cuenta">@User.Identity?.Name</a>
+                <nav class="admin-nav" aria-label="Gestión">
+                    <a asp-area="" asp-page="/Admin/Index">Admin</a>
+                    <a asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
+                    <a asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
+                    <a asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post" class="d-inline">
+                        <button type="submit" class="admin-salir">Salir</button>
+                    </form>
+                </nav>
+            </div>
+        </nav>
+      }
+      else
+      {
+        @* Sin sesión (páginas públicas que usan este layout: Privacy, Error, login):
+           navegación pública mínima con selector de idioma. *@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">DIDIDAI</a>
@@ -24,29 +51,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">@Localizer["Nav_Home"]</a>
                         </li>
-                        @* Menú de gestión: solo con sesión iniciada (back de admin). El
-                           front público usa _PublicLayout, así que aquí no aparece. *@
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Index">Panel</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
-                            </li>
-                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
+                        </li>
                     </ul>
                     <div class="d-flex align-items-center gap-3">
                         <form asp-page="/SetLanguage" method="post" class="mb-0" data-lang-form>
@@ -62,6 +69,7 @@
                 </div>
             </div>
         </nav>
+      }
     </header>
     <div class="container">
         <main role="main" class="pb-3">

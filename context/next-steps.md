@@ -34,25 +34,31 @@ tests). Migración única al inicio del bloque A con todo el esquema nuevo (no e
 - [ ] **Bloque A — Estados + colores + migración.** Enum nuevo, badges (gris/amarillo/verde/rojo), migración
       única con TODO el esquema nuevo (SocioId en solicitud, tabla `AccionSolicitud`, direcciones nullable,
       enum). Reset de datos de prueba. Pequeño y visible.
-- [ ] **Bloque B — Log de acciones.** Entidad + servicio (usuario del admin logueado, no editable) + UI en la
-      ficha + transición automática a Gestionando al registrar la 1ª acción. TDD.
-- [ ] **Bloque C — Matching + vinculación + alta desde solicitud.** Buscar socios coincidentes (sugerencia),
-      vincular o crear socio con datos precargados, crear la colaboración, asociar solicitudes. Direcciones
-      opcionales en la UI + privacidad preseleccionada. El bloque grande. TDD.
+- [x] **Bloque B — Log de acciones.** HECHO (08-07, commit B `f25e62d`): entidad `AccionSolicitud` + servicio
+      (usuario del admin logueado, no editable) + UI en la ficha + transición automática a Gestionando. TDD.
+- [x] **Bloque C — Matching + vinculación + alta desde solicitud.** HECHO (08-07, commits C1 `a69293c` + C2
+      `0b5f6fe`). C1: matching por email/teléfono (sugerencia) + vincular a socio existente. C2: crear la
+      colaboración desde la solicitud (socio existente) y alta de socio nuevo desde solicitud (precarga + privacidad
+      + vínculo). `SolicitudColaboracion.ColaboracionId` para no duplicar. Direcciones opcionales. TDD.
 
-**Cerrar al terminar:** borrar solicitudes/socios de prueba de la BD local; actualizar memoria; commit de
-cierre; push + deploy; validación visual del usuario. Sigue pendiente traducir EN del front (contenido ES
-puesto, EN cae a ES por fallback).
+**RESUELTO EL REDISEÑO (08-07).** Los 4 bloques A-C2 hechos, validados visualmente y commiteados en local
+(SIN push/deploy todavía). **Cerrar:** ~~actualizar memoria~~ (hecho) → **push + deploy** (pendiente; ojo al
+enum en datos de PRODUCCIÓN: `Rechazada=2` → ahora `Aprobada=2`, valorar data-fix o reset antes de desplegar) →
+validación en prod. Sigue pendiente traducir EN del front (contenido ES puesto, EN cae a ES por fallback).
 
 ## PENDIENTES SUELTOS (para después)
 
-- [ ] **Bug: "Acceso gestión" del front ignora la sesión activa.** El enlace del footer del front público lleva
-      SIEMPRE al login de admin, aunque ya haya sesión iniciada. Causa: el front usa `_PublicLayout`, un layout
-      DISTINTO del `_Layout` del back donde vive la lógica de sesión y el menú admin; `_PublicLayout` no
-      comprueba autenticación. **Arreglo acordado con el usuario (08-07):** en el menú del front público, cuando
-      haya sesión activa, mostrar las opciones del menú de gestión (las mismas del back), **quitando "Inicio"**
-      (el logo ya lleva al front) y **renombrando "Panel" → "Admin"**. Valorar además un acceso al login de
-      admin ahí arriba (en la cabecera del front), no solo en el footer.
+- [x] **Bug "Acceso gestión" del front ignora la sesión.** RESUELTO (08-07): la cabecera del front (en
+      `Index.cshtml`, no en `_PublicLayout`) ahora comprueba sesión: con sesión muestra el menú de gestión
+      (Admin/Socios/Economía/Solicitudes + Salir); sin sesión, enlace "Acceso gestión". En el back, "Panel"→
+      "Admin", sin "Inicio", y quitado el "Gestión" duplicado del `_LoginPartial`. Además, la cabecera del back
+      se rediseñó para replicar el lenguaje del front (logo + crema + línea naranja, email a la izquierda,
+      secciones a la derecha, sin selector de idioma); las páginas públicas que heredan `_Layout` (Privacy,
+      login, Error) conservan su navbar pública con idioma.
+- [ ] **MAÑANA (09-07): pulir páginas de Identity** (login, gestión de cuenta, etc.). Recordatorio: ya adoptan el
+      `_Layout` del back vía `Areas/Identity/Pages/_ViewStart.cshtml`, pero su contenido interno sigue siendo el
+      de la Default UI (inglés, opciones que no aplican: registrarse, proveedores externos, confirmar email…).
+      Requiere **scaffold** de esas páginas para traducirlas y quitar lo que no aplica (zona sensible: auth).
 - [ ] **Decidir (a validar con C2 completo):** una solicitud de tipo "Socio" puede quedar **Aprobada sin
       cuota creada** — aprobar y "Crear colaboración" son acciones distintas (el IBAN se pide solo al crear la
       cuota, no al aprobar; esto es intencional: aprobar ya, pedir IBAN al socio y crear la cuota después).

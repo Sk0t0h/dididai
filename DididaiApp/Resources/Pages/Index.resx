@@ -141,4 +141,9 @@
   <!-- Footer -->
   <data name="Footer_Left" xml:space="preserve"><value>© DIDIDAI · derechos infantiles y educación especial · Katmandú, Nepal</value></data>
   <data name="Footer_Acceso" xml:space="preserve"><value>Acceso gestión</value></data>
+  <data name="Nav_Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Nav_Socios" xml:space="preserve"><value>Socios</value></data>
+  <data name="Nav_Economia" xml:space="preserve"><value>Economía</value></data>
+  <data name="Nav_Solicitudes" xml:space="preserve"><value>Solicitudes</value></data>
+  <data name="Nav_Salir" xml:space="preserve"><value>Salir</value></data>
 </root>

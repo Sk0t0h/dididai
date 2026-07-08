@@ -111,6 +111,65 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
   background-color: transparent;
 }
 
+/* ---------- Cabecera de gestión (mismo lenguaje visual que el front) ---------- */
+.admin-header {
+  background: #fffdf9;
+  border-bottom: 3px solid var(--c-naranja);
+  margin-bottom: 1.5rem;
+}
+.admin-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+.admin-brand img {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+.admin-user {
+  color: var(--c-tinta);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: .9rem;
+}
+.admin-user:hover { color: var(--c-naranja-osc); }
+/* El menú de secciones se va a la derecha. */
+.admin-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+}
+.admin-nav a {
+  color: var(--c-tinta);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: .92rem;
+  padding: .3rem 0;
+  border-bottom: 2px solid transparent;
+}
+.admin-nav a:hover { border-bottom-color: var(--c-naranja); }
+.admin-salir {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: .92rem;
+  font-weight: 500;
+  color: var(--c-terracota, #b8560f);
+  padding: 0;
+}
+.admin-salir:hover { text-decoration: underline; }
+
+/* Responsive: en pantallas estrechas, la cabecera de gestión envuelve en varias líneas. */
+@media (max-width: 640px) {
+  .admin-bar { flex-wrap: wrap; gap: .6rem 1rem; }
+  .admin-nav { margin-left: 0; width: 100%; flex-wrap: wrap; gap: .8rem 1.1rem; }
+}
+
 /* ---------- Tablas del back: menos planas, con acento de marca ---------- */
 .table {
   --bs-table-hover-bg: #fbf1e0;

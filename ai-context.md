@@ -3,9 +3,9 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-08 (front público validado + pulido del back; arranca rediseño de solicitudes).
+> Actualizado: 2026-07-09 (rediseño de solicitudes ya PUSHEADO; pendiente deploy + Identity).
 
-## FOCO ACTUAL (08-07 cierre) — Rediseño de solicitudes COMPLETO; mañana pulir Identity
+## FOCO ACTUAL (09-07) — Rediseño PUSHEADO; falta DEPLOY + pulir Identity
 
 **Rediseño del flujo de solicitudes TERMINADO** (4 bloques A-C2), validado visualmente por el usuario y
 commiteado en local. Máquina de estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo);
@@ -17,21 +17,20 @@ duplica; microdonación→Teaming no genera); direcciones del socio opcionales. 
 aprobar ≠ crear colaboración (el IBAN solo entra al crear la colaboración). Además, **acceso a gestión desde el
 front arreglado** (menú con sesión) y **cabecera del back rediseñada** para replicar el front (logo+crema).
 
-**Estado de commits (rama `main`, TODO SIN push todavía):**
-- `58de45c` — Front público (landing + formulario→BD).
-- `3782ab3` — Pulido del back + fixes del formulario tras revisión visual.
-- `8dac961` — Memoria + plan del rediseño.
-- `3dd5900` — Rediseño A: estados + esquema + colores (migración `RediseñoFlujoSolicitudes`).
-- `f25e62d` — Rediseño B: log de acciones de gestión.
-- `a69293c` — Rediseño C1: matching + vinculación a socio existente.
-- `0b5f6fe` — Rediseño C2: alta desde solicitud + crear colaboración (migración `SolicitudColaboracionId`).
-- **Pendiente de commitear al cerrar hoy:** acceso a gestión desde el front + cabecera del back rediseñada.
+**Estado de commits (rama `main`): TODO PUSHEADO a `origin/main`.** HEAD local = `origin/main` = `58ac972`
+(verificado 09-07). Último commit: `58ac972` — acceso a gestión unificado front/back + cierre del día.
 
-**RETOMAR MAÑANA (09-07):** pulir las páginas de **Identity** (login, gestión de cuenta): traducir a ES y quitar
+**DEPLOY HECHO Y VERIFICADO (09-07).** Desplegado `58ac972` a Azure (`dididai-ong`, B1/Spain):
+`RuntimeSuccessful`, `state=Running`, home 200 (front nuevo servido: `front.*.css`/`front.*.js`, título propio),
+/Admin sin login 302, CSP presente. Las 3 migraciones nuevas se aplicaron al arrancar (la app levantó). 125
+tests verdes antes de publicar. **Todo el front público + solicitudes + rediseño ya está VIVO en producción.**
+- El **riesgo del enum quedó DESCARTADO** (el módulo de solicitudes nunca se había desplegado → en prod no
+  había filas con el valor viejo). Migraciones aditivas, sin data-fix ni reset. Confirmado por el arranque OK.
+
+**RETOMAR (09-07):** pulir las páginas de **Identity** (login, gestión de cuenta): traducir a ES y quitar
 lo que no aplica (registrarse, proveedores externos, confirmar email). Ya usan el `_Layout` del back vía
 `Areas/Identity/Pages/_ViewStart`, pero el contenido interno es la Default UI → requiere **scaffold** (zona
-sensible: auth). Ver `context/next-steps.md`. **Y antes o después: push + deploy** (¡ojo al enum en datos de
-PRODUCCIÓN — ver next-steps!).
+sensible: auth). Ver `context/next-steps.md`.
 
 **Verificado por HTTP** todo el rediseño (estados, acciones, matching, vinculación, alta desde solicitud, crear
 colaboración por tipo, no duplicar). La validación VISUAL la hace el usuario (Playwright bloqueado por el entorno).
@@ -261,7 +260,7 @@ datos `Socio`/`Colaboracion`. Detalle en `ORACULO.md`.
 
 ## Caveats de rama/entorno
 
-- Branch de trabajo: `main`. (Sin flujo de ramas/PR definido aún.) **Cambios de hoy SIN commitear todavía.**
+- Branch de trabajo: `main`. (Sin flujo de ramas/PR definido aún.) **Todo commiteado y PUSHEADO** a `origin/main`.
 - Comandos EF: `dotnet ef ... --project DididaiApp.Core --startup-project DididaiApp`.
 - Remoto solo desde **PowerShell / terminal de VS Code** (no Git Bash); clave SSH con passphrase en el
   ssh-agent de Windows.

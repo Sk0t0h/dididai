@@ -41,10 +41,18 @@ tests). Migración única al inicio del bloque A con todo el esquema nuevo (no e
       colaboración desde la solicitud (socio existente) y alta de socio nuevo desde solicitud (precarga + privacidad
       + vínculo). `SolicitudColaboracion.ColaboracionId` para no duplicar. Direcciones opcionales. TDD.
 
-**RESUELTO EL REDISEÑO (08-07).** Los 4 bloques A-C2 hechos, validados visualmente y commiteados en local
-(SIN push/deploy todavía). **Cerrar:** ~~actualizar memoria~~ (hecho) → **push + deploy** (pendiente; ojo al
-enum en datos de PRODUCCIÓN: `Rechazada=2` → ahora `Aprobada=2`, valorar data-fix o reset antes de desplegar) →
-validación en prod. Sigue pendiente traducir EN del front (contenido ES puesto, EN cae a ES por fallback).
+**RESUELTO EL REDISEÑO (08-07).** Los 4 bloques A-C2 hechos, validados visualmente y commiteados. **YA
+PUSHEADO** a `origin/main` (`58ac972`, verificado 09-07). **Cerrar:** ~~actualizar memoria~~ (hecho) →
+~~push~~ (hecho) → **DEPLOY a Azure** (pendiente) → validación en prod. Sigue pendiente traducir EN del front
+(contenido ES puesto, EN cae a ES por fallback).
+
+**⚠️→✓ Riesgo del enum en producción: DESCARTADO (09-07).** Se temía que reordenar el enum (`Rechazada=2` →
+`Aprobada=2`) reinterpretara datos guardados en prod. **No aplica:** el módulo de solicitudes se creó el 07-07
+y **nunca se ha desplegado** (último deploy = 05-07, `b95e146`), así que en prod NO existe la tabla
+`SolicitudesColaboracion` ni ninguna fila con el valor viejo. Además, las 3 migraciones pendientes
+(`AddSolicitudColaboracion`, `RediseñoFlujoSolicitudes`, `SolicitudColaboracionId`) son **aditivas/estructurales**
+(crean tabla `AccionesSolicitud`, añaden `SocioId`/`ColaboracionId`, relajan a nullable 3 columnas de `Socios`);
+no transforman datos existentes. **Deploy seguro, sin data-fix ni reset.** Runbook: `context/deploy-azure.md`.
 
 ## PENDIENTES SUELTOS (para después)
 

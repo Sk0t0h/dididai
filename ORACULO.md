@@ -6,8 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-08 (cierre: rediseño del flujo de solicitudes
-> COMPLETO + acceso a gestión unificado front/back; sin push/deploy).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-09 (rediseño del flujo de solicitudes
+> COMPLETO + acceso a gestión unificado front/back; **YA PUSHEADO** a `origin/main` = `58ac972`; falta DEPLOY).
 
 ## Active Focus
 
@@ -42,10 +42,11 @@ estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo
 colaboración desde la solicitud (`ColaboracionId`, no duplica; microdonación→Teaming no genera). **Disociación
 clave:** solicitud (intención) ≠ socio (identidad) ≠ colaboración (aportación real); aprobar ≠ crear
 colaboración (el IBAN solo entra al crear). **125 tests verdes.** Además: acceso a gestión desde el front
-(menú con sesión) y cabecera del back rediseñada para replicar el front. **Queda:** push + **deploy** (ojo al
-enum en datos de PRODUCCIÓN), pulir páginas de **Identity** (login/cuenta: traducir ES + quitar lo que no
-aplica; 09-07), traducir **EN** del front, entregables no-código (README/slides/vídeo). Detalle en
-`context/next-steps.md`.
+(menú con sesión) y cabecera del back rediseñada para replicar el front. **YA PUSHEADO** a `origin/main`
+(`58ac972`, 09-07). **Queda:** **DEPLOY** a Azure (seguro; el temido riesgo del enum queda DESCARTADO — el
+módulo de solicitudes nunca se desplegó, en prod no hay filas con el valor viejo; las 3 migraciones pendientes
+son aditivas), pulir páginas de **Identity** (login/cuenta: traducir ES + quitar lo que no aplica; 09-07),
+traducir **EN** del front, entregables no-código (README/slides/vídeo). Detalle en `context/next-steps.md`.
 
 ## Propósito real
 

@@ -6,8 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-09 (rediseño del flujo de solicitudes
-> COMPLETO + acceso a gestión unificado front/back; **YA PUSHEADO** a `origin/main` = `58ac972`; falta DEPLOY).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-09 (cierre: DEPLOY verificado + Identity en
+> español + SendGrid real; 3 commits nuevos en local SIN push. El usuario se va de viaje).
 
 ## Active Focus
 
@@ -41,12 +41,21 @@ estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo
 + vincular a socio existente; alta de socio nuevo desde solicitud (precarga+privacidad+vínculo); crear la
 colaboración desde la solicitud (`ColaboracionId`, no duplica; microdonación→Teaming no genera). **Disociación
 clave:** solicitud (intención) ≠ socio (identidad) ≠ colaboración (aportación real); aprobar ≠ crear
-colaboración (el IBAN solo entra al crear). **125 tests verdes.** Además: acceso a gestión desde el front
-(menú con sesión) y cabecera del back rediseñada para replicar el front. **YA PUSHEADO** a `origin/main`
-(`58ac972`, 09-07). **Queda:** **DEPLOY** a Azure (seguro; el temido riesgo del enum queda DESCARTADO — el
-módulo de solicitudes nunca se desplegó, en prod no hay filas con el valor viejo; las 3 migraciones pendientes
-son aditivas), pulir páginas de **Identity** (login/cuenta: traducir ES + quitar lo que no aplica; 09-07),
-traducir **EN** del front, entregables no-código (README/slides/vídeo). Detalle en `context/next-steps.md`.
+colaboración (el IBAN solo entra al crear). **125 tests verdes.**
+
+**CIERRE 09-07 — DEPLOY + Identity ES + SendGrid (3 commits en local, SIN push; el usuario se va de viaje).**
+(1) **Deploy verificado** de `58ac972` a Azure (`dididai-ong`): RuntimeSuccessful, home 200, /Admin 302, las 3
+migraciones aplicadas al arrancar; el temido riesgo del enum quedó DESCARTADO (el módulo de solicitudes nunca
+se había desplegado). (2) **Identity en español + vistas depuradas** (`c5ded0a`): overrides propios de las
+páginas alcanzables (Login sin registro/externos, recuperación, Logout, Manage/Perfil, Manage/Contraseña) con
+PageModel concreto tipado a `IdentityUser`; menú de cuenta reducido a Perfil/Contraseña/**2FA (en inglés)**;
+sin tocar `Program.cs` ni el middleware (Register sigue 404). (3) **SendGrid real** (`ec6c546`):
+`SendGridEmailSender` sustituye al stub, la recuperación de contraseña **envía de verdad** (verificado E2E, el
+correo llega); secretos en User Secrets (From=`info@dididai.org`, dominio autenticado). **Queda al volver:**
+push + **re-deploy** (⚠️ añadir los secretos `SendGrid__*` a los app settings de Azure o la recuperación no
+funciona en prod), **Bloque 3 = alta de admins desde /Admin** (funcionalidad nueva; crearlos con
+`EmailConfirmed=true`), traducir **EN** del front, entregables no-código (README/slides/vídeo). Detalle en
+`context/next-steps.md`.
 
 ## Propósito real
 
@@ -80,7 +89,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Persistencia (EF Core 10 + SQLite, `AppDbContext`, migración `InitialCreate`) | IMPLEMENTADO (04-07) |
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
-| Autenticación + roles (Identity, back cerrado) | IMPLEMENTADO (04-07, verificado): login, recuperación (email stub), registro solo Admin, `/Admin` protegido, seed admin |
+| Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (09-07, SIN desplegar): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Recuperación de contraseña real vía SendGrid** (09-07, SIN desplegar; en prod requiere secretos `SendGrid__*`) |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
@@ -96,6 +105,23 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-09 — Deploy verificado + Identity en español + SendGrid real** (3 commits en local, SIN push;
+  el usuario se va de viaje al cerrar). (1) **Deploy** de `58ac972` a Azure (`dididai-ong`): RuntimeSuccessful,
+  home 200, /Admin 302, las 3 migraciones del módulo de solicitudes aplicadas al arrancar; el riesgo del enum
+  quedó descartado (nunca se había desplegado ese módulo). Commit de memoria `909b3cc`. (2) **Identity en
+  español + vistas depuradas** (`c5ded0a`): método B (overrides a mano, sin scaffolder), páginas alcanzables
+  con PageModel concreto tipado a `IdentityUser` (Login sin registro/externos; ForgotPassword/ResetPassword +
+  confirmaciones; Logout; Manage/Perfil; Manage/Contraseña; `_ManageNav` reducido a Perfil/Contraseña/2FA;
+  `_ViewImports` del área). **2FA en inglés** (servido por Identity, decisión del usuario). No se tocó
+  `Program.cs` ni el middleware de bloqueo de registro (Register sigue 404). Verificado por HTTP: login POST
+  302, textos ES, Register anónimo 404, menú sin Email/PersonalData/External, CSP presente y 0 inline. (3)
+  **SendGrid real** (`ec6c546`): `SendGridEmailSender` (paquete SendGrid 9.29.3) sustituye al stub
+  `LoggingEmailSender`; misma `IEmailSender`, la recuperación de contraseña **envía de verdad**. Config secreta
+  en User Secrets (`SendGrid:ApiKey/FromEmail/FromName`; From=`info@dididai.org`, dominio autenticado en
+  SendGrid). Fallback seguro sin key (loguea, no rompe el arranque). **Verificado E2E: el correo llega** a la
+  bandeja del admin. **125 tests verdes.** **Queda al volver del viaje:** push + re-deploy (⚠️ añadir secretos
+  `SendGrid__*` a los app settings de Azure), Bloque 3 (alta de admins desde /Admin, con `EmailConfirmed=true`),
+  traducir EN, entregables no-código. Detalle en `context/next-steps.md`.
 - **2026-07-07 — Front público implementado (landing + formulario→BD) desde el diseño de Claude Design**:
   último módulo del MVP. Llegó el handoff bundle de Claude Design; el prototipo (formato `x-dc`, con estilos y
   handlers **inline**) se recreó como **Razor + CSS/JS externos, CSP-safe** (0 inline verificado por HTTP), no

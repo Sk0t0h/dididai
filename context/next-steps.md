@@ -54,6 +54,34 @@ y **nunca se ha desplegado** (último deploy = 05-07, `b95e146`), así que en pr
 (crean tabla `AccionesSolicitud`, añaden `SocioId`/`ColaboracionId`, relajan a nullable 3 columnas de `Socios`);
 no transforman datos existentes. **Deploy seguro, sin data-fix ni reset.** Runbook: `context/deploy-azure.md`.
 
+## SESIÓN 09-07 — Deploy + Identity + SendGrid (HECHO, commiteado, SIN push)
+
+- [x] **DEPLOY** de `58ac972` a Azure verificado (RuntimeSuccessful, home 200, migraciones aplicadas). Riesgo
+      del enum descartado. Commit de memoria `909b3cc`.
+- [x] **Bloque 2 — Identity en español + vistas depuradas** (commit `c5ded0a`). Método B (overrides a mano,
+      sin scaffolder). Páginas con PageModel concreto tipado a `IdentityUser`: Login (sin registro/externos),
+      ForgotPassword/ResetPassword (+confirmaciones), Logout, Manage/Index (Perfil), Manage/ChangePassword,
+      `_ManageNav` (solo Perfil/Contraseña/2FA), `_Layout` de Manage, `_ViewImports` del área. **2FA en inglés**
+      (servido por Identity). No se tocó `Program.cs` ni el middleware (Register sigue 404). Verificado por HTTP.
+- [x] **Bloque 1 — SendGrid real** (commit `ec6c546`). `SendGridEmailSender` sustituye al stub; recuperación de
+      contraseña envía de verdad. Secretos en User Secrets (From=`info@dididai.org`, dominio autenticado).
+      Fallback seguro. **Verificado E2E: el correo llega.**
+
+## PENDIENTE AL VOLVER DEL VIAJE (orden sugerido)
+
+- [ ] **push** de `909b3cc` + `c5ded0a` + `ec6c546` a `origin/main`.
+- [ ] **Re-deploy a Azure** con Identity+SendGrid. **CRÍTICO:** antes de dar por bueno el deploy, añadir a los
+      app settings de `dididai-ong` los secretos de SendGrid:
+      `SendGrid__ApiKey`, `SendGrid__FromEmail=info@dididai.org`, `SendGrid__FromName=DIDIDAI`
+      (comando `az webapp config appsettings set ...`, ver `deploy-azure.md` paso 2). Sin ellos, la
+      recuperación de contraseña NO envía en producción (el fallback solo loguea). Verificar el flujo en prod.
+- [ ] **Bloque 3 — alta de usuarios admin desde /Admin** (funcionalidad NUEVA que sustituye al registro público
+      quitado). Endpoint/página protegida por rol Admin para crear usuarios admin. **Ponerles
+      `EmailConfirmed = true`** (si no, la recuperación de contraseña no les funciona: `ForgotPassword`
+      conserva el gate de email confirmado del original). Zona sensible (auth) → plan formal antes de tocar.
+- [ ] Traducir **EN** del front público (infra i18n lista; contenido ES puesto, EN cae a ES por fallback).
+- [ ] Entregables no-código del TFM (README credenciales demo / slides / vídeo). Deadline 20/07.
+
 ## PENDIENTES SUELTOS (para después)
 
 - [x] **Bug "Acceso gestión" del front ignora la sesión.** RESUELTO (08-07): la cabecera del front (en

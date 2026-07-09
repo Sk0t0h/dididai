@@ -3,9 +3,36 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-09 (rediseño de solicitudes ya PUSHEADO; pendiente deploy + Identity).
+> Actualizado: 2026-07-09 (deploy hecho + Identity en ES + SendGrid real; commiteado, SIN push).
 
-## FOCO ACTUAL (09-07) — Rediseño PUSHEADO; falta DEPLOY + pulir Identity
+## FOCO ACTUAL (09-07 cierre) — Deploy OK + Identity ES + SendGrid; queda push+deploy y alta de admins
+
+**Sesión 09-07 (el usuario se va de viaje al cerrar).** Tres bloques cerrados y commiteados en local:
+1. **DEPLOY verificado** de `58ac972` a Azure (ver más abajo). Commit de memoria `909b3cc`.
+2. **Identity en español + vistas depuradas** (commit `c5ded0a`). Overrides propios de las páginas
+   alcanzables (Login, recuperación, Logout, Manage/Perfil, Manage/Contraseña) con PageModel concreto
+   tipado a `IdentityUser`. Fuera: registro, confirmar email, proveedores externos. Menú de cuenta reducido
+   a Perfil/Contraseña/2FA. **2FA se queda en inglés** (servido por Identity, decisión del usuario). No se
+   tocó `Program.cs` ni el middleware de bloqueo de registro (Register sigue 404). `_ViewImports` nuevo en
+   el área para resolver los PageModel. Verificado por HTTP (login 302, ES, Register 404, CSP, 0 inline).
+3. **SendGrid real** (commit `ec6c546`). `SendGridEmailSender` (paquete SendGrid 9.29.3) sustituye al stub;
+   misma `IEmailSender`, la recuperación de contraseña ya envía de verdad. Secretos en User Secrets
+   (`SendGrid:ApiKey/FromEmail/FromName`; From = `info@dididai.org`, dominio autenticado en SendGrid).
+   Fallback seguro sin key. **Verificado E2E: el correo LLEGA** a la bandeja del admin (tardó bastante en
+   entregar, pero llega). Stub `LoggingEmailSender` conservado en el código.
+
+**Commits nuevos hoy (rama `main`, SIN push todavía):** `909b3cc` (memoria deploy), `c5ded0a` (Identity),
+`ec6c546` (SendGrid). Base pusheada = `58ac972`.
+
+**RETOMAR AL VOLVER DEL VIAJE:**
+- **push** de los 3 commits nuevos + **re-deploy** a Azure. **CRÍTICO del deploy:** añadir a los app settings
+  de Azure los secretos de SendGrid (`SendGrid__ApiKey`, `SendGrid__FromEmail`, `SendGrid__FromName`), igual
+  que `Seed__*` — si no, la recuperación de contraseña NO funciona en producción (el fallback solo loguea).
+- **Bloque 3 (funcionalidad NUEVA): alta de usuarios admin desde la zona /Admin** (endpoint/página). Al crear
+  admins, ponerles **`EmailConfirmed = true`** (si no, la recuperación no les funciona: `ForgotPassword`
+  conserva el gate de email confirmado). Es el "invento nuevo" que sustituye al registro público quitado.
+- Traducir **EN** del front (contenido ES puesto, EN cae a ES por fallback). Entregables no-código
+  (README credenciales demo / slides / vídeo). Deadline 20/07 — hay colchón.
 
 **Rediseño del flujo de solicitudes TERMINADO** (4 bloques A-C2), validado visualmente por el usuario y
 commiteado en local. Máquina de estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo);

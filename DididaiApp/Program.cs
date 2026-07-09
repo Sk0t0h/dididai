@@ -67,10 +67,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
-// Envío de email PROVISIONAL: registra en el log en vez de enviar (permite el
-// flujo de recuperación de contraseña sin proveedor externo). Sustituir por
-// SendGrid/SMTP antes del despliegue.
-builder.Services.AddTransient<IEmailSender, LoggingEmailSender>();
+// Envío de email vía SendGrid (recuperación de contraseña de Identity). La API key
+// y el remitente son secretos: User Secrets en dev, variables de entorno en Azure.
+// Si falta la API key, SendGridEmailSender no envía y lo registra en el log (no
+// rompe el arranque). El stub LoggingEmailSender se conserva en el código por si se
+// quiere volver a él en desarrollo.
+builder.Services.AddTransient<IEmailSender, SendGridEmailSender>();
 
 // Servicios de dominio (Core). Las páginas los inyectan; nunca el DbContext directo.
 builder.Services.AddScoped<ISocioService, SocioService>();

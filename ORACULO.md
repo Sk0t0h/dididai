@@ -6,8 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-10 (SendGrid desplegado y confirmado E2E en
-> producción; secretos en Azure; todo el MVP vivo. Queda Bloque 3 = alta de admins).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-10 (SendGrid vivo en prod + cabecera de marca
+> en las páginas de Identity desplegada; todo el MVP vivo. Queda Bloque 3 = alta de admins).
 
 ## Active Focus
 
@@ -87,7 +87,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Persistencia (EF Core 10 + SQLite, `AppDbContext`, migración `InitialCreate`) | IMPLEMENTADO (04-07) |
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
-| Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM) |
+| Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Cabecera de marca minimalista** (logo→inicio, look crema) en las páginas sin sesión, unificada con el back con sesión; enlace "Volver a acceder" en recuperación (10-07, desplegado). **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM) |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
@@ -103,6 +103,17 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-10 — Cabecera de marca en las páginas de Identity + botón volver** (desplegado y verificado en
+  prod, `8288449`): las páginas de Identity sin sesión (login, recuperación de contraseña) servían la navbar
+  Bootstrap genérica de plantilla, distinta del front y del back con sesión. Se sustituye la rama `else` (sin
+  sesión) del `_Layout` por la **cabecera de marca minimalista** (solo logo→inicio, look crema), reutilizando
+  las clases `.admin-header` de la rama con sesión (0 CSS nuevo). Añadido enlace "← Volver a acceder" en
+  `ForgotPassword` y su confirmación. CSP-safe, sin tocar lógica de auth. Validado visualmente por el usuario.
+  De paso: se aclaró que el autofill de la "contraseña actual" en Manage es el gestor del navegador (no un dato
+  del servidor; `autocomplete=current-password` es lo recomendado) → no se toca. Y se **cerró el diagnóstico
+  del bloqueo de Playwright**: por eliminación (no es localhost, ni proxy, ni Defender, ni Norton —probado
+  desactivándolo—, ni sandbox de Claude Code —el CLI no lo tiene—) el bloqueo vive en la capa del servidor MCP
+  de Playwright, no en la máquina; no perseguir más, validación visual la hace el usuario. Detalle en el log W28.
 - **2026-07-10 — SendGrid vivo en producción (cierre del ciclo de deploy)**: al retomar, el push del 09-07 ya
   estaba hecho (`HEAD` = `origin/main` = `1144d25`). El usuario añadió los secretos `SendGrid__ApiKey/FromEmail/
   FromName` a los app settings de `dididai-ong` (verificados por `az`: presentes, valores correctos, sin pisar

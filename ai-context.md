@@ -59,6 +59,23 @@ sensible: auth). Ver `context/next-steps.md`.
 **Verificado por HTTP** todo el rediseño (estados, acciones, matching, vinculación, alta desde solicitud, crear
 colaboración por tipo, no duplicar). La validación VISUAL la hace el usuario (Playwright bloqueado por el entorno).
 
+**PLAYWRIGHT — bloqueo `ERR_BLOCKED_BY_CLIENT` (10-07): DIAGNÓSTICO CERRADO por eliminación. Está en la capa
+del servidor MCP de Playwright, NO en la máquina del usuario. NO perseguirlo más.** Síntoma: el Chrome que
+lanza el MCP de Playwright (`--no-sandbox --remote-debugging-pipe`) devuelve `ERR_BLOCKED_BY_CLIENT` a
+**cualquier** destino (localhost Y example.com), invariable. Descartado uno a uno, TODO verificado: (1) no es
+localhost (falla example.com igual); (2) no es Playwright roto (Chrome arranca y navega); (3) no es proxy/PAC/
+WPAD (sin proxy, acceso directo — verificado por `netsh winhttp` y registro); (4) no es Windows Defender
+Firewall (0 reglas de bloqueo para chrome, salida permitida por defecto); (5) **no es Norton** — se probó con
+Cortafuegos inteligente + Auto-Protect DESACTIVADOS por su menú y VPN sin adaptador de red activo (verificado
+por `Get-NetAdapter`), y el error NO cambió. Además, la doc oficial (vía agente claude-code-guide) confirma que
+**Claude Code CLI en Windows NO tiene sandbox de red propio** (solo cloud/`--cloud` y dev containers Docker).
+Conclusión: el bloqueo lo impone la política de red con la que el **servidor MCP de Playwright** arranca Chrome
+(modo `--remote-debugging-pipe`); vive fuera de la sesión y **no es configurable por el agente en caliente**.
+**Método de validación visual definitivo: el agente verifica por HTTP/estructura/status/0-inline; el usuario
+valida el render en su navegador** (o pasa screenshots por la carpeta de intercambio OneDrive\Documentos\CLAUDE).
+Nota: los servicios de Norton siempre figuran `Running` aunque la protección esté en pausa (el toggle no para
+el servicio); no confundir "servicio Running" con "protección activa".
+
 ---
 
 

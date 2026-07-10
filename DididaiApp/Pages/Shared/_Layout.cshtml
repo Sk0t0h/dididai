@@ -37,36 +37,16 @@
       }
       else
       {
-        @* Sin sesión (páginas públicas que usan este layout: Privacy, Error, login):
-           navegación pública mínima con selector de idioma. *@
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">DIDIDAI</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">@Localizer["Nav_Home"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">@Localizer["Nav_Privacy"]</a>
-                        </li>
-                    </ul>
-                    <div class="d-flex align-items-center gap-3">
-                        <form asp-page="/SetLanguage" method="post" class="mb-0" data-lang-form>
-                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                            <label for="lang-select" class="visually-hidden">@Localizer["Language_Label"]</label>
-                            <select id="lang-select" name="culture" class="form-select form-select-sm" data-lang-select aria-label="@Localizer["Language_Label"]">
-                                <option value="es" selected="@(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es")">ES</option>
-                                <option value="en" selected="@(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en")">EN</option>
-                            </select>
-                        </form>
-                        <partial name="_LoginPartial" />
-                    </div>
-                </div>
+        @* Sin sesión (páginas de acceso/gestión que usan este layout: login, recuperación
+           de contraseña, Privacy, Error): cabecera de marca minimalista, solo el logo
+           enlazando al inicio. Mismo look crema que la cabecera con sesión → todo el back
+           habla el mismo idioma visual. No se mete navegación de marketing ni selector de
+           idioma en una pantalla de acceso (el selector vive en el _PublicLayout del front). *@
+        <nav class="admin-header">
+            <div class="container admin-bar">
+                <a class="admin-brand" asp-area="" asp-page="/Index" aria-label="DIDIDAI inicio">
+                    <img src="~/images/brand/logo.png" alt="Logo de DIDIDAI" />
+                </a>
             </div>
         </nav>
       }

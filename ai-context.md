@@ -3,34 +3,31 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-09 (deploy hecho + Identity en ES + SendGrid real; commiteado, SIN push).
+> Actualizado: 2026-07-10 (re-deploy con SendGrid vivo en producción; secretos en Azure; correo confirmado E2E).
 
-## FOCO ACTUAL (09-07 cierre) — Deploy OK + Identity ES + SendGrid; queda push+deploy y alta de admins
+## FOCO ACTUAL (10-07) — TODO desplegado y vivo; queda Bloque 3 (alta de admins) + EN + entregables
 
-**Sesión 09-07 (el usuario se va de viaje al cerrar).** Tres bloques cerrados y commiteados en local:
-1. **DEPLOY verificado** de `58ac972` a Azure (ver más abajo). Commit de memoria `909b3cc`.
-2. **Identity en español + vistas depuradas** (commit `c5ded0a`). Overrides propios de las páginas
-   alcanzables (Login, recuperación, Logout, Manage/Perfil, Manage/Contraseña) con PageModel concreto
-   tipado a `IdentityUser`. Fuera: registro, confirmar email, proveedores externos. Menú de cuenta reducido
-   a Perfil/Contraseña/2FA. **2FA se queda en inglés** (servido por Identity, decisión del usuario). No se
-   tocó `Program.cs` ni el middleware de bloqueo de registro (Register sigue 404). `_ViewImports` nuevo en
-   el área para resolver los PageModel. Verificado por HTTP (login 302, ES, Register 404, CSP, 0 inline).
-3. **SendGrid real** (commit `ec6c546`). `SendGridEmailSender` (paquete SendGrid 9.29.3) sustituye al stub;
-   misma `IEmailSender`, la recuperación de contraseña ya envía de verdad. Secretos en User Secrets
-   (`SendGrid:ApiKey/FromEmail/FromName`; From = `info@dididai.org`, dominio autenticado en SendGrid).
-   Fallback seguro sin key. **Verificado E2E: el correo LLEGA** a la bandeja del admin (tardó bastante en
-   entregar, pero llega). Stub `LoggingEmailSender` conservado en el código.
+**Sesión 10-07 (retomando tras el viaje).** El push del 09-07 ya estaba hecho (`HEAD` = `origin/main` =
+`1144d25`; la nota de cierre decía "sin push" por error). Tarea real de hoy = **llevar SendGrid a producción**,
+hecha y verificada:
 
-**Commits nuevos hoy (rama `main`, SIN push todavía):** `909b3cc` (memoria deploy), `c5ded0a` (Identity),
-`ec6c546` (SendGrid). Base pusheada = `58ac972`.
+1. **Secretos SendGrid en Azure**: el usuario añadió `SendGrid__ApiKey/FromEmail/FromName` a los app settings
+   de `dididai-ong`. Verificado por `az` (tres presentes, valores correctos, sin pisar los `Seed__*`).
+2. **Re-deploy de `1144d25`**: 125 tests verdes → publish Release → zip 30 MB → `az webapp deploy` =
+   `RuntimeSuccessful`. Verificado en prod: home 200, /Admin 302, CSP, 0 inline real (los 3 "hits" del escaneo
+   eran falsos positivos en `content=`/`data-val-telephone`).
+3. **SendGrid confirmado E2E en producción**: POST `ForgotPassword` → 302 confirmación (sin 500) y **el correo
+   llega** a la bandeja del admin (otra vez a spam). Entregabilidad (SPF/DKIM/DMARC del dominio) = mejora
+   **opcional post-TFM**, no bloquea el MVP.
 
-**RETOMAR AL VOLVER DEL VIAJE:**
-- **push** de los 3 commits nuevos + **re-deploy** a Azure. **CRÍTICO del deploy:** añadir a los app settings
-  de Azure los secretos de SendGrid (`SendGrid__ApiKey`, `SendGrid__FromEmail`, `SendGrid__FromName`), igual
-  que `Seed__*` — si no, la recuperación de contraseña NO funciona en producción (el fallback solo loguea).
+**Estado:** TODO el MVP (front público + solicitudes + Identity ES + SendGrid + back de gestión) está VIVO y
+verificado en https://dididai-ong.azurewebsites.net. `HEAD` local = `origin/main` = `1144d25`, desplegado.
+
+**RETOMAR (siguiente bloque de trabajo):**
 - **Bloque 3 (funcionalidad NUEVA): alta de usuarios admin desde la zona /Admin** (endpoint/página). Al crear
   admins, ponerles **`EmailConfirmed = true`** (si no, la recuperación no les funciona: `ForgotPassword`
   conserva el gate de email confirmado). Es el "invento nuevo" que sustituye al registro público quitado.
+  Zona sensible (auth) → plan formal antes de tocar.
 - Traducir **EN** del front (contenido ES puesto, EN cae a ES por fallback). Entregables no-código
   (README credenciales demo / slides / vídeo). Deadline 20/07 — hay colchón.
 

@@ -3,33 +3,43 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-10 (re-deploy con SendGrid vivo en producción; secretos en Azure; correo confirmado E2E).
+> Actualizado: 2026-07-12 (Bloque 3 hecho y verificado E2E en local, SIN push/deploy; queda EN + entregables).
 
-## FOCO ACTUAL (10-07) — TODO desplegado y vivo; queda Bloque 3 (alta de admins) + EN + entregables
+## FOCO ACTUAL (12-07) — Bloque 3 (gestión de admins) HECHO en local; falta push+deploy, EN y entregables
 
-**Sesión 10-07 (retomando tras el viaje).** El push del 09-07 ya estaba hecho (`HEAD` = `origin/main` =
-`1144d25`; la nota de cierre decía "sin push" por error). Tarea real de hoy = **llevar SendGrid a producción**,
-hecha y verificada:
+**Sesión 12-07.** Implementado el **Bloque 3 = alta y gestión de usuarios admin desde /Admin** (commit
+`735de32`, en local, SIN push/deploy). Última funcionalidad de código del MVP: la vía interna que sustituye al
+registro público quitado. Ejecutado en 6 fases pequeñas (una idea por fase, compilable + tests verdes cada una).
 
-1. **Secretos SendGrid en Azure**: el usuario añadió `SendGrid__ApiKey/FromEmail/FromName` a los app settings
-   de `dididai-ong`. Verificado por `az` (tres presentes, valores correctos, sin pisar los `Seed__*`).
-2. **Re-deploy de `1144d25`**: 125 tests verdes → publish Release → zip 30 MB → `az webapp deploy` =
-   `RuntimeSuccessful`. Verificado en prod: home 200, /Admin 302, CSP, 0 inline real (los 3 "hits" del escaneo
-   eran falsos positivos en `content=`/`data-val-telephone`).
-3. **SendGrid confirmado E2E en producción**: POST `ForgotPassword` → 302 confirmación (sin 500) y **el correo
-   llega** a la bandeja del admin (otra vez a spam). Entregabilidad (SPF/DKIM/DMARC del dominio) = mejora
-   **opcional post-TFM**, no bloquea el MVP.
+- **`AdminUsuarioService`** (Core, encapsula `UserManager`): crear (**`EmailConfirmed=true`** + rol Admin;
+  duplicado vs. contraseña débil por **códigos** de error de Identity), listar (solo rol Admin), y
+  **desactivar/reactivar por lockout** (baja lógica: `LockoutEnd=MaxValue`, no borra → conserva auditoría).
+- **Salvaguarda del superadmin** (idea del usuario): el admin primigenio = el del `Seed:AdminEmail` (config,
+  sin migración) es **intocable**; y **nadie puede desactivarse a sí mismo**. Cubre por construcción el caso
+  "quedarse sin admin". Sustituye a la guarda "último admin activo" que se había planteado.
+- **Páginas** `/Admin/Usuarios` (Index+Create), `[Authorize(Roles=Admin)]`, validación cliente+servidor,
+  antiforgery, confirmación `js-confirm` CSP-safe, card en el panel. UI oculta el botón al superadmin y a uno
+  mismo. **10 tests nuevos → 135 verdes.** Sin migración (Identity ya trae lockout).
 
-**Estado:** TODO el MVP (front público + solicitudes + Identity ES + SendGrid + back de gestión) está VIVO y
-verificado en https://dididai-ong.azurewebsites.net. `HEAD` local = `origin/main` = `1144d25`, desplegado.
+**Verificado E2E por HTTP** (local, sesión admin): login superadmin→listado (badge "Principal"), crear→aparece,
+duplicado→"Ya existe" sin crear, login del admin nuevo→entra al back (**`EmailConfirmed` funciona**),
+desactivar/reactivar, superadmin sin botón (`—`), y la guarda "uno mismo" **resiste POST forjado**. Validación
+visual pendiente del usuario.
 
-**RETOMAR (siguiente bloque de trabajo):**
-- **Bloque 3 (funcionalidad NUEVA): alta de usuarios admin desde la zona /Admin** (endpoint/página). Al crear
-  admins, ponerles **`EmailConfirmed = true`** (si no, la recuperación no les funciona: `ForgotPassword`
-  conserva el gate de email confirmado). Es el "invento nuevo" que sustituye al registro público quitado.
-  Zona sensible (auth) → plan formal antes de tocar.
+**Estado:** TODO el MVP (front público + solicitudes + Identity ES + SendGrid + back de gestión) sigue VIVO en
+https://dididai-ong.azurewebsites.net (`origin/main` = `1144d25`). En local, `HEAD` = `735de32` (Bloque 3),
+**por delante de origin** → falta **push + deploy**.
+
+**RETOMAR (orden sugerido):**
+- **push** de `735de32` + **re-deploy** a Azure (sin migración; el lockout ya existe en el esquema de Identity).
+  Verificar el flujo de admins en prod. Runbook: `context/deploy-azure.md`.
+- **Bloque 4 (acordado, posterior): log de auditoría transversal** — entidad `RegistroAuditoria` + servicio
+  inyectado en los puntos de acción (aprobar/cancelar solicitud, alta/baja socio, crear/desactivar admin) +
+  página `/Admin/Auditoria` de solo lectura. Migración aditiva. NO sustituye a `AccionSolicitud` (ese es el
+  historial manual por solicitud; la auditoría es automática y transversal). Ver `context/next-steps.md`.
 - Traducir **EN** del front (contenido ES puesto, EN cae a ES por fallback). Entregables no-código
   (README credenciales demo / slides / vídeo). Deadline 20/07 — hay colchón.
+- **Pendiente ligero:** borrar el admin de prueba `test.admin@dididai.org` de la BD **local** (no versionada).
 
 **Rediseño del flujo de solicitudes TERMINADO** (4 bloques A-C2), validado visualmente por el usuario y
 commiteado en local. Máquina de estados Pendiente(gris)→Gestionando(amarillo)→Aprobada(verde)/Cancelada(rojo);

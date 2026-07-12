@@ -67,20 +67,41 @@ no transforman datos existentes. **Deploy seguro, sin data-fix ni reset.** Runbo
       contraseña envía de verdad. Secretos en User Secrets (From=`info@dididai.org`, dominio autenticado).
       Fallback seguro. **Verificado E2E: el correo llega.**
 
-## PENDIENTE AL VOLVER DEL VIAJE (orden sugerido)
+## SESIÓN 12-07 — Bloque 3: gestión de admins (HECHO, commit `735de32`, SIN push/deploy)
 
-- [ ] **push** de `909b3cc` + `c5ded0a` + `ec6c546` a `origin/main`.
-- [ ] **Re-deploy a Azure** con Identity+SendGrid. **CRÍTICO:** antes de dar por bueno el deploy, añadir a los
-      app settings de `dididai-ong` los secretos de SendGrid:
-      `SendGrid__ApiKey`, `SendGrid__FromEmail=info@dididai.org`, `SendGrid__FromName=DIDIDAI`
-      (comando `az webapp config appsettings set ...`, ver `deploy-azure.md` paso 2). Sin ellos, la
-      recuperación de contraseña NO envía en producción (el fallback solo loguea). Verificar el flujo en prod.
-- [ ] **Bloque 3 — alta de usuarios admin desde /Admin** (funcionalidad NUEVA que sustituye al registro público
-      quitado). Endpoint/página protegida por rol Admin para crear usuarios admin. **Ponerles
-      `EmailConfirmed = true`** (si no, la recuperación de contraseña no les funciona: `ForgotPassword`
-      conserva el gate de email confirmado del original). Zona sensible (auth) → plan formal antes de tocar.
+- [x] **Bloque 3 — alta y gestión de usuarios admin desde /Admin.** `AdminUsuarioService` (Core): crear
+      (`EmailConfirmed=true` + rol Admin), listar, desactivar/reactivar por lockout (baja lógica). **Salvaguarda
+      del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Páginas
+      `/Admin/Usuarios` (Index+Create), validación cliente+servidor, antiforgery, `js-confirm` CSP-safe, card en
+      el panel. 10 tests nuevos (135 verdes). Sin migración. Verificado E2E por HTTP (incl. guarda contra POST
+      forjado). **Falta:** push + deploy + validación visual del usuario.
+
+## BLOQUE 4 (acordado 12-07, posterior) — Log de auditoría transversal
+
+Trazabilidad de quién hace qué en el back (quién aprueba/deniega una solicitud, da de alta/baja un socio, crea/
+desactiva un admin…). **No sustituye** a `AccionSolicitud` (ese es el historial *manual y por-solicitud*; la
+auditoría es *automática y transversal*). Conviven.
+
+- [ ] Entidad `RegistroAuditoria`: `Fecha` (UTC, servidor), `Usuario` (admin autenticado, servidor), `Accion`
+      (enum: SolicitudAprobada/Cancelada, SocioAlta/Baja, AdminCreado/Desactivado…), `Entidad`, `EntidadId`,
+      `Detalle`. Migración aditiva `AddRegistroAuditoria`.
+- [ ] `IAuditoriaService.RegistrarAsync(...)` inyectado en los servicios que ya ejecutan esas acciones (no
+      duplica lógica, solo anota en el punto donde ya cambia el estado).
+- [ ] Página `/Admin/Auditoria`: listado paginado, filtro por acción/usuario/fecha. Solo lectura. Card en panel.
+- [ ] Tests: cada acción instrumentada deja su registro con usuario y fecha del servidor.
+
+## PENDIENTE (orden sugerido)
+
+- [ ] **push** de `735de32` (Bloque 3) a `origin/main` + **re-deploy** a Azure (sin migración nueva; el lockout
+      ya existe en el esquema de Identity). Verificar el flujo de alta/baja de admins en prod.
+- [ ] Borrar el admin de prueba `test.admin@dididai.org` de la BD local (no versionada).
 - [ ] Traducir **EN** del front público (infra i18n lista; contenido ES puesto, EN cae a ES por fallback).
 - [ ] Entregables no-código del TFM (README credenciales demo / slides / vídeo). Deadline 20/07.
+
+## (Histórico) PENDIENTE AL VOLVER DEL VIAJE — HECHO (09/10-07)
+
+- [x] **push** de `909b3cc` + `c5ded0a` + `ec6c546` a `origin/main`.
+- [x] **Re-deploy a Azure** con Identity+SendGrid + secretos `SendGrid__*` en app settings. Verificado E2E.
 
 ## PENDIENTES SUELTOS (para después)
 

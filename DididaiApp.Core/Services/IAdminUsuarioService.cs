@@ -13,6 +13,15 @@ namespace DididaiApp.Core.Services;
 public interface IAdminUsuarioService
 {
     /// <summary>
+    /// Tipo del claim que marca a un admin recién creado como "debe cambiar la contraseña en
+    /// el primer inicio de sesión". Se añade en <see cref="CrearAdminAsync"/> y se elimina al
+    /// cambiar la contraseña. Es una medida de higiene (no un control de seguridad fuerte): el
+    /// dato viaja firmado en la cookie de autenticación y un filtro redirige al cambio mientras
+    /// el claim esté presente. Valor "true" cuando aplica.
+    /// </summary>
+    const string MustChangePasswordClaim = "must-change-password";
+
+    /// <summary>
     /// Crea un usuario administrador con <paramref name="email"/> y <paramref name="password"/>,
     /// email ya confirmado, y lo añade al rol <c>Admin</c>. La contraseña se valida contra la
     /// política de Identity; nunca se registra en logs ni se devuelve.

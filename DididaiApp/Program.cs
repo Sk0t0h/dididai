@@ -19,7 +19,12 @@ string[] culturasSoportadas = ["es", "en"];
 // Add services to the container.
 // Localización de vistas: los textos viven en Resources/**/*.resx y se resuelven
 // con IStringLocalizer / IViewLocalizer. El back de gestión (/Admin) NO se localiza.
-builder.Services.AddRazorPages()
+builder.Services.AddRazorPages(options =>
+    {
+        // Fuerza el cambio de contraseña en el primer login de un admin dado de alta por otro
+        // (redirige mientras tenga el claim must-change-password). Ver ForzarCambioPasswordFilter.
+        options.Conventions.ConfigureFilter(new ForzarCambioPasswordFilter());
+    })
     .AddViewLocalization();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 

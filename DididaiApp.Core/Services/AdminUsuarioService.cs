@@ -68,6 +68,12 @@ public class AdminUsuarioService : IAdminUsuarioService
         }
 
         await _userManager.AddToRoleAsync(usuario, DbSeeder.AdminRole);
+
+        // Marca "debe cambiar la contraseña en el primer inicio": el admin la recibió tecleada
+        // por otro; un filtro lo llevará al cambio de contraseña hasta que la establezca él.
+        await _userManager.AddClaimAsync(
+            usuario, new System.Security.Claims.Claim(IAdminUsuarioService.MustChangePasswordClaim, "true"));
+
         return ResultadoCrearAdmin.Creado;
     }
 

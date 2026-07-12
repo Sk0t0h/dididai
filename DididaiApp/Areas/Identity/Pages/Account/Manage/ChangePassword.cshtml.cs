@@ -3,6 +3,7 @@
 // (no aplica en este proyecto: los admin siempre la tienen), Identity sirve SetPassword
 // desde su ensamblado.
 using System.ComponentModel.DataAnnotations;
+using DididaiApp.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -88,6 +89,16 @@ public class ChangePasswordModel : PageModel
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return Page();
+        }
+
+        // Si el admin tenía la marca "debe cambiar la contraseña" (alta hecha por otro), ya la
+        // ha cambiado: se elimina el claim. El RefreshSignInAsync de abajo re-emite la cookie
+        // sin él, así que el filtro de redirección deja de actuar sin necesidad de re-login.
+        var pendiente = (await _userManager.GetClaimsAsync(user))
+            .FirstOrDefault(c => c.Type == IAdminUsuarioService.MustChangePasswordClaim);
+        if (pendiente is not null)
+        {
+            await _userManager.RemoveClaimAsync(user, pendiente);
         }
 
         await _signInManager.RefreshSignInAsync(user);

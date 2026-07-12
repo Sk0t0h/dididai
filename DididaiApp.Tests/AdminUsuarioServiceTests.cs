@@ -180,6 +180,33 @@ public class AdminUsuarioServiceTests : IDisposable
         Assert.Equal(ResultadoBajaAdmin.NoEncontrado, await _sut.DesactivarAsync("no-existe", "x@dididai.org"));
     }
 
+    [Fact]
+    public async Task Crear_MarcaMustChangePassword()
+    {
+        await _sut.CrearAdminAsync("nuevo@dididai.org", "Password1!");
+        var usuario = await _userManager.FindByEmailAsync("nuevo@dididai.org");
+
+        var claims = await _userManager.GetClaimsAsync(usuario!);
+        var marca = claims.FirstOrDefault(c => c.Type == IAdminUsuarioService.MustChangePasswordClaim);
+        Assert.NotNull(marca);
+        Assert.Equal("true", marca!.Value);
+    }
+
+    [Fact]
+    public async Task QuitarMarca_MustChangePassword_LaElimina()
+    {
+        // Simula lo que hace ChangePassword tras cambiar la contraseña: quitar el claim.
+        await _sut.CrearAdminAsync("cambia@dididai.org", "Password1!");
+        var usuario = await _userManager.FindByEmailAsync("cambia@dididai.org");
+        var marca = (await _userManager.GetClaimsAsync(usuario!))
+            .First(c => c.Type == IAdminUsuarioService.MustChangePasswordClaim);
+
+        await _userManager.RemoveClaimAsync(usuario!, marca);
+
+        var claims = await _userManager.GetClaimsAsync(usuario!);
+        Assert.DoesNotContain(claims, c => c.Type == IAdminUsuarioService.MustChangePasswordClaim);
+    }
+
     public void Dispose()
     {
         _scope.Dispose();

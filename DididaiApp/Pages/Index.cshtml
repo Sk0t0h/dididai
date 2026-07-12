@@ -38,16 +38,15 @@
             </span>
             <a class="btn-pill btn-naranja" href="#colaborar">@Localizer["Nav_Colaborar"]</a>
 
-            @* Acceso a la gestión (back). Con sesión activa, enlaces directos a las
-               secciones; sin sesión, enlace al login. El front usa este layout propio, así
-               que la comprobación de sesión se hace aquí (no la hereda del _Layout del back). *@
+            @* Acceso a la gestión (back). Con sesión, un único enlace al panel + Salir (el
+               detalle de secciones —Socios, Economía, Solicitudes, Administradores— vive en
+               el menú del back, para no saturar esta barra, ya cargada en móvil). Sin sesión,
+               enlace al login. El front usa este layout propio, así que la comprobación de
+               sesión se hace aquí (no la hereda del _Layout del back). *@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <span class="admin-links">
                     <a asp-area="" asp-page="/Admin/Index">@Localizer["Nav_Admin"]</a>
-                    <a asp-area="" asp-page="/Admin/Socios/Index">@Localizer["Nav_Socios"]</a>
-                    <a asp-area="" asp-page="/Admin/Economia/Index">@Localizer["Nav_Economia"]</a>
-                    <a asp-area="" asp-page="/Admin/Solicitudes/Index">@Localizer["Nav_Solicitudes"]</a>
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post" class="d-inline">
                         <button type="submit" class="link-salir">@Localizer["Nav_Salir"]</button>
                     </form>

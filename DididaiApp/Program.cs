@@ -80,6 +80,7 @@ builder.Services.AddScoped<IColaboracionService, ColaboracionService>();
 builder.Services.AddScoped<IResumenEconomicoService, ResumenEconomicoService>();
 builder.Services.AddScoped<IGastoService, GastoService>();
 builder.Services.AddScoped<ISolicitudColaboracionService, SolicitudColaboracionService>();
+builder.Services.AddScoped<IAdminUsuarioService, AdminUsuarioService>();
 
 // Rate limiting del formulario público de colaboración: frena el spam de bots
 // limitando los ENVÍOS (POST) por IP. Solo afecta a la política "colaborar" (la

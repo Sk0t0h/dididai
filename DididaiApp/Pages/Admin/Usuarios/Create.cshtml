@@ -1,0 +1,40 @@
+@page
+@model DididaiApp.Pages.Admin.Usuarios.CreateModel
+@{
+    ViewData["Title"] = "Nuevo administrador";
+}
+
+<h1 class="h3">Nuevo administrador</h1>
+<p class="text-muted">Crea un usuario con acceso al back de gestión. Podrá iniciar sesión de inmediato y recuperar su contraseña por correo.</p>
+
+<form method="post" class="mt-3" autocomplete="off">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row g-3">
+        <div class="col-12 col-md-8">
+            <label asp-for="Datos.Email" class="form-label"></label>
+            <input asp-for="Datos.Email" class="form-control" type="email" autocomplete="off" />
+            <span asp-validation-for="Datos.Email" class="text-danger"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="Datos.Password" class="form-label"></label>
+            <input asp-for="Datos.Password" class="form-control" autocomplete="new-password" />
+            <div class="form-text">Mínimo 8 caracteres.</div>
+            <span asp-validation-for="Datos.Password" class="text-danger"></span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="Datos.ConfirmarPassword" class="form-label"></label>
+            <input asp-for="Datos.ConfirmarPassword" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Datos.ConfirmarPassword" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Crear administrador</button>
+        <a class="btn btn-outline-secondary" asp-page="Index">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

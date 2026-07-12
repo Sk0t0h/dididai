@@ -6,8 +6,8 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-12 (Bloque 3 = gestión de admins hecho y
-> verificado E2E en local, commit `735de32`, SIN push/deploy; queda EN + entregables + Bloque 4 auditoría).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-12 (Bloque 3 = gestión de admins DESPLEGADO y
+> verificado en prod, `origin/main` = `b89b8b0`; queda EN + entregables + Bloque 4 auditoría).
 
 ## Active Focus
 
@@ -88,7 +88,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
 | Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Cabecera de marca minimalista** (logo→inicio, look crema) en las páginas sin sesión, unificada con el back con sesión; enlace "Volver a acceder" en recuperación (10-07, desplegado). **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM) |
-| Gestión de usuarios admin (alta/baja desde /Admin) | IMPLEMENTADO (12-07, local, SIN deploy): `/Admin/Usuarios` (listar+crear+desactivar/reactivar) vía `AdminUsuarioService`. Sustituye al registro público. Admins nacen con `EmailConfirmed=true` + rol Admin. **Salvaguarda del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Baja lógica por lockout (no borra). Validación cliente+servidor, `js-confirm` CSP-safe. Sin migración. 10 tests. Verificado E2E por HTTP |
+| Gestión de usuarios admin (alta/baja desde /Admin) | OPERATIVO (12-07, DESPLEGADO y verificado en prod): `/Admin/Usuarios` (listar+crear+desactivar/reactivar) vía `AdminUsuarioService`. Sustituye al registro público. Admins nacen con `EmailConfirmed=true` + rol Admin. **Salvaguarda del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Baja lógica por lockout (no borra). **Forzar cambio de contraseña en el 1er login** (claim `must-change-password` + page filter). Validación cliente+servidor, `js-confirm` CSP-safe. Enlace en el menú del back; menú de gestión del front adelgazado a "Gestión"+Salir. Sin migración. 12 tests. Verificado E2E en local y prod |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
@@ -104,22 +104,28 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
-- **2026-07-12 — Bloque 3: alta y gestión de usuarios admin desde /Admin** (commit `735de32`, en local, SIN
-  push/deploy). Última funcionalidad de código del MVP: la vía interna que sustituye al registro público
-  quitado. Ejecutado en 6 fases pequeñas (una idea por fase, compilable + verde cada una). **`AdminUsuarioService`**
-  (Core, encapsula `UserManager`): crear con **`EmailConfirmed=true`** + rol Admin (distingue email duplicado
-  de contraseña débil por los CÓDIGOS de error de Identity, no por el texto localizado), listar (solo rol
-  Admin), y **desactivar/reactivar por lockout** (baja lógica: `LockoutEnd=MaxValue`, no borra la fila → no deja
-  huérfana la futura auditoría; reversible). **Salvaguarda del superadmin** (idea del usuario, mejor que la
-  guarda "último admin activo" descartada): el admin primigenio = el del `Seed:AdminEmail` (config, sin
-  migración) es intocable, y nadie puede desactivarse a sí mismo → el caso "quedarse sin admin" queda cubierto
-  por construcción. **Páginas** `/Admin/Usuarios` (Index+Create), `[Authorize(Roles=Admin)]`, validación
-  cliente+servidor (atributos estándar + `_ValidationScriptsPartial`), antiforgery, confirmación de baja con la
-  modal de marca `js-confirm` (CSP-safe); la UI oculta el botón al superadmin y a uno mismo; card en el panel.
-  **10 tests nuevos → 135 verdes.** Sin migración (Identity ya trae `LockoutEnd`/`LockoutEnabled`). **Verificado
-  E2E por HTTP** (sesión admin): crear→aparece, duplicado→"Ya existe" sin crear, login del admin nuevo→entra al
-  back (confirma que `EmailConfirmed` funciona), desactivar/reactivar, superadmin sin botón, y la guarda "uno
-  mismo" **resiste un POST forjado**. Validación visual pendiente del usuario. Detalle en el log W28 (12-07).
+- **2026-07-12 — Bloque 3: gestión de usuarios admin desde /Admin, DESPLEGADO a producción** (`origin/main` =
+  `b89b8b0`, verificado en prod). Última funcionalidad de código del MVP: la vía interna que sustituye al
+  registro público quitado. Ejecutado en fases pequeñas (una idea por fase, compilable + verde cada una).
+  **`AdminUsuarioService`** (Core, encapsula `UserManager`): crear con **`EmailConfirmed=true`** + rol Admin
+  (distingue email duplicado de contraseña débil por los CÓDIGOS de error de Identity), listar (solo rol Admin),
+  **desactivar/reactivar por lockout** (baja lógica: `LockoutEnd=MaxValue`, no borra → conserva la futura
+  auditoría). **Salvaguarda del superadmin** (idea del usuario, mejor que la guarda "último admin activo"
+  descartada): el admin primigenio = el del `Seed:AdminEmail` es intocable y nadie puede desactivarse a sí mismo
+  → "quedarse sin admin" cubierto por construcción. **Forzar cambio de contraseña en el 1er login**: claim
+  `must-change-password` (AspNetUserClaims, sin migración; higiene, no control fuerte) + `ForzarCambioPasswordFilter`
+  (page filter global) que redirige a ChangePassword mientras el claim esté (excluye la propia página y el
+  logout); ChangePassword lo quita y el `RefreshSignInAsync` re-emite la cookie sin él. Se eligió claim sobre
+  columna en `AppUser` (evita migración/refactor del tipo de usuario para un flag de un solo uso; la columna se
+  justificaría solo con varios flags o control fuerte). **Páginas** `/Admin/Usuarios` (Index+Create), validación
+  cliente+servidor, antiforgery, `js-confirm` CSP-safe, requisitos de contraseña visibles; UI oculta el botón al
+  superadmin y a uno mismo. **Menús:** enlace "Administradores" en el back; menú de gestión del **front**
+  adelgazado a "Gestión" (→ panel) + Salir (el detalle vive en el back; descarga la barra en móvil). **12 tests
+  nuevos → 137 verdes.** Sin migración. **Verificado E2E en local** (incl. guarda "uno mismo" contra POST
+  forjado; flujo de forzar-cambio con bordes: sin bucle, logout no atrapado) **y en producción** (deploy
+  `RuntimeSuccessful`; `/Admin/Usuarios` 200 con badge "Principal", menú back con "Administradores", front con
+  sesión = Gestión+Salir, Create 200; home 200, /Admin 302, CSP). Sin admin de prueba en prod. Detalle en el log
+  W28 (12-07).
 - **2026-07-10 — Cabecera de marca en las páginas de Identity + botón volver** (desplegado y verificado en
   prod, `8288449`): las páginas de Identity sin sesión (login, recuperación de contraseña) servían la navbar
   Bootstrap genérica de plantilla, distinta del front y del back con sesión. Se sustituye la rama `else` (sin

@@ -67,14 +67,16 @@ no transforman datos existentes. **Deploy seguro, sin data-fix ni reset.** Runbo
       contraseña envía de verdad. Secretos en User Secrets (From=`info@dididai.org`, dominio autenticado).
       Fallback seguro. **Verificado E2E: el correo llega.**
 
-## SESIÓN 12-07 — Bloque 3: gestión de admins (HECHO, commit `735de32`, SIN push/deploy)
+## SESIÓN 12-07 — Bloque 3: gestión de admins (HECHO y DESPLEGADO, `origin/main` = `b89b8b0`)
 
 - [x] **Bloque 3 — alta y gestión de usuarios admin desde /Admin.** `AdminUsuarioService` (Core): crear
       (`EmailConfirmed=true` + rol Admin), listar, desactivar/reactivar por lockout (baja lógica). **Salvaguarda
-      del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Páginas
-      `/Admin/Usuarios` (Index+Create), validación cliente+servidor, antiforgery, `js-confirm` CSP-safe, card en
-      el panel. 10 tests nuevos (135 verdes). Sin migración. Verificado E2E por HTTP (incl. guarda contra POST
-      forjado). **Falta:** push + deploy + validación visual del usuario.
+      del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. **Forzar cambio de
+      contraseña en el 1er login** (claim `must-change-password` + page filter). Páginas `/Admin/Usuarios`
+      (Index+Create), validación cliente+servidor, antiforgery, `js-confirm` CSP-safe, requisitos de contraseña
+      visibles. Enlace "Administradores" en el menú del back; menú de gestión del front adelgazado a
+      "Gestión"+Salir. 12 tests nuevos (137 verdes). Sin migración. **DESPLEGADO** (`RuntimeSuccessful`) y
+      verificado E2E en local y prod. El usuario validó visualmente y confirmó prod OK.
 
 ## BLOQUE 4 (acordado 12-07, posterior) — Log de auditoría transversal
 
@@ -90,13 +92,15 @@ auditoría es *automática y transversal*). Conviven.
 - [ ] Página `/Admin/Auditoria`: listado paginado, filtro por acción/usuario/fecha. Solo lectura. Card en panel.
 - [ ] Tests: cada acción instrumentada deja su registro con usuario y fecha del servidor.
 
-## PENDIENTE (orden sugerido)
+## PENDIENTE (orden sugerido para las próximas sesiones)
 
-- [ ] **push** de `735de32` (Bloque 3) a `origin/main` + **re-deploy** a Azure (sin migración nueva; el lockout
-      ya existe en el esquema de Identity). Verificar el flujo de alta/baja de admins en prod.
-- [ ] Borrar el admin de prueba `test.admin@dididai.org` de la BD local (no versionada).
+- [ ] **Bloque 4 — log de auditoría transversal** (ver sección arriba). Feature nueva; empezar en un rato con
+      calma (migración aditiva → zona sensible ligera).
 - [ ] Traducir **EN** del front público (infra i18n lista; contenido ES puesto, EN cae a ES por fallback).
+      Tarea autocontenida, buena para ratos cortos entre semana.
 - [ ] Entregables no-código del TFM (README credenciales demo / slides / vídeo). Deadline 20/07.
+- [ ] Limpieza menor: quedan admins de prueba (`test.admin@`, `forzar.test@`, `logout.test@`) en la BD **local**
+      (no versionada) de las verificaciones E2E; borrarlos al preparar la demo local. En prod NO hay ninguno.
 
 ## (Histórico) PENDIENTE AL VOLVER DEL VIAJE — HECHO (09/10-07)
 

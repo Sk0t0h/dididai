@@ -51,11 +51,11 @@ public class EditModel : PageModel
         }
 
         var resultado = await _socios.ActualizarAsync(Socio);
-        switch (resultado)
+        switch (resultado.Resultado)
         {
             case ResultadoActualizacion.Actualizado:
                 await _auditoria.RegistrarAsync(TipoAccionAuditoria.SocioEdicion, "Socio", Socio.Id.ToString(),
-                    $"Edición de socio {Socio.Nombre} {Socio.Apellidos} (DNI {Socio.Dni})", Actor);
+                    $"Edición de socio {Socio.Nombre} {Socio.Apellidos} (DNI {Socio.Dni})", Actor, resultado.Cambios);
                 TempData["Mensaje"] = $"Socio «{Socio.Nombre} {Socio.Apellidos}» actualizado.";
                 return RedirectToPage("Index");
 

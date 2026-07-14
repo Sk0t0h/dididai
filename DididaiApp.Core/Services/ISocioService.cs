@@ -37,8 +37,12 @@ public interface ISocioService
     /// </summary>
     Task<ResultadoAlta> CrearAsync(Socio socio);
 
-    /// <summary>Actualiza los datos de un socio existente. Falla si el DNI colisiona con otro socio.</summary>
-    Task<ResultadoActualizacion> ActualizarAsync(Socio socio);
+    /// <summary>
+    /// Actualiza los datos de un socio existente. Falla si el DNI colisiona con otro socio.
+    /// Devuelve, junto al resultado, el detalle de los campos que cambiaron (JSON) para la
+    /// auditoría, o <c>null</c> si no cambió ninguno o la actualización no se aplicó.
+    /// </summary>
+    Task<ResultadoActualizacionSocio> ActualizarAsync(Socio socio);
 
     /// <summary>Da de baja (borrado lógico) un socio activo, fijando <c>FechaBaja</c>.</summary>
     Task DarDeBajaAsync(int id);
@@ -63,6 +67,12 @@ public enum ResultadoAlta
     /// <summary>El teléfono no está en formato internacional E.164.</summary>
     TelefonoInvalido,
 }
+
+/// <summary>
+/// Resultado de actualizar un socio: el desenlace (<see cref="ResultadoActualizacion"/>) y,
+/// cuando fue correcto, el detalle de los cambios en JSON (<c>null</c> si no cambió nada).
+/// </summary>
+public record ResultadoActualizacionSocio(ResultadoActualizacion Resultado, string? Cambios);
 
 /// <summary>Resultado de una actualización de socio.</summary>
 public enum ResultadoActualizacion

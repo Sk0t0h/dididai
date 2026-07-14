@@ -38,10 +38,17 @@ public interface IColaboracionService
     /// <summary>
     /// Edita los datos económicos de una colaboración existente: importe y, si es cuota
     /// domiciliada, periodicidad e IBAN. NO permite cambiar el tipo ni el socio. Valida
-    /// importe (&gt;0) e IBAN (mod-97) como el alta.
+    /// importe (&gt;0) e IBAN (mod-97) como el alta. Devuelve, junto al resultado, el detalle
+    /// de los campos que cambiaron (JSON) para la auditoría; el IBAN se registra enmascarado.
     /// </summary>
-    Task<ResultadoColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban);
+    Task<ResultadoActualizacionColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban);
 }
+
+/// <summary>
+/// Resultado de actualizar una colaboración: el desenlace (<see cref="ResultadoColaboracion"/>)
+/// y, cuando fue correcto, el detalle de los cambios en JSON (<c>null</c> si no cambió nada).
+/// </summary>
+public record ResultadoActualizacionColaboracion(ResultadoColaboracion Resultado, string? Cambios);
 
 /// <summary>Resultado de crear una colaboración.</summary>
 public enum ResultadoColaboracion

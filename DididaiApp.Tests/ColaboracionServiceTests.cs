@@ -139,11 +139,18 @@ public class ColaboracionServiceTests : IDisposable
 
         var r = await _sut.ActualizarAsync(col.Id, 25m, ModalidadCuota.Anual, "GB82WEST12345698765432");
 
-        Assert.Equal(ResultadoColaboracion.Creado, r); // reutiliza Creado como "ok"
+        Assert.Equal(ResultadoColaboracion.Creado, r.Resultado); // reutiliza Creado como "ok"
         var tras = (CuotaDomiciliada)(await _sut.ObtenerAsync(col.Id))!;
         Assert.Equal(25m, tras.Importe);
         Assert.Equal(ModalidadCuota.Anual, tras.Modalidad);
         Assert.Equal("GB82WEST12345698765432", tras.Iban);
+        // El diff de auditoría recoge los tres campos cambiados y enmascara el IBAN.
+        Assert.NotNull(r.Cambios);
+        Assert.Contains("Importe", r.Cambios);
+        Assert.Contains("Periodicidad", r.Cambios);
+        Assert.Contains("IBAN", r.Cambios);
+        Assert.DoesNotContain("GB82WEST12345698765432", r.Cambios); // IBAN completo no aparece en claro
+        Assert.Contains("5432", r.Cambios);                          // sí sus últimos 4
     }
 
     [Fact]
@@ -154,7 +161,7 @@ public class ColaboracionServiceTests : IDisposable
         var col = (await _sut.ListarPorSocioAsync(socioId))[0];
 
         var r = await _sut.ActualizarAsync(col.Id, 10m, ModalidadCuota.Mensual, "ES0000000000000000000000");
-        Assert.Equal(ResultadoColaboracion.IbanInvalido, r);
+        Assert.Equal(ResultadoColaboracion.IbanInvalido, r.Resultado);
     }
 
     [Fact]
@@ -165,7 +172,7 @@ public class ColaboracionServiceTests : IDisposable
         var col = (await _sut.ListarPorSocioAsync(socioId))[0];
 
         var r = await _sut.ActualizarAsync(col.Id, 0m, ModalidadCuota.Mensual, null);
-        Assert.Equal(ResultadoColaboracion.ImporteInvalido, r);
+        Assert.Equal(ResultadoColaboracion.ImporteInvalido, r.Resultado);
     }
 
     [Fact]
@@ -177,15 +184,18 @@ public class ColaboracionServiceTests : IDisposable
 
         // Aportación única: el IBAN pasado se ignora (no es cuota), solo cambia el importe.
         var r = await _sut.ActualizarAsync(col.Id, 75m, ModalidadCuota.Mensual, "iban-basura");
-        Assert.Equal(ResultadoColaboracion.Creado, r);
+        Assert.Equal(ResultadoColaboracion.Creado, r.Resultado);
         Assert.Equal(75m, (await _sut.ObtenerAsync(col.Id))!.Importe);
+        // No es cuota: solo cambia el importe; el diff no menciona IBAN ni periodicidad.
+        Assert.Contains("Importe", r.Cambios);
+        Assert.DoesNotContain("IBAN", r.Cambios!);
     }
 
     [Fact]
     public async Task Actualizar_Inexistente_DevuelveNoEncontrada()
     {
         var r = await _sut.ActualizarAsync(999, 10m, ModalidadCuota.Mensual, null);
-        Assert.Equal(ResultadoColaboracion.NoEncontrada, r);
+        Assert.Equal(ResultadoColaboracion.NoEncontrada, r.Resultado);
     }
 
     public void Dispose()

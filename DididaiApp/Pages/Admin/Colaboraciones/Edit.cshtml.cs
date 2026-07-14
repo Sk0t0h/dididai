@@ -94,13 +94,13 @@ public class EditModel : PageModel
             return Page();
 
         var r = await _colaboraciones.ActualizarAsync(Datos.Id, Datos.Importe!.Value, Datos.Modalidad, Datos.Iban);
-        switch (r)
+        switch (r.Resultado)
         {
             case ResultadoColaboracion.Creado:
                 await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionEdicion,
                     "Colaboración", Datos.Id.ToString(),
                     $"Edición de colaboración ({TipoNombre}) del socio #{SocioId}: {Datos.Importe!.Value:0.00} €",
-                    User.Identity?.Name ?? "desconocido");
+                    User.Identity?.Name ?? "desconocido", r.Cambios);
                 TempData["Mensaje"] = "Colaboración actualizada.";
                 return RedirectToPage("/Admin/Socios/Details", new { id = SocioId });
             case ResultadoColaboracion.ImporteInvalido:

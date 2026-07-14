@@ -110,6 +110,51 @@ public class SocioServiceTests : IDisposable
         Assert.Empty(r);
     }
 
+    // Construye un Socio DESACOPLADO (instancia nueva con el mismo Id) para simular lo que
+    // llega del model binding en producción. Si se reusara la instancia tracked de EF, el
+    // identity map haría que "actual" y el entrante fueran el mismo objeto y el diff no vería
+    // los cambios.
+    private static Socio Editable(Socio origen) => new()
+    {
+        Id = origen.Id, Nombre = origen.Nombre, Apellidos = origen.Apellidos,
+        TipoDocumento = origen.TipoDocumento, Dni = origen.Dni, Email = origen.Email,
+        Telefono = origen.Telefono, PaisResidencia = origen.PaisResidencia,
+        Direccion = origen.Direccion, CodigoPostal = origen.CodigoPostal,
+        Localidad = origen.Localidad, AceptaPrivacidad = origen.AceptaPrivacidad,
+    };
+
+    [Fact]
+    public async Task Actualizar_RegistraSoloLosCamposCambiados()
+    {
+        var socio = await SembrarAsync("12345678Z", "ada@x.com", "+34600111222");
+
+        // Se edita: mismo DNI/teléfono/país; cambian nombre y email.
+        var edit = Editable(socio);
+        edit.Nombre = "AdaEditado";
+        edit.Email = "nuevo@x.com";
+        var r = await _sut.ActualizarAsync(edit);
+
+        Assert.Equal(ResultadoActualizacion.Actualizado, r.Resultado);
+        Assert.NotNull(r.Cambios);
+        Assert.Contains("Nombre", r.Cambios);
+        Assert.Contains("AdaEditado", r.Cambios);
+        Assert.Contains("Email", r.Cambios);
+        // No se tocó el teléfono → no debe figurar en el diff.
+        Assert.DoesNotContain("Teléfono", r.Cambios);
+    }
+
+    [Fact]
+    public async Task Actualizar_SinCambios_DevuelveCambiosNull()
+    {
+        var socio = await SembrarAsync("12345678Z", "ada@x.com", "+34600111222");
+
+        // Se reenvía idéntico (el DNI se normaliza igual): no cambia nada.
+        var r = await _sut.ActualizarAsync(Editable(socio));
+
+        Assert.Equal(ResultadoActualizacion.Actualizado, r.Resultado);
+        Assert.Null(r.Cambios);
+    }
+
     public void Dispose()
     {
         _db.Dispose();

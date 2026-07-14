@@ -59,11 +59,23 @@ else
             <tbody>
                 @foreach (var r in Model.Resultado.Registros)
                 {
+                    var cambios = DididaiApp.Pages.Admin.Auditoria.IndexModel.FormatearCambios(r.Cambios);
                     <tr>
                         <td class="text-nowrap">@r.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td class="text-break">@r.Usuario</td>
                         <td>@Html.DisplayFor(_ => r.Accion)</td>
-                        <td class="text-break">@r.Detalle</td>
+                        <td class="text-break">
+                            @r.Detalle
+                            @if (cambios.Count > 0)
+                            {
+                                <ul class="mb-0 mt-1 small text-muted">
+                                    @foreach (var linea in cambios)
+                                    {
+                                        <li>@linea</li>
+                                    }
+                                </ul>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

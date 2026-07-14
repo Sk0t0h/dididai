@@ -20,9 +20,10 @@ public interface IAuditoriaService
     /// <summary>
     /// Registra una entrada de auditoría. <paramref name="usuario"/> es el admin autenticado
     /// (lo pasa la página); la fecha (UTC) la fija el servicio. Se invoca DESPUÉS de que la
-    /// acción principal ya se ha confirmado, en su propia transacción.
+    /// acción principal ya se ha confirmado, en su propia transacción. <paramref name="cambios"/>
+    /// es el detalle JSON de una edición (antes/después); <c>null</c> en el resto de acciones.
     /// </summary>
-    Task RegistrarAsync(TipoAccionAuditoria accion, string entidad, string entidadId, string detalle, string usuario);
+    Task RegistrarAsync(TipoAccionAuditoria accion, string entidad, string entidadId, string detalle, string usuario, string? cambios = null);
 
     /// <summary>
     /// Lista el log filtrado y paginado, más reciente primero. Todos los filtros son opcionales.

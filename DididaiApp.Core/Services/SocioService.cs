@@ -98,11 +98,11 @@ public class SocioService : ISocioService
         return ResultadoAlta.Creado;
     }
 
-    public async Task<ResultadoActualizacion> ActualizarAsync(Socio socio)
+    public async Task<ResultadoActualizacionSocio> ActualizarAsync(Socio socio)
     {
         var actual = await _db.Socios.FirstOrDefaultAsync(s => s.Id == socio.Id);
         if (actual is null)
-            return ResultadoActualizacion.NoEncontrado;
+            return new(ResultadoActualizacion.NoEncontrado, null);
 
         var pais = NormalizarPais(socio.PaisResidencia);
         var dni = NormalizarDni(socio.Dni);
@@ -110,17 +110,33 @@ public class SocioService : ISocioService
 
         // Mismas reglas que en el alta (validación de negocio en servidor).
         if (!Paises.EsCodigoValido(pais))
-            return ResultadoActualizacion.PaisInvalido;
+            return new(ResultadoActualizacion.PaisInvalido, null);
         if (!ValidacionIdentidad.DocumentoValido(dni, socio.TipoDocumento))
-            return ResultadoActualizacion.DocumentoInvalido;
+            return new(ResultadoActualizacion.DocumentoInvalido, null);
         if (!ValidacionIdentidad.TelefonoValido(telefono))
-            return ResultadoActualizacion.TelefonoInvalido;
+            return new(ResultadoActualizacion.TelefonoInvalido, null);
 
         // ¿El DNI editado pisa a OTRO socio?
         var colision = await _db.Socios.AsNoTracking()
             .AnyAsync(s => s.Dni == dni && s.Id != socio.Id);
         if (colision)
-            return ResultadoActualizacion.DniDuplicado;
+            return new(ResultadoActualizacion.DniDuplicado, null);
+
+        // Diff para la auditoría: se compara el estado actual (antes) con el entrante ya
+        // normalizado (después), campo a campo, ANTES de asignar. Solo se guardan los que
+        // cambian. Se usan etiquetas legibles para que el log se entienda sin ver el código.
+        var cambios = new ConstructorCambios()
+            .Registrar("Nombre", actual.Nombre, socio.Nombre)
+            .Registrar("Apellidos", actual.Apellidos, socio.Apellidos)
+            .Registrar("Tipo de documento", actual.TipoDocumento, socio.TipoDocumento)
+            .Registrar("Documento", actual.Dni, dni)
+            .Registrar("Teléfono", actual.Telefono, telefono)
+            .Registrar("Email", actual.Email, socio.Email)
+            .Registrar("Dirección", actual.Direccion, socio.Direccion)
+            .Registrar("Código postal", actual.CodigoPostal, socio.CodigoPostal)
+            .Registrar("Localidad", actual.Localidad, socio.Localidad)
+            .Registrar("País de residencia", actual.PaisResidencia, pais)
+            .Registrar("Acepta privacidad", actual.AceptaPrivacidad, socio.AceptaPrivacidad);
 
         actual.Nombre = socio.Nombre;
         actual.Apellidos = socio.Apellidos;
@@ -136,7 +152,7 @@ public class SocioService : ISocioService
         // FechaAlta y FechaBaja no se tocan aquí (la baja/reactivación tienen sus propias acciones).
 
         await _db.SaveChangesAsync();
-        return ResultadoActualizacion.Actualizado;
+        return new(ResultadoActualizacion.Actualizado, cambios.ToJson());
     }
 
     public async Task DarDeBajaAsync(int id)

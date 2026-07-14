@@ -64,27 +64,43 @@ public class ColaboracionService : IColaboracionService
         await _db.SaveChangesAsync();
     }
 
-    public async Task<ResultadoColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban)
+    public async Task<ResultadoActualizacionColaboracion> ActualizarAsync(int id, decimal importe, ModalidadCuota modalidad, string? iban)
     {
         var colaboracion = await _db.Colaboraciones.FirstOrDefaultAsync(c => c.Id == id);
         if (colaboracion is null)
-            return ResultadoColaboracion.NoEncontrada;
+            return new(ResultadoColaboracion.NoEncontrada, null);
 
         if (importe <= 0)
-            return ResultadoColaboracion.ImporteInvalido;
+            return new(ResultadoColaboracion.ImporteInvalido, null);
+
+        var cambios = new ConstructorCambios()
+            .Registrar("Importe", $"{colaboracion.Importe:0.00} €", $"{importe:0.00} €");
 
         // Periodicidad e IBAN solo aplican a la cuota domiciliada; en el resto se ignoran.
         if (colaboracion is CuotaDomiciliada cuota)
         {
             var norm = ValidacionIban.Normalizar(iban ?? string.Empty);
             if (!ValidacionIban.EsValido(norm))
-                return ResultadoColaboracion.IbanInvalido;
+                return new(ResultadoColaboracion.IbanInvalido, null);
+
+            // El IBAN se registra ENMASCARADO (solo los últimos 4) para no volcar el dato
+            // bancario en claro al log de auditoría.
+            cambios.Registrar("Periodicidad", cuota.Modalidad, modalidad)
+                   .Registrar("IBAN", Enmascarar(cuota.Iban), Enmascarar(norm));
+
             cuota.Iban = norm;
             cuota.Modalidad = modalidad;
         }
 
         colaboracion.Importe = importe;
         await _db.SaveChangesAsync();
-        return ResultadoColaboracion.Creado;
+        return new(ResultadoColaboracion.Creado, cambios.ToJson());
+    }
+
+    /// <summary>Deja visibles solo los últimos 4 caracteres de un IBAN (resto como ••••).</summary>
+    private static string Enmascarar(string? iban)
+    {
+        var v = (iban ?? string.Empty).Trim();
+        return v.Length <= 4 ? v : new string('•', v.Length - 4) + v[^4..];
     }
 }

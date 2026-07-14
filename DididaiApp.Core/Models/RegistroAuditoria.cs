@@ -101,4 +101,12 @@ public class RegistroAuditoria
     /// </summary>
     [StringLength(500)]
     public string Detalle { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Detalle de los cambios en una edición, como JSON campo→(antes, después). Solo lo
+    /// rellenan las acciones de edición (socio, colaboración); <c>null</c> en las demás. Lo
+    /// genera <see cref="ConstructorCambios"/>. No tiene límite de longitud (una edición con
+    /// muchos campos puede ser larga); se muestra formateado en la ficha de auditoría.
+    /// </summary>
+    public string? Cambios { get; set; }
 }

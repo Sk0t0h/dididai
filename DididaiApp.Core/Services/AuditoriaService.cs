@@ -16,7 +16,7 @@ public class AuditoriaService : IAuditoriaService
 
     /// <inheritdoc />
     public async Task RegistrarAsync(
-        TipoAccionAuditoria accion, string entidad, string entidadId, string detalle, string usuario)
+        TipoAccionAuditoria accion, string entidad, string entidadId, string detalle, string usuario, string? cambios = null)
     {
         _db.RegistrosAuditoria.Add(new RegistroAuditoria
         {
@@ -26,6 +26,7 @@ public class AuditoriaService : IAuditoriaService
             Entidad = entidad,
             EntidadId = entidadId,
             Detalle = detalle.Length > 500 ? detalle[..500] : detalle,
+            Cambios = cambios,
         });
         await _db.SaveChangesAsync();
     }

@@ -46,4 +46,30 @@ public class IndexModel : PageModel
     {
         Resultado = await _auditoria.ListarAsync(Usuario, Accion, Desde, Hasta, Pagina, TamanoPagina);
     }
+
+    /// <summary>
+    /// Convierte el JSON de cambios (antes/después) de un registro en líneas legibles
+    /// «Campo: antes → después». Devuelve lista vacía si no hay cambios o el JSON es inválido.
+    /// </summary>
+    public static IReadOnlyList<string> FormatearCambios(string? cambiosJson)
+    {
+        if (string.IsNullOrWhiteSpace(cambiosJson))
+            return [];
+
+        try
+        {
+            var dict = System.Text.Json.JsonSerializer
+                .Deserialize<Dictionary<string, ConstructorCambios.ValorCambiado>>(cambiosJson);
+            if (dict is null) return [];
+            return dict
+                .Select(kv => $"{kv.Key}: {Mostrar(kv.Value.antes)} → {Mostrar(kv.Value.despues)}")
+                .ToList();
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return [];
+        }
+    }
+
+    private static string Mostrar(string? v) => string.IsNullOrEmpty(v) ? "∅" : v;
 }

@@ -24,6 +24,13 @@
 - **Página `/Admin/Auditoria`** (solo lectura): filtros GET + tabla + paginación, CSP-safe (0 inline), tema de
   marca. Enlace "Auditoría" en el menú del back + card en el panel de gestión.
 - **8 tests nuevos → 145 verdes.**
+- **MEJORA (14-07, feedback del usuario): diff antes/después en las ediciones.** "Editó el socio" no bastaba;
+  ahora las ediciones de **socio y colaboración** guardan el detalle campo-a-campo. Decisiones: diff **en el
+  servicio** (el "antes" solo está limpio dentro de `ActualizarAsync`; excepción justificada a "traza en las
+  páginas"), **columna JSON nueva** `RegistroAuditoria.Cambios` (migración aditiva `AddCambiosAuditoria`),
+  helper `ConstructorCambios` (solo guarda lo que cambió, null si nada). `ActualizarAsync` de socio/colab
+  devuelven ahora un **record** (resultado + cambios). **IBAN enmascarado** en el diff (últimos 4). La vista
+  muestra «Campo: antes → después». **147 verdes.** Verificado E2E (editar socio → 3 líneas antes→después).
 
 **Verificado E2E por HTTP** (Playwright bloqueado por el entorno): alta de socio → registra `SocioAlta` con
 detalle+usuario; baja de socio → `SocioBaja`; listado ordenado desc con total; filtro por acción aísla el tipo;

@@ -36,10 +36,13 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostDesactivarAsync(string id)
     {
+        // El email se resuelve ANTES de desactivar, para que el detalle de auditoría sea
+        // legible (el handler solo recibe el id/GUID).
+        var email = await EmailDeAsync(id);
         var r = await _admins.DesactivarAsync(id, EmailActual);
         if (r == ResultadoBajaAdmin.Ok)
             await _auditoria.RegistrarAsync(TipoAccionAuditoria.AdminDesactivacion,
-                "Administrador", id, $"Desactivación del administrador #{id}", EmailActual);
+                "Administrador", id, $"Desactivación del administrador «{email}»", EmailActual);
         TempData["Mensaje"] = r switch
         {
             ResultadoBajaAdmin.Ok => "Administrador desactivado.",
@@ -52,10 +55,18 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostReactivarAsync(string id)
     {
+        var email = await EmailDeAsync(id);
         await _admins.ReactivarAsync(id);
         await _auditoria.RegistrarAsync(TipoAccionAuditoria.AdminReactivacion,
-            "Administrador", id, $"Reactivación del administrador #{id}", EmailActual);
+            "Administrador", id, $"Reactivación del administrador «{email}»", EmailActual);
         TempData["Mensaje"] = "Administrador reactivado.";
         return RedirectToPage();
+    }
+
+    /// <summary>Email del admin con ese id (para el detalle de auditoría); respalda al id si no aparece.</summary>
+    private async Task<string> EmailDeAsync(string id)
+    {
+        var admin = (await _admins.ListarAdminsAsync()).FirstOrDefault(a => a.Id == id);
+        return admin?.Email ?? $"#{id}";
     }
 }

@@ -4,8 +4,9 @@
 (function () {
     "use strict";
 
-    // Paleta accesible y coherente (evita depender de los colores por defecto).
-    var COLORES = ["#0d6efd", "#20c997", "#ffc107", "#dc3545", "#6f42c1", "#6c757d"];
+    // Paleta accesible y coherente (evita depender de los colores por defecto). El primer
+    // color es el naranja de marca DIDIDAI (ingresos = la serie/segmento principal).
+    var COLORES = ["#f7941d", "#20c997", "#ffc107", "#dc3545", "#6f42c1", "#6c757d"];
 
     function leerDatos(canvas) {
         try { return JSON.parse(canvas.getAttribute("data-chart") || "null"); }
@@ -39,9 +40,9 @@
                 label: cfg.etiqueta || "",
                 data: cfg.valores || [],
                 backgroundColor: (cfg.tipo === "line")
-                    ? "rgba(13,110,253,0.15)"
+                    ? "rgba(247,148,29,0.15)"
                     : labels.map(function (_, i) { return COLORES[i % COLORES.length]; }),
-                borderColor: (cfg.tipo === "line") ? "#0d6efd" : undefined,
+                borderColor: (cfg.tipo === "line") ? "#f7941d" : undefined,
                 fill: cfg.tipo === "line",
                 tension: 0.3,
             }];

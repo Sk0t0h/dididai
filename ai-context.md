@@ -8,9 +8,14 @@
 ## FOCO ACTUAL (14-07, cierre) — Bloque 4 (auditoría transversal) VIVO en producción; queda EN + entregables
 
 **Sesión 14-07.** Implementado, verificado E2E y **DESPLEGADO a producción** el **Bloque 4 = log de auditoría
-transversal** (la última pieza de código del MVP) + su mejora de diff antes/después + dos fixes de pulido.
-`RuntimeSuccessful`, verificado en prod (`/Admin/Auditoria` 200 con login, migraciones aplicadas al arrancar).
-4 commits pusheados por el usuario. **Nada de código pendiente del MVP salvo traducir EN + entregables.**
+transversal** (la última pieza de código del MVP) + diff antes/después + varios fixes de pulido (email de admin
+en el log, filtros del back en color de marca, ingresos-en-naranja en las gráficas, y **auditoría de gastos**
+que se había olvidado). Dos deploys a prod, ambos `RuntimeSuccessful` y verificados. **15 acciones auditadas**
+(incluidos gastos). **Nada de código pendiente del MVP salvo traducir EN + entregables.**
+
+Nota menor: en la auditoría de PROD quedan 2 registros de la verificación del deploy («VERIF DEPLOY (borrar)»,
+alta+baja); log inmutable, sin UI de borrado → limpiar solo si se quiere auditoría impoluta para la demo
+(resetear/editar BD de `/home` vía Kudu).
 
 - **Entidad `RegistroAuditoria`** (Fecha UTC, Usuario, Accion enum de 13 tipos, Entidad, EntidadId **string**
   —int para socios/colab/solicitud, GUID para admins—, Detalle ≤500) + migración **aditiva**

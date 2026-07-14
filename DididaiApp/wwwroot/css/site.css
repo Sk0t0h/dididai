@@ -96,6 +96,34 @@ body {
   border-color: var(--c-naranja);
 }
 
+/* Botón "outline" primario en naranja de marca (no el azul de plantilla): lo usan los
+   filtros del back —p. ej. las pestañas de estado de Solicitudes—. Al activarse (relleno)
+   usa el mismo naranja que .btn-primary, para que seleccionado/no-seleccionado combinen. */
+.btn-outline-primary {
+  --bs-btn-color: var(--c-naranja-osc);
+  --bs-btn-border-color: var(--c-naranja);
+  --bs-btn-hover-bg: var(--c-naranja);
+  --bs-btn-hover-border-color: var(--c-naranja);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: var(--c-naranja-osc);
+  --bs-btn-active-border-color: var(--c-naranja-osc);
+  --bs-btn-active-color: #fff;
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+}
+
+/* "outline" secundario en tinta cálida (no el gris frío de plantilla): botones de apoyo
+   como "Ver", "Cancelar", "Limpiar". */
+.btn-outline-secondary {
+  --bs-btn-color: var(--c-tinta);
+  --bs-btn-border-color: #cbb9a3;
+  --bs-btn-hover-bg: var(--c-tinta);
+  --bs-btn-hover-border-color: var(--c-tinta);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: var(--c-tinta);
+  --bs-btn-active-border-color: var(--c-tinta);
+  --bs-btn-active-color: #fff;
+}
+
 /* Enlaces y títulos: tinta cálida en vez del gris de plantilla. */
 a { color: var(--c-naranja-osc); }
 a:hover { color: var(--c-naranja); }

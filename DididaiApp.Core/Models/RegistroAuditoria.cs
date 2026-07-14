@@ -48,6 +48,12 @@ public enum TipoAccionAuditoria
 
     [Display(Name = "Reactivación de administrador")]
     AdminReactivacion = 12,
+
+    [Display(Name = "Alta de gasto")]
+    GastoAlta = 13,
+
+    [Display(Name = "Eliminación de gasto")]
+    GastoBaja = 14,
 }
 
 /// <summary>

@@ -19,13 +19,18 @@ public class IndexModel : PageModel
     private readonly IResumenEconomicoService _resumen;
     private readonly IGastoService _gastos;
     private readonly IColaboracionService _colaboraciones;
+    private readonly IAuditoriaService _auditoria;
 
-    public IndexModel(IResumenEconomicoService resumen, IGastoService gastos, IColaboracionService colaboraciones)
+    public IndexModel(IResumenEconomicoService resumen, IGastoService gastos,
+        IColaboracionService colaboraciones, IAuditoriaService auditoria)
     {
         _resumen = resumen;
         _gastos = gastos;
         _colaboraciones = colaboraciones;
+        _auditoria = auditoria;
     }
+
+    private string Actor => User.Identity?.Name ?? "desconocido";
 
     public ResumenEconomico Resumen { get; private set; } = new();
     public IReadOnlyList<Gasto> Gastos { get; private set; } = [];
@@ -136,20 +141,29 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        await _gastos.CrearAsync(new Gasto
+        var gasto = new Gasto
         {
             Concepto = GastoNuevo.Concepto,
             Importe = GastoNuevo.Importe,
             Fecha = GastoNuevo.Fecha,
             Categoria = GastoNuevo.Categoria,
-        });
+        };
+        var creado = await _gastos.CrearAsync(gasto);
+        if (creado)
+            await _auditoria.RegistrarAsync(TipoAccionAuditoria.GastoAlta, "Gasto", gasto.Id.ToString(),
+                $"Alta de gasto «{gasto.Concepto}» ({gasto.Importe:0.00} €, {NombreCategoria(gasto.Categoria)})", Actor);
         TempData["Mensaje"] = "Gasto registrado.";
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostEliminarGastoAsync(int id)
     {
+        // Se lee el gasto ANTES de borrarlo (borrado físico) para dejar el detalle en el log.
+        var gasto = await _gastos.ObtenerAsync(id);
         await _gastos.EliminarAsync(id);
+        if (gasto is not null)
+            await _auditoria.RegistrarAsync(TipoAccionAuditoria.GastoBaja, "Gasto", id.ToString(),
+                $"Eliminación de gasto «{gasto.Concepto}» ({gasto.Importe:0.00} €, {NombreCategoria(gasto.Categoria)})", Actor);
         TempData["Mensaje"] = "Gasto eliminado.";
         return RedirectToPage();
     }

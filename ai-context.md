@@ -3,12 +3,14 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-14 (Bloque 4 = log de auditoría transversal HECHO en local, verificado E2E; SIN push/deploy).
+> Actualizado: 2026-07-14 (Bloque 4 = log de auditoría transversal DESPLEGADO y verificado en prod; queda EN + entregables).
 
-## FOCO ACTUAL (14-07, cierre) — Bloque 4 (auditoría transversal) HECHO en local; falta push/deploy + EN + entregables
+## FOCO ACTUAL (14-07, cierre) — Bloque 4 (auditoría transversal) VIVO en producción; queda EN + entregables
 
-**Sesión 14-07.** Implementado y verificado E2E (por HTTP) el **Bloque 4 = log de auditoría transversal**, la
-última pieza de código acordada del MVP. **SIN commit/push/deploy todavía.**
+**Sesión 14-07.** Implementado, verificado E2E y **DESPLEGADO a producción** el **Bloque 4 = log de auditoría
+transversal** (la última pieza de código del MVP) + su mejora de diff antes/después + dos fixes de pulido.
+`RuntimeSuccessful`, verificado en prod (`/Admin/Auditoria` 200 con login, migraciones aplicadas al arrancar).
+4 commits pusheados por el usuario. **Nada de código pendiente del MVP salvo traducir EN + entregables.**
 
 - **Entidad `RegistroAuditoria`** (Fecha UTC, Usuario, Accion enum de 13 tipos, Entidad, EntidadId **string**
   —int para socios/colab/solicitud, GUID para admins—, Detalle ≤500) + migración **aditiva**
@@ -39,11 +41,9 @@ de teléfono (el form parte prefijo/número por JS que el script no ejecuta) = a
 (misma ruta `RegistrarAsync` que alta/baja, ya ejercitada). Datos de prueba borrados de la BD local.
 
 **RETOMAR (próxima sesión):**
-- **Commit + push + deploy** del Bloque 4 (migración aditiva, se aplica sola al arrancar; runbook en
-  `context/deploy-azure.md`). Recordar: acordarse de re-verificar tras deploy (home 200, /Admin 302, CSP,
-  `/Admin/Auditoria` 200).
 - Traducir **EN** del front (contenido ES puesto, EN cae a ES por fallback).
 - Entregables no-código (README credenciales demo / slides / vídeo). Deadline 20/07 — colchón amplio.
+- Datos de demo (opcional; seed de demo o SQL para la presentación).
 
 ---
 

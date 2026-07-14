@@ -13,11 +13,13 @@ public class CreateModel : PageModel
 {
     private readonly ISocioService _socios;
     private readonly ISolicitudColaboracionService _solicitudes;
+    private readonly IAuditoriaService _auditoria;
 
-    public CreateModel(ISocioService socios, ISolicitudColaboracionService solicitudes)
+    public CreateModel(ISocioService socios, ISolicitudColaboracionService solicitudes, IAuditoriaService auditoria)
     {
         _socios = socios;
         _solicitudes = solicitudes;
+        _auditoria = auditoria;
     }
 
     [BindProperty]
@@ -68,6 +70,9 @@ public class CreateModel : PageModel
         switch (resultado)
         {
             case ResultadoAlta.Creado:
+                await _auditoria.RegistrarAsync(TipoAccionAuditoria.SocioAlta, "Socio", Socio.Id.ToString(),
+                    $"Alta de socio {Socio.Nombre} {Socio.Apellidos} (DNI {Socio.Dni})",
+                    User.Identity?.Name ?? "desconocido");
                 // Si el alta viene de una solicitud, vincularla al socio recién creado (la
                 // colaboración se crea luego desde la ficha de la solicitud). Se vuelve a
                 // esa ficha para continuar el flujo.

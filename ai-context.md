@@ -3,9 +3,44 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-12 (Bloque 3 = gestión de admins DESPLEGADO y verificado en prod; queda EN + entregables).
+> Actualizado: 2026-07-14 (Bloque 4 = log de auditoría transversal HECHO en local, verificado E2E; SIN push/deploy).
 
-## FOCO ACTUAL (12-07, cierre) — Bloque 3 (gestión de admins) VIVO en producción; queda EN + entregables
+## FOCO ACTUAL (14-07, cierre) — Bloque 4 (auditoría transversal) HECHO en local; falta push/deploy + EN + entregables
+
+**Sesión 14-07.** Implementado y verificado E2E (por HTTP) el **Bloque 4 = log de auditoría transversal**, la
+última pieza de código acordada del MVP. **SIN commit/push/deploy todavía.**
+
+- **Entidad `RegistroAuditoria`** (Fecha UTC, Usuario, Accion enum de 13 tipos, Entidad, EntidadId **string**
+  —int para socios/colab/solicitud, GUID para admins—, Detalle ≤500) + migración **aditiva**
+  `AddRegistroAuditoria` (solo tabla + índice por Fecha; no toca nada). `DbSet` en `AppDbContext`.
+- **`IAuditoriaService`/`AuditoriaService`:** `RegistrarAsync` (solo-inserción, fecha la fija el servicio) +
+  `ListarAsync` con filtros (usuario parcial, acción, rango fechas con "hasta" inclusivo por día), orden desc
+  y **paginación** (la tabla crece sin baja lógica). Registrado `AddScoped` en `Program.cs`.
+- **Decisión (del usuario): traza EN LAS PÁGINAS**, no en los servicios de dominio → cada página llama a
+  `RegistrarAsync(..., User.Identity?.Name)` tras la acción exitosa. Sigue el patrón de `AccionSolicitud`
+  (usuario como string inyectado) y mantiene **Core sin dependencia de HTTP**. Alcance **ampliado** (13 acciones):
+  socio alta/edición/baja/reactivación, colaboración alta/edición/baja, solicitud aprobar/cancelar/vincular,
+  admin alta/desactivar/reactivar. Cableadas 8 páginas del back.
+- **Página `/Admin/Auditoria`** (solo lectura): filtros GET + tabla + paginación, CSP-safe (0 inline), tema de
+  marca. Enlace "Auditoría" en el menú del back + card en el panel de gestión.
+- **8 tests nuevos → 145 verdes.**
+
+**Verificado E2E por HTTP** (Playwright bloqueado por el entorno): alta de socio → registra `SocioAlta` con
+detalle+usuario; baja de socio → `SocioBaja`; listado ordenado desc con total; filtro por acción aísla el tipo;
+filtro por usuario inexistente → tabla vacía; CSP presente + 0 inline. La edición vía HTTP falla por validación
+de teléfono (el form parte prefijo/número por JS que el script no ejecuta) = artefacto del test, no del código
+(misma ruta `RegistrarAsync` que alta/baja, ya ejercitada). Datos de prueba borrados de la BD local.
+
+**RETOMAR (próxima sesión):**
+- **Commit + push + deploy** del Bloque 4 (migración aditiva, se aplica sola al arrancar; runbook en
+  `context/deploy-azure.md`). Recordar: acordarse de re-verificar tras deploy (home 200, /Admin 302, CSP,
+  `/Admin/Auditoria` 200).
+- Traducir **EN** del front (contenido ES puesto, EN cae a ES por fallback).
+- Entregables no-código (README credenciales demo / slides / vídeo). Deadline 20/07 — colchón amplio.
+
+---
+
+## Contexto anterior (12-07) — Bloque 3 (gestión de admins) VIVO en producción
 
 **Sesión 12-07.** Implementado, revisado con el usuario y **DESPLEGADO a producción** el **Bloque 3 = alta y
 gestión de usuarios admin desde /Admin** (última funcionalidad de código del MVP; la vía interna que sustituye

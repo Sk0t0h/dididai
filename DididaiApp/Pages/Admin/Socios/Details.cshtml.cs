@@ -14,13 +14,18 @@ public class DetailsModel : PageModel
     private readonly ISocioService _socios;
     private readonly IColaboracionService _colaboraciones;
     private readonly ISolicitudColaboracionService _solicitudes;
+    private readonly IAuditoriaService _auditoria;
 
-    public DetailsModel(ISocioService socios, IColaboracionService colaboraciones, ISolicitudColaboracionService solicitudes)
+    public DetailsModel(ISocioService socios, IColaboracionService colaboraciones,
+        ISolicitudColaboracionService solicitudes, IAuditoriaService auditoria)
     {
         _socios = socios;
         _colaboraciones = colaboraciones;
         _solicitudes = solicitudes;
+        _auditoria = auditoria;
     }
+
+    private string Actor => User.Identity?.Name ?? "desconocido";
 
     public Socio Socio { get; private set; } = new();
 
@@ -45,6 +50,8 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostBajaColaboracionAsync(int id, int socioId)
     {
         await _colaboraciones.DarDeBajaAsync(id);
+        await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionBaja,
+            "Colaboración", id.ToString(), $"Baja de colaboración del socio #{socioId}", Actor);
         TempData["Mensaje"] = "Colaboración finalizada.";
         return RedirectToPage("Details", new { id = socioId });
     }
@@ -52,6 +59,8 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostBajaAsync(int id)
     {
         await _socios.DarDeBajaAsync(id);
+        await _auditoria.RegistrarAsync(TipoAccionAuditoria.SocioBaja,
+            "Socio", id.ToString(), DescribirSocio(await _socios.ObtenerAsync(id), id), Actor);
         TempData["Mensaje"] = "Socio dado de baja.";
         return RedirectToPage("Details", new { id });
     }
@@ -59,7 +68,13 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostReactivarAsync(int id)
     {
         await _socios.ReactivarAsync(id);
+        await _auditoria.RegistrarAsync(TipoAccionAuditoria.SocioReactivacion,
+            "Socio", id.ToString(), DescribirSocio(await _socios.ObtenerAsync(id), id), Actor);
         TempData["Mensaje"] = "Socio reactivado.";
         return RedirectToPage("Details", new { id });
     }
+
+    /// <summary>Detalle legible de un socio para el log (nombre + DNI), con respaldo por id.</summary>
+    private static string DescribirSocio(Socio? socio, int id) =>
+        socio is null ? $"Socio #{id}" : $"Socio {socio.Nombre} {socio.Apellidos} (DNI {socio.Dni})";
 }

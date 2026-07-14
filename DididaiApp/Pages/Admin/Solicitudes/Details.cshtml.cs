@@ -19,12 +19,16 @@ public class DetailsModel : PageModel
 {
     private readonly ISolicitudColaboracionService _solicitudes;
     private readonly ISocioService _socios;
+    private readonly IAuditoriaService _auditoria;
 
-    public DetailsModel(ISolicitudColaboracionService solicitudes, ISocioService socios)
+    public DetailsModel(ISolicitudColaboracionService solicitudes, ISocioService socios, IAuditoriaService auditoria)
     {
         _solicitudes = solicitudes;
         _socios = socios;
+        _auditoria = auditoria;
     }
+
+    private string Actor => User.Identity?.Name ?? "desconocido";
 
     public SolicitudColaboracion Solicitud { get; private set; } = default!;
 
@@ -91,6 +95,11 @@ public class DetailsModel : PageModel
             return RedirectToPage("Details", new { id });
         }
 
+        await _auditoria.RegistrarAsync(
+            estado == EstadoSolicitud.Aprobada ? TipoAccionAuditoria.SolicitudAprobada : TipoAccionAuditoria.SolicitudCancelada,
+            "Solicitud", id.ToString(),
+            $"Solicitud #{id} {(estado == EstadoSolicitud.Aprobada ? "aprobada" : "cancelada")}", Actor);
+
         TempData["Mensaje"] = estado == EstadoSolicitud.Aprobada
             ? "Solicitud aprobada. Puedes dar de alta al socio desde la sección de Socios."
             : "Solicitud cancelada.";
@@ -129,6 +138,9 @@ public class DetailsModel : PageModel
     {
         var ok = await _solicitudes.VincularSocioAsync(id, socioId);
         if (await _solicitudes.ObtenerAsync(id) is null) return NotFound();
+        if (ok)
+            await _auditoria.RegistrarAsync(TipoAccionAuditoria.SolicitudVinculada,
+                "Solicitud", id.ToString(), $"Solicitud #{id} vinculada al socio #{socioId}", Actor);
         TempData["Mensaje"] = ok
             ? "Solicitud vinculada al socio."
             : "No se pudo vincular al socio.";
@@ -143,6 +155,11 @@ public class DetailsModel : PageModel
     {
         var r = await _solicitudes.CrearColaboracionDesdeSolicitudAsync(id, ColabImporte, ColabModalidad, ColabIban);
         if (r == ResultadoCrearColaboracion.SolicitudNoEncontrada) return NotFound();
+
+        if (r == ResultadoCrearColaboracion.Creada)
+            await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionAlta,
+                "Colaboración", string.Empty,
+                $"Alta de colaboración de {ColabImporte:0.00} € desde la solicitud #{id}", Actor);
 
         TempData["Mensaje"] = r switch
         {

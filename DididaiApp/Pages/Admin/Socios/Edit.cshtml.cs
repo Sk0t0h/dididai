@@ -13,12 +13,16 @@ public class EditModel : PageModel
 {
     private readonly ISocioService _socios;
     private readonly IColaboracionService _colaboraciones;
+    private readonly IAuditoriaService _auditoria;
 
-    public EditModel(ISocioService socios, IColaboracionService colaboraciones)
+    public EditModel(ISocioService socios, IColaboracionService colaboraciones, IAuditoriaService auditoria)
     {
         _socios = socios;
         _colaboraciones = colaboraciones;
+        _auditoria = auditoria;
     }
+
+    private string Actor => User.Identity?.Name ?? "desconocido";
 
     [BindProperty]
     public Socio Socio { get; set; } = new();
@@ -50,6 +54,8 @@ public class EditModel : PageModel
         switch (resultado)
         {
             case ResultadoActualizacion.Actualizado:
+                await _auditoria.RegistrarAsync(TipoAccionAuditoria.SocioEdicion, "Socio", Socio.Id.ToString(),
+                    $"Edición de socio {Socio.Nombre} {Socio.Apellidos} (DNI {Socio.Dni})", Actor);
                 TempData["Mensaje"] = $"Socio «{Socio.Nombre} {Socio.Apellidos}» actualizado.";
                 return RedirectToPage("Index");
 
@@ -84,6 +90,8 @@ public class EditModel : PageModel
     public async Task<IActionResult> OnPostBajaColaboracionAsync(int id, int socioId)
     {
         await _colaboraciones.DarDeBajaAsync(id);
+        await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionBaja,
+            "Colaboración", id.ToString(), $"Baja de colaboración del socio #{socioId}", Actor);
         TempData["Mensaje"] = "Colaboración finalizada.";
         return RedirectToPage("Edit", new { id = socioId });
     }

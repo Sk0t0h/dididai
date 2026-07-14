@@ -20,11 +20,13 @@ public class CreateModel : PageModel
 {
     private readonly IColaboracionService _colaboraciones;
     private readonly ISocioService _socios;
+    private readonly IAuditoriaService _auditoria;
 
-    public CreateModel(IColaboracionService colaboraciones, ISocioService socios)
+    public CreateModel(IColaboracionService colaboraciones, ISocioService socios, IAuditoriaService auditoria)
     {
         _colaboraciones = colaboraciones;
         _socios = socios;
+        _auditoria = auditoria;
     }
 
     /// <summary>Tipo de colaboración (discriminador de la jerarquía).</summary>
@@ -119,6 +121,10 @@ public class CreateModel : PageModel
         switch (resultado)
         {
             case ResultadoColaboracion.Creado:
+                await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionAlta,
+                    "Colaboración", colaboracion.Id.ToString(),
+                    $"Alta de {Datos.Tipo} de {importe:0.00} € para {NombreSocio} (socio #{Datos.SocioId})",
+                    User.Identity?.Name ?? "desconocido");
                 TempData["Mensaje"] = "Colaboración añadida.";
                 return RedirectToPage("/Admin/Socios/Details", new { id = Datos.SocioId });
 

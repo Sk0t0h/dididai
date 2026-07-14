@@ -6,8 +6,9 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-12 (Bloque 3 = gestión de admins DESPLEGADO y
-> verificado en prod, `origin/main` = `b89b8b0`; queda EN + entregables + Bloque 4 auditoría).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-14 (Bloque 4 = log de auditoría transversal
+> HECHO en local y verificado E2E, **SIN push/deploy**; `origin/main` sigue en `b89b8b0`; queda push+deploy
+> + EN + entregables).
 
 ## Active Focus
 
@@ -55,6 +56,17 @@ alta de admins desde /Admin** (funcionalidad nueva; crearlos con `EmailConfirmed
 plan formal), traducir **EN** del front, entregables no-código (README/slides/vídeo). Deadline 20/07 con
 colchón. Detalle en `context/next-steps.md`.
 
+**CIERRE 14-07 — Bloque 4 (log de auditoría transversal) HECHO en local, verificado E2E, SIN push/deploy.**
+Última pieza de código del MVP. Entidad `RegistroAuditoria` + `IAuditoriaService` (registrar solo-inserción +
+listar con filtros y paginación) + migración aditiva `AddRegistroAuditoria` + página `/Admin/Auditoria` de
+solo lectura. **Decisión (del usuario): la traza la disparan LAS PÁGINAS** tras cada acción exitosa (pasando
+`User.Identity?.Name`), no los servicios → Core queda sin dependencia de HTTP, siguiendo el patrón de
+`AccionSolicitud`. **Alcance ampliado**: 13 acciones (socio alta/edición/baja/reactivación, colaboración
+alta/edición/baja, solicitud aprobar/cancelar/vincular, admin alta/desactivar/reactivar), cableadas 8 páginas.
+**145 tests verdes.** Verificado E2E por HTTP (alta/baja registran, orden desc, filtros, CSP, 0 inline).
+**Queda: commit + push + deploy** (migración aditiva, se aplica sola), traducir **EN**, entregables no-código.
+Deadline 20/07 con colchón. Detalle en el log W29 (14-07).
+
 ## Propósito real
 
 Web para la ONG **DIDIDAI**, sustituyendo la web actual (www.dididai.org). Dos caras: un **front público**
@@ -89,6 +101,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
 | Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Cabecera de marca minimalista** (logo→inicio, look crema) en las páginas sin sesión, unificada con el back con sesión; enlace "Volver a acceder" en recuperación (10-07, desplegado). **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM) |
 | Gestión de usuarios admin (alta/baja desde /Admin) | OPERATIVO (12-07, DESPLEGADO y verificado en prod): `/Admin/Usuarios` (listar+crear+desactivar/reactivar) vía `AdminUsuarioService`. Sustituye al registro público. Admins nacen con `EmailConfirmed=true` + rol Admin. **Salvaguarda del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Baja lógica por lockout (no borra). **Forzar cambio de contraseña en el 1er login** (claim `must-change-password` + page filter). Validación cliente+servidor, `js-confirm` CSP-safe. Enlace en el menú del back; menú de gestión del front adelgazado a "Gestión"+Salir. Sin migración. 12 tests. Verificado E2E en local y prod |
+| Log de auditoría transversal (`/Admin/Auditoria`) | IMPLEMENTADO (14-07, verificado E2E, **SIN push/deploy**): entidad `RegistroAuditoria` + `IAuditoriaService` (registrar solo-inserción; listar con filtros usuario/acción/fechas + paginación, orden desc) + migración aditiva `AddRegistroAuditoria` + página de **solo lectura**. **Traza disparada por las PÁGINAS** tras cada acción exitosa (`User.Identity?.Name`), Core sin dependencia de HTTP. **13 acciones** auditadas (socio alta/edición/baja/reactivación, colaboración alta/edición/baja, solicitud aprobar/cancelar/vincular, admin alta/desactivar/reactivar). Inmutable (no editar/borrar). Enlace en menú del back + card en panel. 8 tests |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
 | Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
@@ -104,6 +117,23 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-14 — Bloque 4: log de auditoría transversal (HECHO en local, verificado E2E, SIN push/deploy)**.
+  Última pieza de código del MVP: registro automático e inmutable de las acciones de gestión, consultable en
+  `/Admin/Auditoria` (solo lectura). No sustituye a `AccionSolicitud` (gestión manual por solicitud); esta es
+  traza automática transversal. **Entidad `RegistroAuditoria`** (Fecha UTC, Usuario, Accion enum de 13 tipos,
+  Entidad, EntidadId **string** —int para socios/colab/solicitud, GUID para admins—, Detalle legible ≤500) +
+  migración **aditiva** `AddRegistroAuditoria` (solo tabla + índice por Fecha). **`IAuditoriaService`/
+  `AuditoriaService`**: `RegistrarAsync` (solo-inserción, fecha la fija el servicio, respalda usuario vacío) +
+  `ListarAsync` con filtros (usuario parcial, acción, rango de fechas con "hasta" inclusivo por día), orden
+  desc y **paginación** (la tabla crece sin baja lógica). **Decisión (del usuario): la traza la disparan LAS
+  PÁGINAS** tras la acción exitosa, pasando `User.Identity?.Name` — mismo patrón que `AccionSolicitud`, Core
+  sin `IHttpContextAccessor` (alternativa "registrar en los servicios" descartada por propagar `usuario` a
+  todas las firmas y acoplar Core a la sesión). **Alcance ampliado (13 acciones)**, 8 páginas cableadas.
+  **Página `/Admin/Auditoria`** de solo lectura (filtros GET + tabla + paginación, CSP-safe 0 inline, tema de
+  marca), enlace en el menú del back + card en el panel. **8 tests nuevos → 145 verdes.** **Verificado E2E por
+  HTTP** (alta/baja de socio registran con detalle+usuario, orden desc, filtros por acción/usuario, CSP, 0
+  inline; Playwright sigue bloqueado por el entorno). Datos de prueba borrados de la BD local. **Queda: commit
+  + push + deploy** (migración aditiva, se aplica sola al arrancar). Detalle en el log W29 (14-07).
 - **2026-07-12 — Bloque 3: gestión de usuarios admin desde /Admin, DESPLEGADO a producción** (`origin/main` =
   `b89b8b0`, verificado en prod). Última funcionalidad de código del MVP: la vía interna que sustituye al
   registro público quitado. Ejecutado en fases pequeñas (una idea por fase, compilable + verde cada una).

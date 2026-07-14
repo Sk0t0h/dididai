@@ -1,4 +1,5 @@
 using DididaiApp.Core.Data;
+using DididaiApp.Core.Models;
 using DididaiApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,13 @@ namespace DididaiApp.Pages.Admin.Usuarios;
 public class IndexModel : PageModel
 {
     private readonly IAdminUsuarioService _admins;
+    private readonly IAuditoriaService _auditoria;
 
-    public IndexModel(IAdminUsuarioService admins) => _admins = admins;
+    public IndexModel(IAdminUsuarioService admins, IAuditoriaService auditoria)
+    {
+        _admins = admins;
+        _auditoria = auditoria;
+    }
 
     public IReadOnlyList<AdminUsuarioDto> Admins { get; private set; } = [];
 
@@ -31,6 +37,9 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostDesactivarAsync(string id)
     {
         var r = await _admins.DesactivarAsync(id, EmailActual);
+        if (r == ResultadoBajaAdmin.Ok)
+            await _auditoria.RegistrarAsync(TipoAccionAuditoria.AdminDesactivacion,
+                "Administrador", id, $"Desactivación del administrador #{id}", EmailActual);
         TempData["Mensaje"] = r switch
         {
             ResultadoBajaAdmin.Ok => "Administrador desactivado.",
@@ -44,6 +53,8 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostReactivarAsync(string id)
     {
         await _admins.ReactivarAsync(id);
+        await _auditoria.RegistrarAsync(TipoAccionAuditoria.AdminReactivacion,
+            "Administrador", id, $"Reactivación del administrador #{id}", EmailActual);
         TempData["Mensaje"] = "Administrador reactivado.";
         return RedirectToPage();
     }

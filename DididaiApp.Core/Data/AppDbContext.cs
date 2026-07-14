@@ -23,6 +23,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Gasto> Gastos => Set<Gasto>();
     public DbSet<SolicitudColaboracion> SolicitudesColaboracion => Set<SolicitudColaboracion>();
     public DbSet<AccionSolicitud> AccionesSolicitud => Set<AccionSolicitud>();
+    public DbSet<RegistroAuditoria> RegistrosAuditoria => Set<RegistroAuditoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -74,5 +75,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             .WithMany()
             .HasForeignKey(s => s.ColaboracionId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Log de auditoría: se consulta y ordena siempre por fecha (desc); la tabla crece sin
+        // baja lógica, así que un índice por Fecha mantiene barato el orden y el paginado.
+        modelBuilder.Entity<RegistroAuditoria>().HasIndex(r => r.Fecha);
     }
 }

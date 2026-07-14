@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using DididaiApp.Core.Data;
+using DididaiApp.Core.Models;
 using DididaiApp.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +17,13 @@ namespace DididaiApp.Pages.Admin.Usuarios;
 public class CreateModel : PageModel
 {
     private readonly IAdminUsuarioService _admins;
+    private readonly IAuditoriaService _auditoria;
 
-    public CreateModel(IAdminUsuarioService admins) => _admins = admins;
+    public CreateModel(IAdminUsuarioService admins, IAuditoriaService auditoria)
+    {
+        _admins = admins;
+        _auditoria = auditoria;
+    }
 
     [BindProperty]
     public Entrada Datos { get; set; } = new();
@@ -55,6 +61,9 @@ public class CreateModel : PageModel
         switch (resultado)
         {
             case ResultadoCrearAdmin.Creado:
+                await _auditoria.RegistrarAsync(TipoAccionAuditoria.AdminAlta,
+                    "Administrador", Datos.Email, $"Alta de administrador «{Datos.Email}»",
+                    User.Identity?.Name ?? "desconocido");
                 TempData["Mensaje"] = $"Administrador «{Datos.Email}» creado.";
                 return RedirectToPage("Index");
 

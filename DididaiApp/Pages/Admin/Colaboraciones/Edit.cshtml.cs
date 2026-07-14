@@ -17,8 +17,13 @@ namespace DididaiApp.Pages.Admin.Colaboraciones;
 public class EditModel : PageModel
 {
     private readonly IColaboracionService _colaboraciones;
+    private readonly IAuditoriaService _auditoria;
 
-    public EditModel(IColaboracionService colaboraciones) => _colaboraciones = colaboraciones;
+    public EditModel(IColaboracionService colaboraciones, IAuditoriaService auditoria)
+    {
+        _colaboraciones = colaboraciones;
+        _auditoria = auditoria;
+    }
 
     [BindProperty]
     public Entrada Datos { get; set; } = new();
@@ -92,6 +97,10 @@ public class EditModel : PageModel
         switch (r)
         {
             case ResultadoColaboracion.Creado:
+                await _auditoria.RegistrarAsync(TipoAccionAuditoria.ColaboracionEdicion,
+                    "Colaboración", Datos.Id.ToString(),
+                    $"Edición de colaboración ({TipoNombre}) del socio #{SocioId}: {Datos.Importe!.Value:0.00} €",
+                    User.Identity?.Name ?? "desconocido");
                 TempData["Mensaje"] = "Colaboración actualizada.";
                 return RedirectToPage("/Admin/Socios/Details", new { id = SocioId });
             case ResultadoColaboracion.ImporteInvalido:

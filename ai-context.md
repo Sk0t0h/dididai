@@ -3,9 +3,28 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-15 (2FA traducido a ES + QR en servidor, EN LOCAL sin desplegar; antes: política de sesión OWASP desplegada. Sigue pendiente EN + entregables).
+> Actualizado: 2026-07-15 (traducción EN del front COMPLETA, en local sin desplegar; antes: 2FA en ES + QR, política de sesión OWASP. YA NO queda código del MVP: solo entregables no-código).
 
-## FOCO ACTUAL (15-07, 2) — Páginas de 2FA en español + QR generado en servidor, EN LOCAL sin desplegar
+## FOCO ACTUAL (15-07, 3) — Traducción EN del front público COMPLETA, EN LOCAL sin desplegar
+
+Última pieza de contenido del MVP. La infra i18n ya estaba; faltaba el contenido inglés (caía a ES por
+fallback). Traducido todo el front público.
+- **`Index.en.resx`**: 78 claves traducidas (hero 99%, Actividad, Filosofía, Transparencia, 7 Objetivos,
+  Colaborar, formulario, Contacto, footer). Markup HTML embebido preservado. Nombres propios sin traducir
+  (DIDIDAI, BalMandir, Teaming); Katmandú → Kathmandu.
+- **`_PublicLayout.en.resx`** creado (meta description SEO EN).
+- **Frontera confirmada:** bilingüe SOLO en el front público; back `/Admin` + Identity (login/2FA/etc.) en
+  **español fijo por diseño** (no llevan EN). La transición front-EN → login-ES es esperada.
+- **Verificado E2E por HTTP** (cookie de cultura): `c=en` → `lang="en"` + contenido inglés, 0 residuos ES;
+  `c=es` → español, 0 residuos EN. Build limpio. Log W29.
+- **PENDIENTE:** commit + deploy.
+
+**YA NO queda NADA de código/contenido del MVP.** Solo entregables no-código (README credenciales demo /
+slides / vídeo). Deadline 20/07, colchón amplio.
+
+---
+
+## FOCO ANTERIOR (15-07, 2) — Páginas de 2FA en español + QR generado en servidor, DESPLEGADO
 
 El usuario vio (pantallazo) que la config de 2FA (`EnableAuthenticator`) seguía en **inglés** (Default UI) y que
 **el QR no aparecía** (la lib JS del QR no se carga por la CSP). Traducido todo el flujo de 2FA y arreglado el QR.

@@ -6,9 +6,9 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (2FA traducido a ES + QR generado en
-> servidor —EN LOCAL sin desplegar—; antes: política de sesión OWASP desplegada. Bloque 4 vivo desde 14-07.
-> Queda solo EN + entregables. Nada de código del MVP pendiente).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (traducción EN del front COMPLETA —en local
+> sin desplegar—; antes en el día: 2FA en ES + QR (desplegado), política de sesión OWASP (desplegada). YA NO
+> queda código ni contenido del MVP: solo entregables no-código —README/slides/vídeo—).
 
 ## Active Focus
 
@@ -106,7 +106,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Log de auditoría transversal (`/Admin/Auditoria`) | OPERATIVO (14-07, **DESPLEGADO y verificado en prod**): entidad `RegistroAuditoria` + `IAuditoriaService` (registrar solo-inserción; listar con filtros usuario/acción/fechas + paginación, orden desc) + migraciones aditivas `AddRegistroAuditoria` + `AddCambiosAuditoria` + página de **solo lectura**. **Traza disparada por las PÁGINAS** tras cada acción exitosa (`User.Identity?.Name`), Core sin dependencia de HTTP. **15 acciones** auditadas (socio alta/edición/baja/reactivación, colaboración alta/edición/baja, solicitud aprobar/cancelar/vincular, admin alta/desactivar/reactivar, gasto alta/baja). **Diff antes/después en las ediciones** (socio y colaboración): columna JSON `Cambios` poblada por el servicio (`ConstructorCambios`), IBAN enmascarado; la vista muestra «Campo: antes → después». Inmutable (no editar/borrar). Enlace en menú del back + card en panel. 12 tests (147 verdes totales) |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
 | Capa de servicios (Core `Services/`) | IMPLEMENTADO (05-07): `ISocioService`/`SocioService`; páginas no tocan `DbContext`. Nuevos módulos siguen el patrón |
-| Internacionalización (i18n) front público | IMPLEMENTADO (05-07, verificado): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` en español. Contenido real por traducir |
+| Internacionalización (i18n) front público | OPERATIVO (15-07): infra ES/EN por selector+cookie, extensible a N idiomas, `es` por defecto. Solo front; `/Admin` e Identity (login/2FA/etc.) en español fijo por diseño. **Contenido EN COMPLETO** (`Index.en.resx` 78 claves + `_PublicLayout.en.resx`), markup HTML preservado, nombres propios sin traducir. Verificado E2E (cookie de cultura: EN y ES sin residuos). EN LOCAL sin desplegar |
 | **Front público (landing one-page + formulario→BD)** | **IMPLEMENTADO (07-07, SIN desplegar)**: `Index.cshtml` recreado desde el diseño de Claude Design (hero 99%, Actividad, Filosofía, Transparencia, 7 Objetivos, Colaborar, Contacto), layout propio `_PublicLayout`, CSS/JS externos **CSP-safe** (`front.css`/`front.js`, 0 inline), Fuentes Fraunces+Poppins autoalojadas. Formulario con **campos por tipo**. Contenido ES (`Index.resx`); EN pendiente (fallback a ES). Verificado E2E por HTTP |
 | **Solicitudes de colaboración (flujo completo)** | **IMPLEMENTADO (08-07, SIN desplegar)**: formulario público→BD + gestión completa. **Máquina de estados** Pendiente/Gestionando/Aprobada/Cancelada; **log de acciones** de gestión (`AccionSolicitud`, usuario del admin no editable, 1ª acción→Gestionando); **matching** por email/teléfono (sugerencia, sin unicidad) → vincular a socio existente; **alta de socio nuevo** desde solicitud (precarga+privacidad+vínculo); **crear la colaboración** desde la solicitud (`ColaboracionId`, no duplica; Donación→AportacionUnica, Socio→CuotaDomiciliada con IBAN, Microdonación→Teaming no genera). Ficha del socio muestra "Solicitudes vinculadas". **IBAN nunca en público** (solo al crear la colaboración). Defensas del form: antiforgery + honeypot + rate-limit por IP solo POST + RGPD. Disociación solicitud≠socio≠colaboración |
 | Tests unitarios (`DididaiApp.Tests`, xUnit) | IMPLEMENTADO (08-07): **125 tests verdes** (`ValidacionIdentidad`, `Paises`, `PrefijosTelefonicos`, `ValidacionIban`, `ColaboracionService`, `ResumenEconomicoService`, `SolicitudColaboracionService` [+acciones/matching/vinculación/crear-colaboración], **`SocioService`** [matching]). `dotnet test` |
@@ -119,8 +119,17 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
-- **2026-07-15 — Páginas de 2FA traducidas a español + QR generado en servidor (CSP-safe), EN LOCAL sin
-  desplegar**. El usuario detectó (pantallazo) que la configuración de 2FA (`EnableAuthenticator`, "Configure
+- **2026-07-15 — Traducción EN del front público COMPLETA (última pieza del MVP), EN LOCAL sin desplegar**. La
+  infra i18n ya estaba (selector + cookie, `es` por defecto); faltaba solo el contenido inglés, que caía a ES
+  por fallback. Traducido todo el front: **`Index.en.resx`** (78 claves: hero del 99%, Actividad, Filosofía,
+  Transparencia, 7 Objetivos, Colaborar, formulario, Contacto, footer) con el **markup HTML embebido preservado**
+  y **nombres propios/marca sin traducir** (DIDIDAI, BalMandir, Teaming; Katmandú → Kathmandu); creado
+  **`_PublicLayout.en.resx`** (meta description SEO). **Frontera confirmada** (a raíz de una duda del usuario):
+  el bilingüe es **solo del front público**; el back `/Admin` y todas las páginas de Identity (login, 2FA, etc.)
+  van en **español fijo por diseño**. Verificado E2E por HTTP con la cookie de cultura: `c=en` → `lang="en"` +
+  contenido inglés con 0 residuos ES; `c=es` → español con 0 residuos EN. Build limpio. **Ya NO queda código ni
+  contenido del MVP**, solo entregables no-código. Detalle en el log W29 (15-07). **Pendiente: commit + deploy.**
+- **2026-07-15 — Páginas de 2FA traducidas a español + QR generado en servidor (CSP-safe), DESPLEGADO a prod**. El usuario detectó (pantallazo) que la configuración de 2FA (`EnableAuthenticator`, "Configure
   authenticator app") seguía en inglés (Default UI de Identity, nunca traducida) y que el QR no se mostraba (la
   Default UI lo pinta con una lib JS que el proyecto no carga por la CSP). Traducido **todo el flujo de 2FA**
   por override propio (mismo método que login/perfil/contraseña: PageModel concreto tipado a `IdentityUser`, ES,

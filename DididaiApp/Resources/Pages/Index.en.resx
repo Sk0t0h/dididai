@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Traducción EN del front público. PENDIENTE: por ahora solo el título de pestaña.
-  El resto de claves NO están aquí a propósito: al faltar, el localizador cae a la
-  cultura neutra (Index.resx, en español). Traducir clave a clave cuando toque
-  (mismos nombres que en Index.resx).
+  Traducción EN del front público. Mismas claves que Index.resx (cultura neutra, ES).
+  El markup HTML embebido (&lt;b&gt;, &lt;a href&gt;) se mantiene idéntico al ES; solo
+  se traduce el texto. Nombres propios/marca sin traducir: DIDIDAI, BalMandir, Teaming.
+  Katmandú → Kathmandu (grafía inglesa).
 -->
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
@@ -65,4 +65,91 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Meta_Title" xml:space="preserve"><value>Home</value></data>
+  <!-- Navegación -->
+  <data name="Nav_Aria" xml:space="preserve"><value>Main</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Open menu</value></data>
+  <data name="Nav_Actividad" xml:space="preserve"><value>Our work</value></data>
+  <data name="Nav_Filosofia" xml:space="preserve"><value>Philosophy</value></data>
+  <data name="Nav_Objetivos" xml:space="preserve"><value>Goals</value></data>
+  <data name="Nav_Contacto" xml:space="preserve"><value>Contact</value></data>
+  <data name="Nav_Colaborar" xml:space="preserve"><value>Get involved</value></data>
+  <data name="Language_Label" xml:space="preserve"><value>Language</value></data>
+  <!-- Hero -->
+  <data name="Hero_ImgAlt" xml:space="preserve"><value>DIDIDAI volunteers with children from the orphanage in Kathmandu</value></data>
+  <data name="Hero_Eyebrow" xml:space="preserve"><value>Special education · Kathmandu, Nepal</value></data>
+  <data name="Hero_Titular" xml:space="preserve"><value>Of every euro, 99 cents reach the children.</value></data>
+  <data name="Hero_Sub" xml:space="preserve"><value>No administration or marketing costs. Our team is made up of volunteers. We care for and educate children and young people with functional diversity in an orphanage in Kathmandu.</value></data>
+  <data name="Hero_CtaColaborar" xml:space="preserve"><value>I want to help</value></data>
+  <data name="Hero_CtaConocer" xml:space="preserve"><value>Learn about us</value></data>
+  <!-- Actividad -->
+  <data name="Act_Eyebrow" xml:space="preserve"><value>What we do</value></data>
+  <data name="Act_Titulo" xml:space="preserve"><value>Educating and caring, every day, in Kathmandu</value></data>
+  <data name="Act_Texto" xml:space="preserve"><value>DIDIDAI's work takes place in Nepal: the education of children and young people with functional diversity at an orphanage in Kathmandu, through innovative educational resources, multisensory stimulation and creative development, as well as therapeutic and medical support.</value></data>
+  <!-- Filosofía -->
+  <data name="Fil_Eyebrow" xml:space="preserve"><value>Why this way</value></data>
+  <data name="Fil_Titulo" xml:space="preserve"><value>Sustainable action, close to people</value></data>
+  <data name="Fil_Texto" xml:space="preserve"><value>We want the Convention on the Rights of the Child and the Universal Declaration of Human Rights to become a reality wherever we are. We seek sustainable actions that improve quality of life over the long term, relying on the country's own resources to sustain the work and build capacity within the community.</value></data>
+  <!-- Transparencia -->
+  <data name="Trans_Eyebrow" xml:space="preserve"><value>Transparency</value></data>
+  <data name="Trans_Titulo" xml:space="preserve"><value>Where does your help go?</value></data>
+  <data name="Trans_Texto" xml:space="preserve"><value>There are no administration costs, no marketing costs, and barely any banking fees. The work of our collaborators is voluntary and unpaid.</value></data>
+  <data name="Trans_Stat1" xml:space="preserve"><value>of income goes to direct action</value></data>
+  <data name="Trans_Stat2" xml:space="preserve"><value>on administration and marketing</value></data>
+  <data name="Trans_Stat3" xml:space="preserve"><value>volunteer work</value></data>
+  <!-- Objetivos (los 7 de los Estatutos) -->
+  <data name="Obj_Eyebrow" xml:space="preserve"><value>Our charter</value></data>
+  <data name="Obj_Titulo" xml:space="preserve"><value>Seven goals</value></data>
+  <data name="Obj_1" xml:space="preserve"><value>The &lt;b&gt;defence of children's rights&lt;/b&gt; in their fullest sense.</value></data>
+  <data name="Obj_2" xml:space="preserve"><value>To foster the development of education, and in particular &lt;b&gt;special education&lt;/b&gt;, where the greatest needs are found.</value></data>
+  <data name="Obj_3" xml:space="preserve"><value>To promote &lt;b&gt;public awareness&lt;/b&gt; of disabilities in those countries.</value></data>
+  <data name="Obj_4" xml:space="preserve"><value>To support the creation of &lt;b&gt;centres of excellence&lt;/b&gt; in special education and care for people with disabilities.</value></data>
+  <data name="Obj_5" xml:space="preserve"><value>To help &lt;b&gt;improve the quality of life&lt;/b&gt; of everyone in those centres' community: residents and staff alike.</value></data>
+  <data name="Obj_6" xml:space="preserve"><value>To meet these young people's &lt;b&gt;basic needs&lt;/b&gt;: physiotherapy, speech therapy, occupational therapy, augmentative communication, mobility support…</value></data>
+  <data name="Obj_7" xml:space="preserve"><value>Our &lt;b&gt;primary area of work&lt;/b&gt;: Nepal and the BalMandir orphanage in Kathmandu, providing quality education tailored to each child.</value></data>
+  <!-- Colaborar -->
+  <data name="Col_Eyebrow" xml:space="preserve"><value>Join us</value></data>
+  <data name="Col_Titulo" xml:space="preserve"><value>Support DIDIDAI</value></data>
+  <data name="Col_Texto" xml:space="preserve"><value>Choose how you would like to help and send us your details. We will get in touch to confirm the details — you are not charged anything until then.</value></data>
+  <data name="Col_Punto1" xml:space="preserve"><value>Your request reaches our team, who review it before enrolling you.</value></data>
+  <data name="Col_Punto2" xml:space="preserve"><value>Your IBAN, if you choose a direct-debit membership, is requested at the confirmation step — never in this public form.</value></data>
+  <data name="Col_Punto3" xml:space="preserve"><value>We handle your data in accordance with the GDPR and never publish or share it.</value></data>
+  <data name="Col_TipoAria" xml:space="preserve"><value>Type of contribution</value></data>
+  <data name="Col_TipoSocio" xml:space="preserve"><value>Become a member</value></data>
+  <data name="Col_TipoSocioDesc" xml:space="preserve"><value>Recurring contribution</value></data>
+  <data name="Col_TipoDonacion" xml:space="preserve"><value>Donation</value></data>
+  <data name="Col_TipoDonacionDesc" xml:space="preserve"><value>One-off contribution</value></data>
+  <data name="Col_TipoMicro" xml:space="preserve"><value>Micro-donation</value></data>
+  <data name="Col_TipoMicroDesc" xml:space="preserve"><value>€1/month · Teaming</value></data>
+  <data name="Col_TeamingLead" xml:space="preserve"><value>Donate €1/month through our Teaming group. Teaming handles the management and collection, with no fees: we don't need your details here.</value></data>
+  <data name="Col_TeamingCta" xml:space="preserve"><value>Join my Group</value></data>
+  <data name="Col_TeamingNota" xml:space="preserve"><value>teaming.net opens in a new tab.</value></data>
+  <data name="Col_Gracias" xml:space="preserve"><value>Thank you! We've received your request. Our team will review it and get in touch to confirm the details.</value></data>
+  <!-- Formulario (campos) -->
+  <data name="Form_Nombre" xml:space="preserve"><value>First name</value></data>
+  <data name="Form_NombrePh" xml:space="preserve"><value>Your first name</value></data>
+  <data name="Form_Apellidos" xml:space="preserve"><value>Last name</value></data>
+  <data name="Form_ApellidosPh" xml:space="preserve"><value>Your last name</value></data>
+  <data name="Form_Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Form_EmailPh" xml:space="preserve"><value>you@example.org</value></data>
+  <data name="Form_Telefono" xml:space="preserve"><value>Phone</value></data>
+  <data name="Form_Importe" xml:space="preserve"><value>Amount (€)</value></data>
+  <data name="Form_Periodicidad" xml:space="preserve"><value>Frequency</value></data>
+  <data name="Form_PeriodicidadDefault" xml:space="preserve"><value>Choose a frequency…</value></data>
+  <data name="Form_Consentimiento" xml:space="preserve"><value>I have read and accept the &lt;a href="/Privacy"&gt;privacy policy&lt;/a&gt; and authorise the processing of my data to manage my contribution.</value></data>
+  <data name="Form_Enviar" xml:space="preserve"><value>Send request</value></data>
+  <data name="Form_Nota" xml:space="preserve"><value>Your data is sent encrypted and is never published.</value></data>
+  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>We need your consent to process your data and manage your contribution.</value></data>
+  <data name="Form_Error_Telefono" xml:space="preserve"><value>The phone number must be in international format, with the country code (e.g. +34612345678).</value></data>
+  <!-- Contacto -->
+  <data name="Con_Eyebrow" xml:space="preserve"><value>Let's talk</value></data>
+  <data name="Con_Titulo" xml:space="preserve"><value>Contact</value></data>
+  <data name="Con_Texto" xml:space="preserve"><value>Questions about how to help or about the project? Write to us at &lt;a href="mailto:info@dididai.org"&gt;info@dididai.org&lt;/a&gt; and we'll get back to you.</value></data>
+  <!-- Footer -->
+  <data name="Footer_Left" xml:space="preserve"><value>© DIDIDAI · children's rights and special education · Kathmandu, Nepal</value></data>
+  <data name="Footer_Acceso" xml:space="preserve"><value>Management login</value></data>
+  <data name="Nav_Admin" xml:space="preserve"><value>Management</value></data>
+  <data name="Nav_Socios" xml:space="preserve"><value>Members</value></data>
+  <data name="Nav_Economia" xml:space="preserve"><value>Finances</value></data>
+  <data name="Nav_Solicitudes" xml:space="preserve"><value>Requests</value></data>
+  <data name="Nav_Salir" xml:space="preserve"><value>Log out</value></data>
 </root>

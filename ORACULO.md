@@ -6,9 +6,9 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-14 (Bloque 4 = log de auditoría transversal
-> **DESPLEGADO y verificado en producción** (+ diff antes/después + fixes de pulido); queda solo EN +
-> entregables. Nada de código del MVP pendiente).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (política de sesión del back endurecida a
+> OWASP —idle 30min + absolute 8h + sin "Recordarme"— EN LOCAL sin desplegar; Bloque 4 ya vivo en prod desde
+> 14-07. Queda solo EN + entregables. Nada de código del MVP pendiente).
 
 ## Active Focus
 
@@ -101,7 +101,7 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Persistencia (EF Core 10 + SQLite, `AppDbContext`, migración `InitialCreate`) | IMPLEMENTADO (04-07) |
 | Modelo de datos (`Socio` + `Colaboracion` TPH: Cuota/Aportación/Teaming) | IMPLEMENTADO (04-07, sin UI) |
 | Web shell (Razor Pages: Index, Privacy, Error) | IMPLEMENTADO (plantilla por defecto, sin contenido propio) |
-| Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Cabecera de marca minimalista** (logo→inicio, look crema) en las páginas sin sesión, unificada con el back con sesión; enlace "Volver a acceder" en recuperación (10-07, desplegado). **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM) |
+| Autenticación + roles (Identity, back cerrado) | OPERATIVO (04-07; pulido 09-07; **DESPLEGADO 10-07**): login, `/Admin` protegido por rol, seed admin, registro público bloqueado (404). **Vistas en español y depuradas** (vivas en prod): overrides propios (Login/recuperación/Logout/Manage) con PageModel concreto; sin registro/confirmar-email/externos; 2FA en inglés. **Cabecera de marca minimalista** (logo→inicio, look crema) en las páginas sin sesión, unificada con el back con sesión; enlace "Volver a acceder" en recuperación (10-07, desplegado). **Recuperación de contraseña real vía SendGrid** — desplegada y **confirmada E2E en producción** (10-07): secretos `SendGrid__*` en Azure, el correo llega (a spam; entregabilidad SPF/DKIM/DMARC = mejora post-TFM). **Política de sesión OWASP (15-07, EN LOCAL sin desplegar):** idle 30 min sliding + absolute 8 h (`OnValidatePrincipal`) + sin "Recordarme" (`isPersistent:false`) — antes eran los 14 días renovables por defecto de Identity |
 | Gestión de usuarios admin (alta/baja desde /Admin) | OPERATIVO (12-07, DESPLEGADO y verificado en prod): `/Admin/Usuarios` (listar+crear+desactivar/reactivar) vía `AdminUsuarioService`. Sustituye al registro público. Admins nacen con `EmailConfirmed=true` + rol Admin. **Salvaguarda del superadmin** (= `Seed:AdminEmail`, intocable) + nadie se desactiva a sí mismo. Baja lógica por lockout (no borra). **Forzar cambio de contraseña en el 1er login** (claim `must-change-password` + page filter). Validación cliente+servidor, `js-confirm` CSP-safe. Enlace en el menú del back; menú de gestión del front adelgazado a "Gestión"+Salir. Sin migración. 12 tests. Verificado E2E en local y prod |
 | Log de auditoría transversal (`/Admin/Auditoria`) | OPERATIVO (14-07, **DESPLEGADO y verificado en prod**): entidad `RegistroAuditoria` + `IAuditoriaService` (registrar solo-inserción; listar con filtros usuario/acción/fechas + paginación, orden desc) + migraciones aditivas `AddRegistroAuditoria` + `AddCambiosAuditoria` + página de **solo lectura**. **Traza disparada por las PÁGINAS** tras cada acción exitosa (`User.Identity?.Name`), Core sin dependencia de HTTP. **15 acciones** auditadas (socio alta/edición/baja/reactivación, colaboración alta/edición/baja, solicitud aprobar/cancelar/vincular, admin alta/desactivar/reactivar, gasto alta/baja). **Diff antes/después en las ediciones** (socio y colaboración): columna JSON `Cambios` poblada por el servicio (`ConstructorCambios`), IBAN enmascarado; la vista muestra «Campo: antes → después». Inmutable (no editar/borrar). Enlace en menú del back + card en panel. 12 tests (147 verdes totales) |
 | **Despliegue en producción (Azure App Service B1, Spain Central)** | **OPERATIVO (04-07)**: https://dididai-ong.azurewebsites.net, verificado end-to-end; migración+seed en arranque |
@@ -119,6 +119,17 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-15 — Política de sesión del back endurecida (OWASP valor-medio), EN LOCAL sin desplegar**. El
+  usuario reportó que la sesión de admin duraba demasiado (siempre logueado en localhost). Diagnóstico:
+  `ConfigureApplicationCookie` solo fijaba rutas → defaults de Identity (`ExpireTimeSpan` 14 días +
+  `SlidingExpiration` renovable = sesión que no caducaba) + login con "Recordarme" (cookie persistente 14
+  días). Corregido alineando con la OWASP Session Management Cheat Sheet para app de valor medio (RGPD):
+  **idle 30 min** (sliding) + **absolute 8 h** (tope duro vía `OnValidatePrincipal` comparando `IssuedUtc`
+  contra `UtcNow`; Identity no lo trae de fábrica) + **sin "Recordarme"** (`isPersistent:false` fijo, casilla
+  eliminada). Sin migración, reversible. Verificado E2E por HTTP (login sin Recordarme, cookie de sesión no
+  persistente, `/Admin` 200); **147 tests verdes**, build limpio. **El deploy invalidará todas las sesiones
+  activas** (incl. la del usuario en prod) → todos re-login, lo correcto. Detalle en `decisions.md` (15-07) y
+  log W29. **Pendiente: commit + deploy** (lo decide el usuario).
 - **2026-07-14 — DEPLOY del Bloque 4 (+ diff + fixes) a producción**. Desplegado a Azure (`dididai-ong`,
   B1/Spain) siguiendo el runbook: 147 tests verdes → publish Release → zip 30 MB → `az webapp deploy` =
   `RuntimeSuccessful` (sin timeout, BD ya en `/home`). Migraciones `AddRegistroAuditoria` + `AddCambiosAuditoria`

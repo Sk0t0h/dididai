@@ -3,9 +3,29 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-14 (Bloque 4 = log de auditoría transversal DESPLEGADO y verificado en prod; queda EN + entregables).
+> Actualizado: 2026-07-15 (política de sesión OWASP endurecida en local, sin desplegar; sigue pendiente EN + entregables).
 
-## FOCO ACTUAL (14-07, cierre) — Bloque 4 (auditoría transversal) VIVO en producción; queda EN + entregables
+## FOCO ACTUAL (15-07) — Política de sesión del back endurecida (OWASP), EN LOCAL sin desplegar
+
+**Sesión 15-07.** Antes del plan del día, el usuario reportó que la sesión de admin duraba demasiado (siempre
+logueado en localhost). Diagnóstico: `ConfigureApplicationCookie` solo fijaba rutas → defaults de Identity
+(14 días + sliding renovable = no caducaba) + login con "Recordarme" (cookie persistente 14 días). **Corregido
+alineando con OWASP (valor medio, RGPD):**
+- **`Program.cs`:** idle **30 min** (`ExpireTimeSpan` + `SlidingExpiration=true`) + **absolute 8 h** (tope duro,
+  vía `OnValidatePrincipal` comparando `IssuedUtc` vs `UtcNow`; Identity no lo trae de fábrica). Añadido `using
+  Microsoft.AspNetCore.Authentication`.
+- **Login (`.cshtml`+`.cshtml.cs`):** eliminado "Recordarme"; `PasswordSignInAsync` con `isPersistent:false`.
+- **Verificado E2E por HTTP:** login sin Recordarme, cookie de sesión NO persistente, `/Admin` 200. **147
+  verdes**, build limpio, sin migración. Decisión en `decisions.md` (15-07); log W29.
+- **PENDIENTE:** commit + deploy (lo decide el usuario). **El deploy invalidará todas las sesiones activas**
+  (incl. la del usuario en prod) → todos re-login; es lo correcto.
+
+**Tras esto, el plan del día sigue igual:** traducir **EN** del front + entregables no-código
+(README credenciales demo / slides / vídeo). Deadline 20/07, colchón amplio.
+
+---
+
+## Contexto anterior (14-07, cierre) — Bloque 4 (auditoría transversal) VIVO en producción; queda EN + entregables
 
 **Sesión 14-07.** Implementado, verificado E2E y **DESPLEGADO a producción** el **Bloque 4 = log de auditoría
 transversal** (la última pieza de código del MVP) + diff antes/después + varios fixes de pulido (email de admin

@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using DididaiApp.Core.Data;
 using DididaiApp.Core.Services;
 using DididaiApp.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
@@ -65,11 +66,39 @@ builder.Services.AddAuthorization(options =>
 
 // Rutas de login/logout/denegado: apuntan a las páginas de la Default UI de
 // Identity, que viven en el área "Identity".
+//
+// Política de sesión alineada con OWASP (Session Management Cheat Sheet) para una
+// aplicación de valor medio (back de gestión con datos personales, RGPD):
+//  - Idle timeout de 30 min con expiración deslizante: una sesión olvidada muere
+//    sola a los 30 min sin actividad (antes eran los 14 días por defecto de Identity,
+//    renovables indefinidamente → la sesión no caducaba en la práctica).
+//  - Absolute timeout de 8 h (una jornada): tope DURO a la vida de la sesión, se
+//    supere o no el idle. Identity NO lo trae de fábrica (el sliding renueva sin
+//    límite), así que se implementa en OnValidatePrincipal comparando la fecha de
+//    emisión de la cookie contra ahora y expulsando si excede el tope.
+// Efecto del despliegue: invalida todas las sesiones activas (todos re-login), que
+// es lo correcto al cambiar la política.
+var absoluteSessionLifetime = TimeSpan.FromHours(8);
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
     options.LogoutPath = "/Identity/Account/Logout";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.SlidingExpiration = true;
+
+    options.Events.OnValidatePrincipal = context =>
+    {
+        var issuedUtc = context.Properties.IssuedUtc;
+        if (issuedUtc is not null &&
+            DateTimeOffset.UtcNow - issuedUtc.Value >= absoluteSessionLifetime)
+        {
+            context.RejectPrincipal();
+            return context.HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+        }
+        return Task.CompletedTask;
+    };
 });
 
 // Envío de email vía SendGrid (recuperación de contraseña de Identity). La API key

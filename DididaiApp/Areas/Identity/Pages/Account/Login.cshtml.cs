@@ -42,9 +42,6 @@ public class LoginModel : PageModel
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
         public string Password { get; set; } = default!;
-
-        [Display(Name = "Recordarme")]
-        public bool RememberMe { get; set; }
     }
 
     public async Task OnGetAsync(string? returnUrl = null)
@@ -69,9 +66,11 @@ public class LoginModel : PageModel
         if (ModelState.IsValid)
         {
             // No cuenta los fallos hacia el bloqueo de cuenta (lockoutOnFailure: false),
-            // igual que la Default UI.
+            // igual que la Default UI. isPersistent: false SIEMPRE (sin "Recordarme"):
+            // política OWASP para valor medio, la cookie nunca sobrevive al cierre del
+            // navegador ni supera el idle/absolute configurados en Program.cs.
             var result = await _signInManager.PasswordSignInAsync(
-                Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 _logger.LogInformation("Usuario autenticado.");
@@ -79,7 +78,7 @@ public class LoginModel : PageModel
             }
             if (result.RequiresTwoFactor)
             {
-                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = false });
             }
             if (result.IsLockedOut)
             {

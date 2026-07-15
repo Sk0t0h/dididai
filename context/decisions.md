@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-07-15 · Política de sesión del back alineada con OWASP (idle 30min + absolute 8h + sin "Recordarme")
+
+- **Contexto:** el usuario notó que la sesión de admin "duraba demasiado" (siempre logueado en localhost).
+  Diagnóstico: `ConfigureApplicationCookie` solo fijaba rutas; regían los defaults de Identity =
+  `ExpireTimeSpan` 14 días + `SlidingExpiration=true` (renovación indefinida → no caducaba en la práctica),
+  y el login ofrecía "Recordarme" (`isPersistent`), que hacía la cookie persistente a disco 14 días.
+- **Decisión:** aplicar la guía de OWASP (Session Management Cheat Sheet) para aplicación de **valor medio**
+  (back de gestión con datos personales, RGPD):
+  - **Idle timeout 30 min** (`ExpireTimeSpan=30min`, `SlidingExpiration=true`): sesión olvidada muere sola.
+  - **Absolute timeout 8 h** (una jornada): tope DURO a la vida de la sesión, la use o no. Identity NO lo
+    trae de fábrica (el sliding renueva sin límite) → implementado en `options.Events.OnValidatePrincipal`,
+    que compara `Properties.IssuedUtc` contra `DateTimeOffset.UtcNow` y hace `RejectPrincipal()` +
+    `SignOutAsync(ApplicationScheme)` si excede el tope.
+  - **Eliminado "Recordarme":** quitada la propiedad `RememberMe` del `InputModel` y la casilla del login;
+    `PasswordSignInAsync` pasa `isPersistent:false` fijo → la cookie nunca sobrevive al cierre del navegador.
+- **Alternativas descartadas:** (a) `SlidingExpiration=false` con un `ExpireTimeSpan` largo como "absolute"
+  — descartado porque entonces no hay idle timeout (la sesión olvidada viviría el máximo). El patrón
+  idle-sliding + absolute-en-evento cubre ambos ejes, que es lo que pide OWASP. (b) Conservar "Recordarme"
+  acotado — descartado: OWASP desaconseja cookies persistentes en apps sensibles.
+- **Consecuencias:** al desplegar se **invalidan todas las sesiones activas** (incl. la del usuario en prod)
+  → todos re-login. Es lo correcto al cambiar la política. Sin migración (config en memoria, reversible). No
+  afecta al front público (abierto). Verificado E2E por HTTP: login sin Recordarme, cookie de sesión no
+  persistente, `/Admin` 200 con la sesión; 147 tests verdes.
+- **Estado:** IMPLEMENTADO y verificado en local. Pendiente de deploy (lo decide el usuario).
+
+---
+
 ## 2026-07-03 · Alcance del proyecto: web ONG DIDIDAI (front público + back de gestión), MVP para TFM
 
 - **Contexto:** TFM del Máster de Desarrollo con IA (BIG School), deadline **20/07/2026**. Cliente real: ONG

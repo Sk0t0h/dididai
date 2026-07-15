@@ -1,0 +1,31 @@
+@page
+@model LoginWithRecoveryCodeModel
+@{
+    ViewData["Title"] = "Acceder con un código de recuperación";
+}
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+<p>
+    Has solicitado acceder con un código de recuperación. Este acceso no se recordará hasta que proporciones
+    un código de tu aplicación de autenticación al iniciar sesión.
+</p>
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.RecoveryCode" class="form-control" autocomplete="off" placeholder="Código de recuperación" />
+                <label asp-for="Input.RecoveryCode" class="form-label">Código de recuperación</label>
+                <span asp-validation-for="Input.RecoveryCode" class="text-danger"></span>
+            </div>
+            <div>
+                <button type="submit" class="w-100 btn btn-lg btn-primary">Acceder</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

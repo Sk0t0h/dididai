@@ -1,0 +1,50 @@
+@page
+@model EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Configurar la aplicación de autenticación";
+    ViewData["ActivePage"] = "TwoFactorAuthentication";
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+<h3>@ViewData["Title"]</h3>
+<div>
+    <p>Para usar una aplicación de autenticación, sigue estos pasos:</p>
+    <ol class="list">
+        <li>
+            <p>
+                Descarga una aplicación de autenticación de dos factores, como Microsoft Authenticator o
+                Google Authenticator, en tu teléfono.
+            </p>
+        </li>
+        <li>
+            <p>Escanea el código QR o introduce esta clave <kbd>@Model.SharedKey</kbd> en tu aplicación de
+                autenticación. Los espacios y las mayúsculas no importan.</p>
+            <div class="qr-code-container">
+                <img src="@Model.QrCodeDataUri" alt="Código QR para configurar la autenticación en dos pasos" width="200" height="200" />
+            </div>
+        </li>
+        <li>
+            <p>
+                Una vez escaneado el código QR o introducida la clave anterior, tu aplicación de autenticación
+                te dará un código único. Escríbelo en el cuadro de confirmación de abajo.
+            </p>
+            <div class="row">
+                <div class="col-md-6">
+                    <form id="send-code" method="post">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Code" class="form-control" autocomplete="off" placeholder="Introduce el código" />
+                            <label asp-for="Input.Code" class="control-label form-label">Código de verificación</label>
+                            <span asp-validation-for="Input.Code" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="w-100 btn btn-lg btn-primary">Verificar</button>
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    </form>
+                </div>
+            </div>
+        </li>
+    </ol>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

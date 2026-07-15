@@ -281,3 +281,23 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
 .confirm-cancel:focus-visible {
   background: #e7dcc9;
 }
+/* Contenedor del QR de configuración de 2FA (imagen generada en servidor). */
+.qr-code-container {
+  margin: 0.75rem 0 1.25rem;
+}
+.qr-code-container img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #e7dcc9;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+
+/* Códigos de recuperación de 2FA: dos por fila, monoespaciados y aireados. */
+.recovery-codes kbd {
+  display: inline-block;
+  min-width: 10ch;
+  margin: 0.2rem 0.4rem 0.2rem 0;
+  font-size: 1rem;
+}

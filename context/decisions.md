@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-07-15 · Páginas de 2FA traducidas a español + QR generado en servidor (CSP-safe)
+
+- **Contexto:** el usuario vio que la página de configuración de 2FA (`EnableAuthenticator`, "Configure
+  authenticator app") seguía en inglés —era la Default UI de Identity, nunca traducida— y además **el QR no se
+  mostraba** (la Default UI lo pinta con una librería JS que este proyecto no carga por la CSP estricta). Se
+  decidió traducir todo el flujo de 2FA Y que el QR se vea.
+- **Decisión — traducción por override propio (no scaffold):** mismo método ya usado para login/perfil/
+  contraseña — crear el `.cshtml`+`.cshtml.cs` en el proyecto (tiene prioridad sobre la Default UI del
+  ensamblado), con **PageModel concreto tipado a `IdentityUser`** (no el patrón interno abstract de la Default
+  UI), textos en ES, CSP-safe (0 inline). **8 páginas** creadas: gestión (`TwoFactorAuthentication`,
+  `EnableAuthenticator`, `Disable2fa`, `ResetAuthenticator`, `GenerateRecoveryCodes`, `ShowRecoveryCodes`) y
+  flujo de login (`LoginWith2fa`, `LoginWithRecoveryCode`).
+- **Decisión — QR en el servidor:** dependencia **QRCoder** (NuGet, 1.6.0); `EnableAuthenticator` genera el QR
+  como **PNG data-URI base64** embebido en un `<img>`. CSP-safe: `img-src` ya permite `data:`, no requiere JS
+  ni recursos externos. Se conserva también la clave manual (bloques de 4) por si no se puede escanear.
+- **Decisión — degradar errores a redirect:** la Default UI lanza `InvalidOperationException` (→ 500) al entrar
+  por URL a páginas que exigen 2FA activa (o al flujo login-2FA fuera de contexto). Se sustituyó por
+  `RedirectToPage` suave (a `TwoFactorAuthentication` o a `Login`) en los `OnGetAsync`; los `OnPostAsync`
+  mantienen el throw (un POST forjado sin estado válido es anómalo, correcto que falle).
+- **Alternativas descartadas:** (a) dejar 2FA en inglés —incoherente con la cabecera de marca en ES; (b) ocultar
+  2FA del menú —el usuario prefirió tenerlo completo y funcional; (c) QR solo-clave-manual —peor UX; (d) QR por
+  JS relajando la CSP —rompería el invariante anti-inline del proyecto.
+- **Consecuencias:** el 2FA queda **completo, funcional y en español**. Verificado E2E por HTTP incluido el
+  **happy-path TOTP real** (calculando el código de 6 dígitos desde la clave del QR → activa 2FA; y login
+  completo password→código→acceso). 147 tests verdes, sin migración (Identity ya trae lockout/tokens/2FA). El
+  2FA sigue siendo **opcional** (no requisito del MVP), pero ahora presentable.
+- **Estado:** IMPLEMENTADO y verificado en local. Pendiente de deploy.
+
+---
+
 ## 2026-07-15 · Política de sesión del back alineada con OWASP (idle 30min + absolute 8h + sin "Recordarme")
 
 - **Contexto:** el usuario notó que la sesión de admin "duraba demasiado" (siempre logueado en localhost).

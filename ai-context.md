@@ -3,9 +3,28 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-15 (política de sesión OWASP endurecida y DESPLEGADA a prod; sigue pendiente EN + entregables).
+> Actualizado: 2026-07-15 (2FA traducido a ES + QR en servidor, EN LOCAL sin desplegar; antes: política de sesión OWASP desplegada. Sigue pendiente EN + entregables).
 
-## FOCO ACTUAL (15-07) — Política de sesión del back endurecida (OWASP), DESPLEGADA a prod
+## FOCO ACTUAL (15-07, 2) — Páginas de 2FA en español + QR generado en servidor, EN LOCAL sin desplegar
+
+El usuario vio (pantallazo) que la config de 2FA (`EnableAuthenticator`) seguía en **inglés** (Default UI) y que
+**el QR no aparecía** (la lib JS del QR no se carga por la CSP). Traducido todo el flujo de 2FA y arreglado el QR.
+
+- **8 páginas override** (patrón login/perfil: PageModel concreto tipado a `IdentityUser`, ES, CSP-safe 0-inline):
+  gestión (`TwoFactorAuthentication`, `EnableAuthenticator`, `Disable2fa`, `ResetAuthenticator`,
+  `GenerateRecoveryCodes`, `ShowRecoveryCodes`) + login (`LoginWith2fa`, `LoginWithRecoveryCode`).
+- **QR en servidor:** dependencia **QRCoder** 1.6.0 → PNG data-URI base64 en un `<img>` (CSP-safe). Clave manual
+  conservada. CSS `.qr-code-container`/`.recovery-codes` en `site.css`.
+- **500 → redirect:** los `OnGet` que exigían 2FA activa (o login-2FA fuera de flujo) redirigen en vez de lanzar.
+- **Verificado E2E por HTTP incl. happy-path TOTP real**: activar 2FA con código calculado desde la clave del QR
+  y login completo password→código→acceso; QR decodificado = PNG real 857 B. **La 2FA de prueba se DESACTIVÓ**
+  (BD del admin restaurada; login normal va directo). 147 verdes, build limpio, sin migración.
+- Decisión en `decisions.md` (15-07 "Páginas de 2FA…"); log W29.
+- **PENDIENTE:** commit + deploy.
+
+---
+
+## FOCO ACTUAL (15-07, 1) — Política de sesión del back endurecida (OWASP), DESPLEGADA a prod
 
 **Sesión 15-07.** Antes del plan del día, el usuario reportó que la sesión de admin duraba demasiado (siempre
 logueado en localhost). Diagnóstico: `ConfigureApplicationCookie` solo fijaba rutas → defaults de Identity

@@ -5,7 +5,7 @@
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
 > Actualizado: 2026-07-15 (DemoSeeder de datos de demo implementado y verificado en local, sin desplegar; EN + 2FA + sesión OWASP ya desplegados. Pendiente: poblar prod + entregables + política de privacidad/legal).
 
-## FOCO ACTUAL (15-07, 4) — DemoSeeder de datos de demo, verificado en local, SIN desplegar/poblar prod
+## FOCO ACTUAL (15-07, 4) — DemoSeeder DESPLEGADO y PROD POBLADA ✓
 
 La evaluación del máster se hace **SOBRE PRODUCCIÓN** → prod necesita datos realistas para probar todo y que
 los dashboards luzcan. Creado un seeder de datos ficticios (RGPD-safe).
@@ -16,8 +16,10 @@ los dashboards luzcan. Creado un seeder de datos ficticios (RGPD-safe).
   reales (DNI/NIE mód-23, **IBAN mod-97 calculado**, E.164); auditoría insertada a mano.
 - Verificado en local (BD limpia → volúmenes correctos, dashboards con cifras reales, 20 IBAN pasan mod-97).
   La BD local queda poblada con la demo. Build limpio, sin migración. Decisión en `decisions.md` (15-07), log W29.
-- **PENDIENTE:** commit + deploy; **poblar prod = resetear BD de `/home` (Kudu) → migra+siembra admin+demo, luego
-  apagar el flag**. El reset elimina de paso los restos de prueba y los 2 «VERIF DEPLOY».
+- **HECHO (commit `1cd137b`, desplegado):** prod poblada vía `az`/Kudu (parar → borrar `dididai.db` de /home →
+  flag on → arrancar migra+siembra → verificado 28 socios/10 solicitudes/50 auditoría/5 gráficas, login admin OK
+  → flag off; reinicio no duplica). El reset limpió los restos de prueba y los «VERIF DEPLOY». **Prod lista para
+  el tribunal.**
 
 **Además, PENDIENTE de contenido/legal (nuevo):** redactar **política de privacidad** real (hoy `/Privacy` es
 de plantilla) + estudiar **aviso legal**/otros enlaces. El form público ya enlaza a `/Privacy` y trata datos.

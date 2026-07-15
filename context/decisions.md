@@ -33,7 +33,11 @@
 - **Consecuencias:** demo reproducible y versionada; sirve en local y prod por flag. Verificado en local (BD
   limpia → 28 socios, 26 colab, 15 gastos, 10 solicitudes, 50 auditoría; dashboards con cifras reales; los 20
   IBAN generados pasan mod-97). Sin migración (usa el esquema existente).
-- **Estado:** IMPLEMENTADO y verificado en local. Pendiente: deploy + poblar prod (resetear BD + flag).
+- **Estado:** IMPLEMENTADO, verificado en local y **DESPLEGADO + PROD POBLADA (15-07)**. Operativa ejecutada
+  con `az`/Kudu: deploy → parar app → borrar `dididai.db` de `/home` (VFS de Kudu, `If-Match:*`) → flag
+  `Seed__DemoData=true` → arrancar (migró + re-sembró admin + demo) → verificado en prod (28 socios, 10
+  solicitudes, 50 auditoría, 5 gráficas; login admin OK) → **flag a `false`**. Reinicio posterior NO duplica
+  (idempotencia + flag off confirmados). El reset eliminó de paso los restos de prueba y los «VERIF DEPLOY».
 
 ---
 

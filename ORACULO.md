@@ -7,8 +7,8 @@
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
 > Latest Work + Immediate Risks). Última actualización: 2026-07-15 (DemoSeeder de datos de demo implementado y
-> verificado en local —sin desplegar/poblar prod—; en el día ya desplegados: EN del front, 2FA en ES + QR,
-> política de sesión OWASP. Pendiente: poblar prod + política de privacidad/legal + entregables no-código).
+> DESPLEGADO y PROD POBLADA con datos de demo; en el día ya desplegados: EN del front, 2FA en ES + QR,
+> política de sesión OWASP. Pendiente: política de privacidad/legal + entregables no-código).
 
 ## Active Focus
 
@@ -131,8 +131,11 @@ simple (ingresos/gastos) · informes visuales (dashboards).
   inserta a mano (la traza la disparan las páginas, no los services). **RGPD:** datos inequívocamente ficticios
   (nombres inventados, `@example.org`, DNIs válidos-en-formato, IBAN de prueba). Verificado en local con BD
   limpia (28 socios, 26 colab, 15 gastos, 10 solicitudes, 50 auditoría; dashboards con cifras reales; los 20
-  IBAN pasan mod-97). Sin migración. Detalle en `decisions.md` (15-07) y log W29. **Pendiente: commit + deploy;
-  poblar prod (resetear BD de `/home` vía Kudu → migra+siembra admin+demo; luego apagar el flag).**
+  IBAN pasan mod-97). Sin migración. **DESPLEGADO y PROD POBLADA (commit `1cd137b`)**: operativa con `az`/Kudu
+  (parar app → borrar `dididai.db` de `/home` → flag on → arrancar migra+siembra admin+demo → verificado en prod
+  28 socios/10 solicitudes/50 auditoría/5 gráficas, login admin OK → flag off; reinicio no duplica). El reset
+  limpió los restos de prueba y los «VERIF DEPLOY». **Prod lista para la evaluación del tribunal.** Detalle en
+  `decisions.md` (15-07) y log W29.
 - **2026-07-15 — Traducción EN del front público COMPLETA (última pieza del MVP), DESPLEGADA a prod**. La
   infra i18n ya estaba (selector + cookie, `es` por defecto); faltaba solo el contenido inglés, que caía a ES
   por fallback. Traducido todo el front: **`Index.en.resx`** (78 claves: hero del 99%, Actividad, Filosofía,

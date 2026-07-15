@@ -24,11 +24,17 @@
   — descartado porque entonces no hay idle timeout (la sesión olvidada viviría el máximo). El patrón
   idle-sliding + absolute-en-evento cubre ambos ejes, que es lo que pide OWASP. (b) Conservar "Recordarme"
   acotado — descartado: OWASP desaconseja cookies persistentes en apps sensibles.
-- **Consecuencias:** al desplegar se **invalidan todas las sesiones activas** (incl. la del usuario en prod)
-  → todos re-login. Es lo correcto al cambiar la política. Sin migración (config en memoria, reversible). No
-  afecta al front público (abierto). Verificado E2E por HTTP: login sin Recordarme, cookie de sesión no
-  persistente, `/Admin` 200 con la sesión; 147 tests verdes.
-- **Estado:** IMPLEMENTADO y verificado en local. Pendiente de deploy (lo decide el usuario).
+- **Consecuencias:** la política nueva rige para **cada login futuro**, NO retroactivamente. Un ticket ya
+  emitido lleva su propia expiración embebida (los 14 días viejos) y se sigue validando con las claves de Data
+  Protection, que **persisten entre despliegues en este App Service** (verificado empíricamente: tras el deploy
+  la sesión del usuario en prod NO se cerró). Por tanto el deploy **no** cierra sesiones abiertas; para que una
+  sesión existente pase al régimen nuevo (30min/8h/no-persist) hay que hacer logout+login. (Corrección: en el
+  plan inicial se dijo que el deploy invalidaría todas las sesiones activas — es FALSO; solo lo haría rotar las
+  claves de Data Protection o cambiar el `ApplicationName`.) Sin migración (config en memoria, reversible). No
+  afecta al front público (abierto).
+- **Estado:** IMPLEMENTADO, verificado en local (E2E por HTTP: login sin Recordarme, cookie de sesión no
+  persistente, `/Admin` 200; 147 tests verdes) y **DESPLEGADO a producción** (`ba908c6`, `RuntimeSuccessful`;
+  verificado en prod: home 200, /Admin 302, login sin Recordarme, CSP).
 
 ---
 

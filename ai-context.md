@@ -3,9 +3,9 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-15 (política de sesión OWASP endurecida en local, sin desplegar; sigue pendiente EN + entregables).
+> Actualizado: 2026-07-15 (política de sesión OWASP endurecida y DESPLEGADA a prod; sigue pendiente EN + entregables).
 
-## FOCO ACTUAL (15-07) — Política de sesión del back endurecida (OWASP), EN LOCAL sin desplegar
+## FOCO ACTUAL (15-07) — Política de sesión del back endurecida (OWASP), DESPLEGADA a prod
 
 **Sesión 15-07.** Antes del plan del día, el usuario reportó que la sesión de admin duraba demasiado (siempre
 logueado en localhost). Diagnóstico: `ConfigureApplicationCookie` solo fijaba rutas → defaults de Identity
@@ -17,8 +17,10 @@ alineando con OWASP (valor medio, RGPD):**
 - **Login (`.cshtml`+`.cshtml.cs`):** eliminado "Recordarme"; `PasswordSignInAsync` con `isPersistent:false`.
 - **Verificado E2E por HTTP:** login sin Recordarme, cookie de sesión NO persistente, `/Admin` 200. **147
   verdes**, build limpio, sin migración. Decisión en `decisions.md` (15-07); log W29.
-- **PENDIENTE:** commit + deploy (lo decide el usuario). **El deploy invalidará todas las sesiones activas**
-  (incl. la del usuario en prod) → todos re-login; es lo correcto.
+- **DESPLEGADO (`ba908c6`, `RuntimeSuccessful`):** verificado en prod (home 200, /Admin 302, login sin
+  Recordarme, CSP). **OJO — corrección:** el deploy **NO** cierra las sesiones ya abiertas (la política no es
+  retroactiva; las claves de Data Protection persisten entre deploys → verificado: la sesión del usuario en
+  prod siguió viva). La política nueva rige para logins futuros; para migrar una sesión existente, logout+login.
 
 **Tras esto, el plan del día sigue igual:** traducir **EN** del front + entregables no-código
 (README credenciales demo / slides / vídeo). Deadline 20/07, colchón amplio.

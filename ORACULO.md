@@ -7,8 +7,8 @@
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
 > Latest Work + Immediate Risks). Última actualización: 2026-07-15 (política de sesión del back endurecida a
-> OWASP —idle 30min + absolute 8h + sin "Recordarme"— EN LOCAL sin desplegar; Bloque 4 ya vivo en prod desde
-> 14-07. Queda solo EN + entregables. Nada de código del MVP pendiente).
+> OWASP —idle 30min + absolute 8h + sin "Recordarme"— DESPLEGADA a prod; Bloque 4 ya vivo desde 14-07. Queda
+> solo EN + entregables. Nada de código del MVP pendiente).
 
 ## Active Focus
 
@@ -127,9 +127,12 @@ simple (ingresos/gastos) · informes visuales (dashboards).
   **idle 30 min** (sliding) + **absolute 8 h** (tope duro vía `OnValidatePrincipal` comparando `IssuedUtc`
   contra `UtcNow`; Identity no lo trae de fábrica) + **sin "Recordarme"** (`isPersistent:false` fijo, casilla
   eliminada). Sin migración, reversible. Verificado E2E por HTTP (login sin Recordarme, cookie de sesión no
-  persistente, `/Admin` 200); **147 tests verdes**, build limpio. **El deploy invalidará todas las sesiones
-  activas** (incl. la del usuario en prod) → todos re-login, lo correcto. Detalle en `decisions.md` (15-07) y
-  log W29. **Pendiente: commit + deploy** (lo decide el usuario).
+  persistente, `/Admin` 200); **147 tests verdes**, build limpio. **DESPLEGADO** (`ba908c6`,
+  `RuntimeSuccessful`; prod: home 200, /Admin 302, login sin Recordarme, CSP). **Corrección de un aviso previo
+  mío erróneo:** el deploy **NO** cierra las sesiones abiertas (la política no es retroactiva y las claves de
+  Data Protection persisten entre deploys → verificado: la sesión del usuario en prod no se cerró); rige solo
+  para logins futuros, para migrar una sesión existente hay que logout+login. Detalle en `decisions.md` (15-07)
+  y log W29.
 - **2026-07-14 — DEPLOY del Bloque 4 (+ diff + fixes) a producción**. Desplegado a Azure (`dididai-ong`,
   B1/Spain) siguiendo el runbook: 147 tests verdes → publish Release → zip 30 MB → `az webapp deploy` =
   `RuntimeSuccessful` (sin timeout, BD ya en `/home`). Migraciones `AddRegistroAuditoria` + `AddCambiosAuditoria`

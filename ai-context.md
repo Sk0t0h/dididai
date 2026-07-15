@@ -3,9 +3,30 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-15 (traducción EN del front COMPLETA, en local sin desplegar; antes: 2FA en ES + QR, política de sesión OWASP. YA NO queda código del MVP: solo entregables no-código).
+> Actualizado: 2026-07-15 (DemoSeeder de datos de demo implementado y verificado en local, sin desplegar; EN + 2FA + sesión OWASP ya desplegados. Pendiente: poblar prod + entregables + política de privacidad/legal).
 
-## FOCO ACTUAL (15-07, 3) — Traducción EN del front público COMPLETA, EN LOCAL sin desplegar
+## FOCO ACTUAL (15-07, 4) — DemoSeeder de datos de demo, verificado en local, SIN desplegar/poblar prod
+
+La evaluación del máster se hace **SOBRE PRODUCCIÓN** → prod necesita datos realistas para probar todo y que
+los dashboards luzcan. Creado un seeder de datos ficticios (RGPD-safe).
+- **`DemoSeeder.SeedDemoAsync`** (Core), tras `SeedAdminAsync` en `Program.cs`, flag `Seed:DemoData=true`,
+  idempotente. ~28 socios (12 meses, 2 de baja), ~26 colaboraciones (3 tipos TPH), 15 gastos (5 categorías),
+  10 solicitudes (4 estados) + acciones, ~50 auditoría.
+- **Inserción directa por `AppDbContext`** (no services) para fechar en el pasado; valores cumplen validaciones
+  reales (DNI/NIE mód-23, **IBAN mod-97 calculado**, E.164); auditoría insertada a mano.
+- Verificado en local (BD limpia → volúmenes correctos, dashboards con cifras reales, 20 IBAN pasan mod-97).
+  La BD local queda poblada con la demo. Build limpio, sin migración. Decisión en `decisions.md` (15-07), log W29.
+- **PENDIENTE:** commit + deploy; **poblar prod = resetear BD de `/home` (Kudu) → migra+siembra admin+demo, luego
+  apagar el flag**. El reset elimina de paso los restos de prueba y los 2 «VERIF DEPLOY».
+
+**Además, PENDIENTE de contenido/legal (nuevo):** redactar **política de privacidad** real (hoy `/Privacy` es
+de plantilla) + estudiar **aviso legal**/otros enlaces. El form público ya enlaza a `/Privacy` y trata datos.
+
+**Tras esto, solo quedan los entregables no-código** (README credenciales demo / slides / vídeo). Deadline 20/07.
+
+---
+
+## FOCO ANTERIOR (15-07, 3) — Traducción EN del front público COMPLETA, DESPLEGADA a prod
 
 Última pieza de contenido del MVP. La infra i18n ya estaba; faltaba el contenido inglés (caía a ES por
 fallback). Traducido todo el front público.

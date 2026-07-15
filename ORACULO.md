@@ -6,9 +6,9 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (traducción EN del front COMPLETA —en local
-> sin desplegar—; antes en el día: 2FA en ES + QR (desplegado), política de sesión OWASP (desplegada). YA NO
-> queda código ni contenido del MVP: solo entregables no-código —README/slides/vídeo—).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (DemoSeeder de datos de demo implementado y
+> verificado en local —sin desplegar/poblar prod—; en el día ya desplegados: EN del front, 2FA en ES + QR,
+> política de sesión OWASP. Pendiente: poblar prod + política de privacidad/legal + entregables no-código).
 
 ## Active Focus
 
@@ -119,7 +119,21 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
-- **2026-07-15 — Traducción EN del front público COMPLETA (última pieza del MVP), EN LOCAL sin desplegar**. La
+- **2026-07-15 — DemoSeeder: datos de demo ficticios para la evaluación (que se hace sobre PRODUCCIÓN), EN
+  LOCAL sin desplegar/poblar prod**. El tribunal del máster valida sobre el producto en producción, con la BD
+  casi vacía → hace falta poblarla con datos realistas. `DemoSeeder.SeedDemoAsync` (Core), invocado en
+  `Program.cs` tras `SeedAdminAsync`, activo con flag **`Seed:DemoData=true`**, **idempotente**. Volumen
+  medio-alto: ~28 socios (altas en 12 meses, 2 de baja, ES + GB/FR/DE/PT), ~26 colaboraciones de los 3 tipos
+  TPH, 15 gastos por las 5 categorías en 12 meses, 10 solicitudes en los 4 estados con acciones, ~50 registros
+  de auditoría. **Inserción directa por `AppDbContext`** (no por los services) para poder **fechar** las altas
+  en el pasado (los services fijan "ahora" y aplanarían los dashboards); los valores cumplen las validaciones
+  reales — DNI/NIE con letra mód-23, **IBAN mod-97 calculado en runtime**, teléfonos E.164 — y la auditoría se
+  inserta a mano (la traza la disparan las páginas, no los services). **RGPD:** datos inequívocamente ficticios
+  (nombres inventados, `@example.org`, DNIs válidos-en-formato, IBAN de prueba). Verificado en local con BD
+  limpia (28 socios, 26 colab, 15 gastos, 10 solicitudes, 50 auditoría; dashboards con cifras reales; los 20
+  IBAN pasan mod-97). Sin migración. Detalle en `decisions.md` (15-07) y log W29. **Pendiente: commit + deploy;
+  poblar prod (resetear BD de `/home` vía Kudu → migra+siembra admin+demo; luego apagar el flag).**
+- **2026-07-15 — Traducción EN del front público COMPLETA (última pieza del MVP), DESPLEGADA a prod**. La
   infra i18n ya estaba (selector + cookie, `es` por defecto); faltaba solo el contenido inglés, que caía a ES
   por fallback. Traducido todo el front: **`Index.en.resx`** (78 claves: hero del 99%, Actividad, Filosofía,
   Transparencia, 7 Objetivos, Colaborar, formulario, Contacto, footer) con el **markup HTML embebido preservado**

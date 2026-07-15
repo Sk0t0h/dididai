@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-07-15 · DemoSeeder: datos de demo ficticios para la evaluación del TFM (sobre producción)
+
+- **Contexto:** la evaluación del máster se hace **sobre el producto colgado en producción**, que hasta ahora
+  tenía la BD casi vacía (solo restos de pruebas). Hace falta poblar el back con datos realistas para que el
+  tribunal pueda probar todas las funcionalidades y los dashboards luzcan (curvas, balance, historial).
+- **Decisión — seeder en código activado por flag:** `DemoSeeder.SeedDemoAsync` en Core, invocado en
+  `Program.cs` tras `SeedAdminAsync`, activo solo si `Seed:DemoData=true` (User Secrets dev / app setting
+  Azure). **Idempotente** (si ya hay socios, no siembra). Volumen medio-alto: ~28 socios (altas repartidas en
+  12 meses, 2 de baja, ES + algunos GB/FR/DE/PT), ~26 colaboraciones de los 3 tipos TPH, 15 gastos por las 5
+  categorías en 12 meses, 10 solicitudes en los 4 estados con acciones, y ~50 registros de auditoría.
+- **Decisión — inserción directa por `AppDbContext`, no por los services:** los services fijan la fecha a
+  "ahora", lo que aplanaría los dashboards (todo el mismo mes). Insertando directo se pueden **fechar** las
+  altas/gastos repartidos en 12 meses. A cambio, los valores se generan **cumpliendo las validaciones reales**:
+  DNI/NIE con letra de control (mód-23), IBAN con dígitos de control mod-97 **calculados en runtime** con la
+  misma aritmética que `ValidacionIban`, teléfonos E.164. La **auditoría se inserta a mano** imitando lo que
+  hacen las páginas (la traza la disparan las páginas, no los services → un seeder por services no auditaría).
+- **Decisión — datos RGPD-safe:** nombres inventados, emails `@example.org`, DNIs válidos-en-formato pero
+  ficticios, IBAN de prueba. Defendible ante el tribunal por ser inequívocamente ficticios.
+- **Decisión operativa (prod):** **resetear la BD de prod** (borrar el `.db` de `/home` vía Kudu → al arrancar
+  migra + siembra admin + demo) para partir limpio, sin los restos de pruebas ni los 2 registros «VERIF DEPLOY».
+  El admin se re-siembra solo (los `Seed:*` siguen en app settings). Tras sembrar, **apagar el flag**
+  (`Seed:DemoData=false`) — cinturón + tirantes con la idempotencia.
+- **Alternativas descartadas:** (a) script SQL directo —frágil con TPH/FKs y sin validaciones; (b) alta manual
+  por la UI —lento y no reproducible; (c) sembrar por los services —no permite fechar en el pasado ni genera
+  auditoría.
+- **Consecuencias:** demo reproducible y versionada; sirve en local y prod por flag. Verificado en local (BD
+  limpia → 28 socios, 26 colab, 15 gastos, 10 solicitudes, 50 auditoría; dashboards con cifras reales; los 20
+  IBAN generados pasan mod-97). Sin migración (usa el esquema existente).
+- **Estado:** IMPLEMENTADO y verificado en local. Pendiente: deploy + poblar prod (resetear BD + flag).
+
+---
+
 ## 2026-07-15 · Páginas de 2FA traducidas a español + QR generado en servidor (CSP-safe)
 
 - **Contexto:** el usuario vio que la página de configuración de 2FA (`EnableAuthenticator`, "Configure

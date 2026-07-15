@@ -153,6 +153,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAdminAsync(scope.ServiceProvider);
+    // Datos de DEMO (ficticios, RGPD-safe) para la evaluación del TFM. Solo si el flag
+    // Seed:DemoData=true; idempotente (no siembra si ya hay socios). Ver DemoSeeder.
+    await DemoSeeder.SeedDemoAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.

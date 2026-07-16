@@ -6,11 +6,28 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-15 (DemoSeeder de datos de demo implementado y
-> DESPLEGADO y PROD POBLADA con datos de demo; en el día ya desplegados: EN del front, 2FA en ES + QR,
-> política de sesión OWASP. Pendiente: política de privacidad/legal + entregables no-código).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-16 (paquete legal —aviso legal + privacidad +
+> cookies bilingües + 1ª capa RGPD en el formulario— y distinción visual cuota mensual/anual DESPLEGADOS y
+> verificados en prod. **Ya no queda desarrollo del MVP: solo entregables no-código —README/slides/vídeo—.**).
 
 ## Active Focus
+
+**CIERRE 16-07 — Paquete legal + fix de Economía DESPLEGADOS. El MVP no tiene ya NADA de desarrollo pendiente;
+solo quedan los entregables no-código (README con credenciales de demo, slides, vídeo), deadline 20/07.** Dos
+commits desplegados y verificados en prod: (1) **distinción visual cuota mensual/anual** (`3dbce1a`) — badge
+`Mensual`/`Anual` + sufijo `/mes` `/año` en el importe, en Economía y en la ficha del socio; era defecto
+puramente visual, el cálculo del recurrente ya prorrateaba las anuales. (2) **Paquete legal bilingüe**
+(`a2457bb`) — 3 páginas nuevas `/aviso-legal`, `/privacidad`, `/cookies` (ES/EN, CSP-safe, con placeholders
+`[ ]` para los datos de la ONG), **tabla de información básica (1ª capa RGPD)** junto al botón del formulario y
+**checkbox reetiquetado a acuse de lectura** (base jurídica = ejecución de contrato, NO consentimiento, según
+AEPD), footer con enlaces legales en todas las páginas, `/Privacy`→`/privacidad`. Investigación previa con 5
+sub-agentes contra fuentes oficiales AEPD/BOE: cookies del sitio todas técnicas exentas → **sin banner**; sin
+fondos públicos → no Declaración de Accesibilidad. **Los textos legales son BORRADOR: requieren revisión
+jurídica y rellenar los placeholders antes de uso real.** Verificado en prod (rutas 200, redirección, EN vía
+cookie de cultura, BD de demo intacta —deploy de solo código—). Validado visualmente por el usuario.
+**Roadmap acordado (sin implementar):** exportación de datos CSV/Excel (gastos, cuotas y **socios con todos sus
+datos**), con consideración RGPD (solo admin, IBAN enmascarado vs completo, registrar la exportación en
+auditoría). Detalle en el log W29 (16-07).
 
 Deadline **20/07/2026**. Producto: web taylor-made para la ONG DIDIDAI con front público + back de gestión
 cerrado. **MVP:** web pública · login/roles · gestión de socios · módulo económico simple · dashboards.
@@ -114,11 +131,36 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Gestión de Colaboraciones (CRUD) | OPERATIVO (05-07, DESPLEGADO): alta (3 tipos, form con selector), **editar** (importe/periodicidad/IBAN), listado y baja lógica desde la ficha del socio; IBAN mod-97 (TDD) + `[Iban]` cliente=servidor; servicio en Core con tests de integración |
 | Módulo económico simple (ingresos/gastos) | OPERATIVO (05-07, DESPLEGADO): entidad `Gasto` (CRUD, categorías ONG), servicio de resumen por TDD (recurrente mensual, ingresos por tipo, socios con colaboración, altas/mes, balance, **previsión**), página `/Admin/Economia` con vista global de colaboraciones |
 | Dashboards / informes visuales | OPERATIVO (05-07, DESPLEGADO): **5 gráficas** Chart.js servido local en `/Admin/Economia` (donut ingresos por tipo, barras ingresos/gastos/balance, barras gastos por categoría, líneas altas/mes, **líneas previsión 6 meses ingresos vs gastos**); datos por `data-chart` + `dashboard.js` externo (CSP-safe, multi-serie). Pendiente solo validación visual del usuario |
+| Páginas legales (aviso legal · privacidad · cookies) | OPERATIVO (16-07, DESPLEGADO y verificado en prod): 3 páginas en `Pages/Legal/` con rutas `/aviso-legal`, `/privacidad`, `/cookies` (ES/EN por partials de cultura, layout público, **CSP-safe**), conforme a LSSI art. 10, RGPD art. 13 y guía de cookies AEPD. **Textos BORRADOR con placeholders `[ ]`** (datos de la ONG) → revisión jurídica pendiente. Cookies: solo técnicas exentas, sin banner. Footer con enlaces legales en todas las páginas (`_FooterLegal`); `/Privacy` (plantilla) → 302 `/privacidad`. **Formulario público:** tabla de información básica (1ª capa RGPD) + checkbox como **acuse de lectura** (base = ejecución de contrato). Sin migración |
+| Exportación de datos (CSV/Excel: gastos, cuotas, socios) | ROADMAP (16-07, acordado sin implementar): la de socios con todos sus datos es la más valiosa. RGPD: solo admin, IBAN enmascarado vs completo, registrar la exportación en auditoría |
 | Gestor de contenido (CMS) | ROADMAP (fuera de MVP) |
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
 
+- **2026-07-16 — Paquete legal (aviso legal + privacidad + cookies, bilingüe) + 1ª capa RGPD en el formulario,
+  DESPLEGADO a prod**. Cerrado el último pendiente de contenido. **3 páginas nuevas** en `Pages/Legal/` con
+  rutas amigables (`/aviso-legal`, `/privacidad`, `/cookies`), layout `_PublicLayout`, contenido por cultura vía
+  partials `_X.es/.en.cshtml`, **CSP-safe** (0 inline), con **placeholders `[ ]`** para los datos de la ONG
+  (borrador → revisión jurídica pendiente). **Formulario público:** tabla de **información básica (1ª capa
+  RGPD)** junto al botón enviar + **checkbox reetiquetado a acuse de lectura** (antes decía "autorizo el
+  tratamiento", base legal incorrecta → la base es **ejecución de contrato**, no consentimiento, hallazgo AEPD).
+  **Footer** con enlaces legales en todas las páginas (`_FooterLegal` + `_HeaderLegal` compartidos); `/Privacy`
+  (plantilla) → 302 `/privacidad`. CSS `.legal-page` responsive (tablas apiladas en móvil). **Investigación
+  previa con 5 sub-agentes contra fuentes oficiales AEPD/BOE**: base = contrato no consentimiento; **cookies del
+  sitio todas técnicas exentas → sin banner ni CMP**; aviso legal recomendable (LSSI art. 10); **sin fondos
+  públicos → no Declaración de Accesibilidad** (RD 1112/2018 no aplica). El form NO pide IBAN (crea una
+  solicitud) → 1ª capa ligera; el detalle IBAN/SEPA vive en la política completa. Commit `a2457bb`, build limpio,
+  sin migración. Verificado en prod (3 rutas 200, redirección, footer/1ª capa/checkbox, EN por cookie de cultura;
+  **BD de demo intacta** —deploy de solo código, `dididai.db` conserva mtime). Validado visualmente por el
+  usuario. Detalle en el log W29 (16-07).
+- **2026-07-16 — Economía: distinguir cuota mensual/anual (defecto visual del usuario), DESPLEGADO**. Una cuota
+  domiciliada se mostraba igual fuese mensual o anual, y el importe (`30,00 €`) era ambiguo. Añadido badge
+  `Mensual` (info) / `Anual` (gris) junto al tipo y **sufijo `/mes` o `/año`** en el importe, en `Economia/Index`
+  ("Colaboraciones (todas)") y en la ficha del socio (`_TablaColaboraciones`, donde además se limpió la columna
+  "Detalle" que volcaba el enum crudo). **No había bug de cálculo**: `ResumenEconomicoService` ya prorratea las
+  anuales (`Importe/12`) en el recurrente y la proyección; era puramente presentación. `Solicitudes/Details` ya
+  mostraba la periodicidad etiquetada → no se tocó. Commit `3dbce1a`.
 - **2026-07-15 — DemoSeeder: datos de demo ficticios para la evaluación (que se hace sobre PRODUCCIÓN), EN
   LOCAL sin desplegar/poblar prod**. El tribunal del máster valida sobre el producto en producción, con la BD
   casi vacía → hace falta poblarla con datos realistas. `DemoSeeder.SeedDemoAsync` (Core), invocado en

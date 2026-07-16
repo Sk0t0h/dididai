@@ -6,14 +6,22 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-16 (paquete legal —aviso legal + privacidad +
-> cookies bilingües + 1ª capa RGPD en el formulario— y distinción visual cuota mensual/anual DESPLEGADOS y
-> verificados en prod. **Ya no queda desarrollo del MVP: solo entregables no-código —README/slides/vídeo—.**).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-16 (tarde) — cabecera de gestión responsive +
+> periodicidad de gastos COMMITEADOS EN LOCAL, **pendientes de push + deploy** (`origin/main` 2 commits por detrás).
 
 ## Active Focus
 
-**CIERRE 16-07 — Paquete legal + fix de Economía DESPLEGADOS. El MVP no tiene ya NADA de desarrollo pendiente;
-solo quedan los entregables no-código (README con credenciales de demo, slides, vídeo), deadline 20/07.** Dos
+**⚠️ 16-07 (tarde) — 2 commits LOCALES SIN PUSHEAR** (`origin/main` = `4461bcf`, 2 detrás de `HEAD`): `124046a`
+**cabecera de gestión responsive** (igualada al front: colapso 860px, ☰ con caja, dropdown flotante, solo
+secciones colapsan, logo a 24px; validado por el usuario) y `5cb77a5` **periodicidad de gastos** (enum + campo +
+migración aditiva `AddPeriodicidadGasto` + prorrateo en el resumen económico; verificado, 156 tests OK).
+**Próximo inmediato: `git push` + deploy a Azure + verificar en prod.** Discrepancia menor abierta: el `max-width`
+de la barra de gestión (1320px, `.container` xxl) no coincide con el del front (1140px) — revisar sin prisa.
+
+---
+
+**CIERRE 16-07 (mañana) — Paquete legal + fix de Economía DESPLEGADOS.** Salvo lo de arriba (sin desplegar), el
+MVP solo tiene pendientes los entregables no-código (README con credenciales de demo, slides, vídeo), deadline 20/07. Dos
 commits desplegados y verificados en prod: (1) **distinción visual cuota mensual/anual** (`3dbce1a`) — badge
 `Mensual`/`Anual` + sufijo `/mes` `/año` en el importe, en Economía y en la ficha del socio; era defecto
 puramente visual, el cálculo del recurrente ya prorrateaba las anuales. (2) **Paquete legal bilingüe**

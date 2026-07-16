@@ -3,12 +3,26 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-16 (paquete legal + distinción cuota mensual/anual DESPLEGADOS y verificados en prod).
+> Actualizado: 2026-07-16 (tarde) — cabecera de gestión responsive + periodicidad de gastos COMMITEADOS EN LOCAL,
+> pendientes de push + deploy.
 
-## FOCO ACTUAL (16-07) — Paquete legal + fix de Economía DESPLEGADOS. Solo quedan entregables no-código.
+## FOCO ACTUAL (16-07 tarde) — 2 commits locales SIN PUSHEAR. Pendiente: push + deploy.
 
-**Todo el código y contenido del MVP está VIVO en producción.** Ya no queda nada de desarrollo pendiente salvo
-los **entregables no-código** (README con credenciales de demo, slides, vídeo). Deadline **20/07**, con colchón.
+**⚠️ `origin/main` está 2 commits por detrás de `HEAD`.** Hay trabajo commiteado en local que NO está en GitHub
+ni en prod:
+- `124046a` — **cabecera de gestión responsive** (igualada al front: colapso a 860px, ☰ con caja, dropdown
+  flotante, solo secciones colapsan, logo alineado a 24px). Validado por el usuario en su navegador.
+- `5cb77a5` — **periodicidad de gastos** (enum + campo + migración aditiva `AddPeriodicidadGasto` + prorrateo en
+  el resumen económico). Verificado por el usuario. Build limpio, 156 tests OK.
+
+**Próximo inmediato:** `git push` (desde PowerShell, clave SSH en el agente) + deploy a Azure (runbook en
+`context/deploy-azure.md`; deploy de código NO toca `dididai.db`). Tras eso, verificar en prod.
+
+**Discrepancia menor abierta (no bloquea):** en escritorio muy ancho la barra de gestión llega a 1320px
+(`.container` xxl de Bootstrap) mientras el front tope a 1140px (`--ancho`). No se igualó el `max-width`. Revisar.
+
+**Resto del MVP:** solo **entregables no-código** (README con credenciales de demo, slides, vídeo). Deadline
+**20/07**, con colchón.
 
 Cerrado hoy (2 commits, desplegados y verificados en prod — detalle en log W29 16-07):
 

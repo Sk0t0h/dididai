@@ -173,18 +173,28 @@ public static class DemoSeeder
                     $"Baja de {tipo} del socio #{c.SocioId}", usuarioDemo, c.FechaFin.Value));
         }
 
-        // ---- Gastos (5 categorías, repartidos 12 meses) ----------------------------
+        // ---- Gastos (5 categorías, con periodicidad realista) ----------------------
+        // Los recurrentes (alquiler, salarios, suministros, alimentación) arrancan hace
+        // ~12 meses y siguen vigentes; los anuales (revisión médica, seguro) devengan su
+        // parte cada mes; los puntuales caen en un mes concreto. Así el devengo, el balance
+        // y la previsión reflejan un funcionamiento real de la ONG.
         var gastos = new List<Gasto>();
+        var inicioRecurrentes = new DateTime(ahora.Year, ahora.Month, 1).AddMonths(-11);
         for (int i = 0; i < GastosConceptos.Length; i++)
         {
-            var (concepto, categoria, baseImporte) = GastosConceptos[i];
-            var fecha = ahora.AddMonths(-(11 - (i % 12))).AddDays(-(i % 20));
+            var (concepto, categoria, baseImporte, periodicidad) = GastosConceptos[i];
+            var importe = baseImporte + (i % 6) * 12.50m;
+            var fecha = periodicidad == PeriodicidadGasto.Puntual
+                ? ahora.AddMonths(-(11 - (i % 12))).AddDays(-(i % 20)) // puntual: repartido en el año
+                : inicioRecurrentes;                                   // recurrente: arranca hace 12 meses
             gastos.Add(new Gasto
             {
                 Concepto = concepto,
                 Categoria = categoria,
-                Importe = baseImporte + (i % 6) * 12.50m,
+                Importe = importe,
                 Fecha = fecha,
+                Periodicidad = periodicidad,
+                FechaFin = null, // recurrentes siguen vigentes
             });
         }
         db.Gastos.AddRange(gastos);
@@ -193,6 +203,44 @@ public static class DemoSeeder
         foreach (var g in gastos)
             auditoria.Add(Reg(TipoAccionAuditoria.GastoAlta, "Gasto", g.Id.ToString(),
                 $"Alta de gasto «{g.Concepto}» ({g.Importe:0.00} €, {g.Categoria})", usuarioDemo, g.Fecha));
+
+        // ---- Entidad financiadora que cubre el déficit operativo -------------------
+        // Las cuotas de los socios no cubren el coste de operar el centro (realista en
+        // una ONG). Una entidad colaboradora aporta una donación puntual anual que cubre
+        // el déficit devengado del año en curso y deja un pequeño superávit. Se calcula
+        // sobre los datos ya sembrados para que el balance del año quede ~equilibrado.
+        var anioDesde = new DateTime(ahora.Year, 1, 1);
+        var anioHasta = new DateTime(ahora.Year, 12, 31);
+        decimal ingresosAnio = colaboraciones.Sum(c => DevengoColaboracionDemo(c, anioDesde, anioHasta));
+        decimal gastosAnio = gastos.Sum(g => DevengoGastoDemo(g, anioDesde, anioHasta));
+        decimal deficit = gastosAnio - ingresosAnio;
+        // Cubre el déficit + ~1.000 € de superávit, redondeado a la centena. Mínimo 0.
+        decimal donacionEntidad = deficit > 0 ? Math.Ceiling((deficit + 1000m) / 100m) * 100m : 1000m;
+
+        var entidad = new Socio
+        {
+            Nombre = "Fundación Amiga", Apellidos = "(entidad colaboradora)",
+            TipoDocumento = TipoDocumento.Otro, Dni = "G12345678",
+            Telefono = TelefonoE164("ES", 999), Email = "fundacion.amiga@example.org",
+            PaisResidencia = "ES", Localidad = "Madrid", CodigoPostal = "28001",
+            Direccion = "Entidad financiadora", AceptaPrivacidad = true,
+            FechaAlta = anioDesde, FechaBaja = null,
+        };
+        db.Socios.Add(entidad);
+        await db.SaveChangesAsync();
+
+        var donacion = new AportacionUnica
+        {
+            SocioId = entidad.Id, Importe = donacionEntidad,
+            FechaInicio = anioDesde.AddMonths(1), Fecha = anioDesde.AddMonths(1), Activa = true,
+        };
+        db.Colaboraciones.Add(donacion);
+        await db.SaveChangesAsync();
+
+        auditoria.Add(Reg(TipoAccionAuditoria.SocioAlta, "Socio", entidad.Id.ToString(),
+            $"Alta de la entidad colaboradora «{entidad.Nombre}»", usuarioDemo, entidad.FechaAlta));
+        auditoria.Add(Reg(TipoAccionAuditoria.ColaboracionAlta, "Colaboración", donacion.Id.ToString(),
+            $"Donación de la entidad colaboradora ({donacion.Importe:0.00} €)", usuarioDemo, donacion.Fecha));
 
         // ---- Solicitudes (los 4 estados) + acciones --------------------------------
         var solicitudes = new List<SolicitudColaboracion>();
@@ -250,8 +298,8 @@ public static class DemoSeeder
         await db.SaveChangesAsync();
 
         logger.LogInformation(
-            "DemoSeeder: sembrados {Socios} socios, {Colab} colaboraciones, {Gastos} gastos, {Sol} solicitudes, {Aud} registros de auditoría.",
-            socios.Count, colaboraciones.Count, gastos.Count, solicitudes.Count, auditoria.Count);
+            "DemoSeeder: sembrados {Socios} socios (incl. 1 entidad colaboradora), {Colab} colaboraciones, {Gastos} gastos, {Sol} solicitudes, {Aud} registros de auditoría.",
+            socios.Count + 1, colaboraciones.Count + 1, gastos.Count, solicitudes.Count, auditoria.Count);
     }
 
     // --- Helpers de auditoría ---------------------------------------------------------
@@ -317,6 +365,42 @@ public static class DemoSeeder
         .Replace("Á", "A").Replace("É", "E").Replace("Í", "I").Replace("Ó", "O").Replace("Ú", "U")
         .Replace("ñ", "n").Replace("Ñ", "N").Replace(" ", "");
 
+    // --- Devengo (misma lógica que ResumenEconomicoService, para calcular el déficit del año) ---
+
+    private static int MesesVivosDemo(DateTime desde, DateTime hasta, DateTime inicio, DateTime? fin)
+    {
+        int n = 0;
+        var m = new DateTime(desde.Year, desde.Month, 1);
+        var finRango = new DateTime(hasta.Year, hasta.Month, 1);
+        while (m <= finRango)
+        {
+            var finMes = m.AddMonths(1).AddDays(-1);
+            if (inicio <= finMes && (fin is null || fin.Value >= m)) n++;
+            m = m.AddMonths(1);
+        }
+        return n;
+    }
+
+    private static bool EnRangoDemo(DateTime f, DateTime desde, DateTime hasta)
+        => f >= new DateTime(desde.Year, desde.Month, 1)
+        && f <= new DateTime(hasta.Year, hasta.Month, 1).AddMonths(1).AddDays(-1);
+
+    private static decimal DevengoColaboracionDemo(Colaboracion c, DateTime desde, DateTime hasta) => c switch
+    {
+        AportacionUnica a => EnRangoDemo(a.Fecha, desde, hasta) ? a.Importe : 0m,
+        CuotaDomiciliada q => (q.Modalidad == ModalidadCuota.Anual ? q.Importe / 12m : q.Importe)
+                              * MesesVivosDemo(desde, hasta, q.FechaInicio, q.FechaFin),
+        Teaming t => t.Importe * MesesVivosDemo(desde, hasta, t.FechaInicio, t.FechaFin),
+        _ => 0m,
+    };
+
+    private static decimal DevengoGastoDemo(Gasto g, DateTime desde, DateTime hasta) => g.Periodicidad switch
+    {
+        PeriodicidadGasto.Puntual => EnRangoDemo(g.Fecha, desde, hasta) ? g.Importe : 0m,
+        _ => (g.Periodicidad == PeriodicidadGasto.Anual ? g.Importe / 12m : g.Importe)
+             * MesesVivosDemo(desde, hasta, g.Fecha, g.FechaFin),
+    };
+
     // --- Catálogos ficticios ----------------------------------------------------------
     private static readonly string[] NombresPila =
     {
@@ -347,23 +431,26 @@ public static class DemoSeeder
         "ES", "ES", "DE", "ES", "ES", "PT", "ES", "ES", "ES", "ES",
     };
 
-    private static readonly (string, CategoriaGasto, decimal)[] GastosConceptos =
+    private static readonly (string Concepto, CategoriaGasto Categoria, decimal Importe, PeriodicidadGasto Periodicidad)[] GastosConceptos =
     {
-        ("Material educativo multisensorial", CategoriaGasto.AccionDirecta, 320m),
-        ("Sesiones de fisioterapia", CategoriaGasto.AccionDirecta, 480m),
-        ("Alimentación mensual del centro", CategoriaGasto.AccionDirecta, 650m),
-        ("Logopedia y terapia ocupacional", CategoriaGasto.AccionDirecta, 400m),
-        ("Comisiones bancarias", CategoriaGasto.Administracion, 18m),
-        ("Gestoría y contabilidad", CategoriaGasto.Administracion, 90m),
-        ("Salario educador local", CategoriaGasto.Personal, 540m),
-        ("Salario cuidador/a", CategoriaGasto.Personal, 500m),
-        ("Electricidad y agua", CategoriaGasto.Suministros, 130m),
-        ("Internet y telefonía", CategoriaGasto.Suministros, 45m),
-        ("Transporte y logística", CategoriaGasto.Otros, 110m),
-        ("Mantenimiento de instalaciones", CategoriaGasto.Otros, 200m),
-        ("Juegos y recursos creativos", CategoriaGasto.AccionDirecta, 150m),
-        ("Revisión médica anual", CategoriaGasto.AccionDirecta, 380m),
-        ("Suministros de limpieza", CategoriaGasto.Suministros, 60m),
+        // Recurrentes mensuales (el grueso del funcionamiento del centro).
+        ("Alimentación del centro", CategoriaGasto.AccionDirecta, 650m, PeriodicidadGasto.Mensual),
+        ("Salario educador local", CategoriaGasto.Personal, 540m, PeriodicidadGasto.Mensual),
+        ("Salario cuidador/a", CategoriaGasto.Personal, 500m, PeriodicidadGasto.Mensual),
+        ("Electricidad y agua", CategoriaGasto.Suministros, 130m, PeriodicidadGasto.Mensual),
+        ("Internet y telefonía", CategoriaGasto.Suministros, 45m, PeriodicidadGasto.Mensual),
+        ("Gestoría y contabilidad", CategoriaGasto.Administracion, 90m, PeriodicidadGasto.Mensual),
+        ("Sesiones de fisioterapia", CategoriaGasto.AccionDirecta, 480m, PeriodicidadGasto.Mensual),
+        // Recurrentes anuales.
+        ("Seguro de responsabilidad civil", CategoriaGasto.Administracion, 720m, PeriodicidadGasto.Anual),
+        ("Revisión médica anual", CategoriaGasto.AccionDirecta, 380m, PeriodicidadGasto.Anual),
+        // Puntuales (compras y actuaciones concretas a lo largo del año).
+        ("Material educativo multisensorial", CategoriaGasto.AccionDirecta, 320m, PeriodicidadGasto.Puntual),
+        ("Logopedia y terapia ocupacional", CategoriaGasto.AccionDirecta, 400m, PeriodicidadGasto.Puntual),
+        ("Transporte y logística", CategoriaGasto.Otros, 110m, PeriodicidadGasto.Puntual),
+        ("Mantenimiento de instalaciones", CategoriaGasto.Otros, 200m, PeriodicidadGasto.Puntual),
+        ("Juegos y recursos creativos", CategoriaGasto.AccionDirecta, 150m, PeriodicidadGasto.Puntual),
+        ("Suministros de limpieza", CategoriaGasto.Suministros, 60m, PeriodicidadGasto.Puntual),
     };
 
     private static readonly (string, string, TipoColaboracionSolicitada, EstadoSolicitud)[] SolicitudesDemo =

@@ -49,4 +49,21 @@ public class Gasto
     [Required]
     [Display(Name = "Categoría")]
     public CategoriaGasto Categoria { get; set; } = CategoriaGasto.AccionDirecta;
+
+    /// <summary>
+    /// Periodicidad del gasto. <see cref="PeriodicidadGasto.Puntual"/> = pago único en
+    /// <see cref="Fecha"/>. Mensual/Anual = gasto recurrente que devenga en cada período
+    /// vivo desde <see cref="Fecha"/> hasta <see cref="FechaFin"/> (o indefinidamente si es null).
+    /// </summary>
+    [Required]
+    [Display(Name = "Periodicidad")]
+    public PeriodicidadGasto Periodicidad { get; set; } = PeriodicidadGasto.Puntual;
+
+    /// <summary>
+    /// Fin de un gasto recurrente (p. ej. se cancela un alquiler); <c>null</c> mientras
+    /// sigue vigente. No aplica a los gastos puntuales.
+    /// </summary>
+    [Display(Name = "Fin (gasto recurrente)")]
+    [DataType(DataType.Date)]
+    public DateTime? FechaFin { get; set; }
 }

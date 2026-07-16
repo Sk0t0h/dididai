@@ -13,6 +13,31 @@
     <div class="alert alert-success" role="alert">@mensaje</div>
 }
 
+@* --- Selector de rango de fechas del análisis --- *@
+<form method="get" class="row g-2 align-items-end mt-1 mb-2">
+    <div class="col-12 col-sm-6 col-md-3">
+        <label asp-for="Desde" class="form-label">Desde</label>
+        <input asp-for="Desde" class="form-control" type="date" />
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <label asp-for="Hasta" class="form-label">Hasta</label>
+        <input asp-for="Hasta" class="form-control" type="date" />
+    </div>
+    <div class="col-6 col-sm-auto">
+        <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+    </div>
+    <div class="col-6 col-sm-auto">
+        <a class="btn btn-outline-secondary w-100" asp-page="/Admin/Economia/Index">Año en curso</a>
+    </div>
+    <div class="col-12">
+        <small class="text-muted">
+            Los ingresos, gastos y balance se calculan por <strong>devengo</strong> en el período
+            @Model.Desde?.ToString("dd/MM/yyyy") – @Model.Hasta?.ToString("dd/MM/yyyy")
+            (las cuotas cuentan por cada mes activo; las aportaciones puntuales, en su fecha).
+        </small>
+    </div>
+</form>
+
 @* --- Métricas --- *@
 <div class="row g-3 mt-1">
     <div class="col-6 col-lg-3">
@@ -20,7 +45,7 @@
             <div class="card-body">
                 <h6 class="card-subtitle text-muted">Ingreso recurrente / mes</h6>
                 <p class="h4 mb-0 mt-2">@Model.Resumen.IngresoRecurrenteMensual.ToString("N2") €</p>
-                <small class="text-muted">Cuotas domiciliadas activas</small>
+                <small class="text-muted">Cuotas activas hoy · @Model.Resumen.IngresoRecurrenteAnual.ToString("N2") €/año</small>
             </div>
         </div>
     </div>
@@ -36,9 +61,9 @@
     <div class="col-6 col-lg-3">
         <div class="card h-100">
             <div class="card-body">
-                <h6 class="card-subtitle text-muted">Total ingresos</h6>
+                <h6 class="card-subtitle text-muted">Ingresos del período</h6>
                 <p class="h4 mb-0 mt-2">@Model.Resumen.TotalIngresos.ToString("N2") €</p>
-                <small class="text-muted">Colaboraciones activas</small>
+                <small class="text-muted">Devengado en el rango</small>
             </div>
         </div>
     </div>
@@ -79,7 +104,15 @@
     <div class="col-12 col-lg-6">
         <div class="card h-100"><div class="card-body">
             <h6 class="card-subtitle text-muted mb-2">Altas de colaboraciones por mes</h6>
+            <p class="small text-muted mb-2">Captación: cuántas colaboraciones nuevas empiezan cada mes.</p>
             <div class="chart-box"><canvas data-chart="@Model.ChartAltasPorMes" aria-label="Altas de colaboraciones por mes"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100"><div class="card-body">
+            <h6 class="card-subtitle text-muted mb-2">Evolución de ingresos por mes</h6>
+            <p class="small text-muted mb-2">Ingresos devengados en cada mes del período (las cuotas suman mientras están activas).</p>
+            <div class="chart-box"><canvas data-chart="@Model.ChartIngresosPorMes" aria-label="Ingresos devengados por mes"></canvas></div>
         </div></div>
     </div>
     <div class="col-12">
@@ -104,7 +137,7 @@
 </div>
 
 @* --- Gastos: alta + listado --- *@
-<h2 class="h5 mt-4">Gastos</h2>
+<h2 class="h5 mt-4" id="gastos">Gastos</h2>
 <form method="post" asp-page-handler="CrearGasto" class="row g-2 align-items-end mb-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="col-12 col-md-4">
@@ -117,15 +150,23 @@
         <input asp-for="GastoNuevo.Importe" class="form-control" type="number" step="0.01" min="0.01" />
         <span asp-validation-for="GastoNuevo.Importe" class="text-danger"></span>
     </div>
-    <div class="col-6 col-md-2">
+    <div class="col-6 col-sm-6 col-md-2">
         <label asp-for="GastoNuevo.Fecha" class="form-label"></label>
         <input asp-for="GastoNuevo.Fecha" class="form-control" type="date" />
     </div>
-    <div class="col-8 col-md-3">
+    <div class="col-12 col-sm-6 col-md-3">
         <label asp-for="GastoNuevo.Categoria" class="form-label"></label>
         <select asp-for="GastoNuevo.Categoria" class="form-select" asp-items="Html.GetEnumSelectList<CategoriaGasto>()"></select>
     </div>
-    <div class="col-4 col-md-1">
+    <div class="col-6 col-sm-6 col-md-2">
+        <label asp-for="GastoNuevo.Periodicidad" class="form-label"></label>
+        <select asp-for="GastoNuevo.Periodicidad" class="form-select" asp-items="Html.GetEnumSelectList<PeriodicidadGasto>()"></select>
+    </div>
+    <div class="col-6 col-sm-6 col-md-2">
+        <label asp-for="GastoNuevo.FechaFin" class="form-label"></label>
+        <input asp-for="GastoNuevo.FechaFin" class="form-control" type="date" />
+    </div>
+    <div class="col-12 col-md-2">
         <button type="submit" class="btn btn-primary w-100">Añadir</button>
     </div>
 </form>
@@ -139,7 +180,7 @@ else
     <div class="table-responsive">
         <table class="table table-sm align-middle">
             <thead>
-                <tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th class="text-end">Importe</th><th></th></tr>
+                <tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Periodicidad</th><th class="text-end">Importe</th><th></th></tr>
             </thead>
             <tbody>
                 @foreach (var g in Model.Gastos)
@@ -148,7 +189,14 @@ else
                         <td>@g.Fecha.ToString("dd/MM/yyyy")</td>
                         <td>@g.Concepto</td>
                         <td>@Html.DisplayFor(_ => g.Categoria)</td>
-                        <td class="text-end">@g.Importe.ToString("N2") €</td>
+                        <td>
+                            @Html.DisplayFor(_ => g.Periodicidad)
+                            @if (g.Periodicidad != PeriodicidadGasto.Puntual && g.FechaFin is not null)
+                            {
+                                <span class="text-muted">(hasta @g.FechaFin.Value.ToString("dd/MM/yyyy"))</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">@g.Importe.ToString("N2") €@(g.Periodicidad == PeriodicidadGasto.Mensual ? "/mes" : g.Periodicidad == PeriodicidadGasto.Anual ? "/año" : "")</td>
                         <td class="text-end">
                             <form method="post" asp-page-handler="EliminarGasto" asp-route-id="@g.Id" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-danger js-confirm"
@@ -160,10 +208,23 @@ else
             </tbody>
         </table>
     </div>
+    @if (Model.TotalPagsGastos > 1)
+    {
+        <nav aria-label="Paginación de gastos">
+            <ul class="pagination pagination-sm">
+                @for (int p = 1; p <= Model.TotalPagsGastos; p++)
+                {
+                    <li class="page-item @(p == Model.PgGastos ? "active" : "")">
+                        <a class="page-link" asp-route-Desde="@Model.Desde?.ToString("yyyy-MM-dd")" asp-route-Hasta="@Model.Hasta?.ToString("yyyy-MM-dd")" asp-route-PgGastos="@p" asp-route-PgColab="@Model.PgColab" asp-fragment="gastos">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 }
 
 @* --- Vista global de colaboraciones --- *@
-<h2 class="h5 mt-4">Colaboraciones (todas)</h2>
+<h2 class="h5 mt-4" id="colaboraciones">Colaboraciones (todas)</h2>
 @if (Model.Colaboraciones.Count == 0)
 {
     <p class="text-muted">No hay colaboraciones registradas.</p>
@@ -180,7 +241,16 @@ else
                 {
                     var cuotaDom = c as CuotaDomiciliada;
                     <tr>
-                        <td>@(c.Socio is null ? "—" : $"{c.Socio.Nombre} {c.Socio.Apellidos}")</td>
+                        <td>
+                            @if (c.Socio is null)
+                            {
+                                <span>—</span>
+                            }
+                            else
+                            {
+                                <a asp-page="/Admin/Socios/Details" asp-route-id="@c.SocioId">@c.Socio.Nombre @c.Socio.Apellidos</a>
+                            }
+                        </td>
                         <td>
                             @(c switch { CuotaDomiciliada => "Cuota domiciliada", AportacionUnica => "Aportación única", Teaming => "Teaming", _ => "—" })
                             @if (cuotaDom is not null)
@@ -207,6 +277,19 @@ else
             </tbody>
         </table>
     </div>
+    @if (Model.TotalPagsColab > 1)
+    {
+        <nav aria-label="Paginación de colaboraciones">
+            <ul class="pagination pagination-sm">
+                @for (int p = 1; p <= Model.TotalPagsColab; p++)
+                {
+                    <li class="page-item @(p == Model.PgColab ? "active" : "")">
+                        <a class="page-link" asp-route-Desde="@Model.Desde?.ToString("yyyy-MM-dd")" asp-route-Hasta="@Model.Hasta?.ToString("yyyy-MM-dd")" asp-route-PgColab="@p" asp-route-PgGastos="@Model.PgGastos" asp-fragment="colaboraciones">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 }
 
 <div class="mt-4">

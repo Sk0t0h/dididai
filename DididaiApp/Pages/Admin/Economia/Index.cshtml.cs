@@ -32,9 +32,27 @@ public class IndexModel : PageModel
 
     private string Actor => User.Identity?.Name ?? "desconocido";
 
+    private const int TamPagina = 10;
+
     public ResumenEconomico Resumen { get; private set; } = new();
     public IReadOnlyList<Gasto> Gastos { get; private set; } = [];
     public IReadOnlyList<Colaboracion> Colaboraciones { get; private set; } = [];
+
+    // Paginación de las tablas (en memoria; el volumen de una ONG pequeña lo permite).
+    [BindProperty(SupportsGet = true)] public int PgGastos { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public int PgColab { get; set; } = 1;
+    public int TotalPagsGastos { get; private set; } = 1;
+    public int TotalPagsColab { get; private set; } = 1;
+
+    // Rango de fechas del análisis económico (meses completos, inclusive). Por defecto,
+    // el año natural en curso. Se enlazan desde el formulario GET de la cabecera.
+    [BindProperty(SupportsGet = true)]
+    [DataType(DataType.Date)]
+    public DateTime? Desde { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    [DataType(DataType.Date)]
+    public DateTime? Hasta { get; set; }
 
     // Datos de las gráficas serializados a JSON para los atributos data-chart de los
     // canvas (los pinta dashboard.js con Chart.js). Se construyen en servidor para no
@@ -43,6 +61,7 @@ public class IndexModel : PageModel
     public string ChartGastosPorCategoria { get; private set; } = "null";
     public string ChartIngresosVsGastos { get; private set; } = "null";
     public string ChartAltasPorMes { get; private set; } = "null";
+    public string ChartIngresosPorMes { get; private set; } = "null";
     public string ChartProyeccion { get; private set; } = "null";
 
     [BindProperty]
@@ -69,15 +88,39 @@ public class IndexModel : PageModel
         [Required]
         [Display(Name = "Categoría")]
         public CategoriaGasto Categoria { get; set; } = CategoriaGasto.AccionDirecta;
+
+        [Required]
+        [Display(Name = "Periodicidad")]
+        public PeriodicidadGasto Periodicidad { get; set; } = PeriodicidadGasto.Puntual;
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Fin (si es recurrente)")]
+        public DateTime? FechaFin { get; set; }
     }
 
     private async Task CargarAsync()
     {
-        Resumen = await _resumen.ObtenerAsync();
-        Gastos = await _gastos.ListarAsync();
-        Colaboraciones = await _colaboraciones.ListarTodasAsync();
-        // Proyección de los próximos 6 meses desde el mes actual ("si todo sigue igual").
+        // Rango por defecto: año natural en curso (1 ene – 31 dic del año actual).
         var hoy = DateTime.UtcNow;
+        var desde = Desde ?? new DateTime(hoy.Year, 1, 1);
+        var hasta = Hasta ?? new DateTime(hoy.Year, 12, 31);
+        if (hasta < desde) (desde, hasta) = (hasta, desde);
+        Desde = desde;
+        Hasta = hasta;
+
+        Resumen = await _resumen.ObtenerAsync(desde, hasta);
+
+        // Gastos y colaboraciones paginados en memoria (10/pág.).
+        var gastos = await _gastos.ListarAsync();
+        TotalPagsGastos = Math.Max(1, (int)Math.Ceiling(gastos.Count / (double)TamPagina));
+        PgGastos = Math.Clamp(PgGastos, 1, TotalPagsGastos);
+        Gastos = gastos.Skip((PgGastos - 1) * TamPagina).Take(TamPagina).ToList();
+
+        var colaboraciones = await _colaboraciones.ListarTodasAsync();
+        TotalPagsColab = Math.Max(1, (int)Math.Ceiling(colaboraciones.Count / (double)TamPagina));
+        PgColab = Math.Clamp(PgColab, 1, TotalPagsColab);
+        Colaboraciones = colaboraciones.Skip((PgColab - 1) * TamPagina).Take(TamPagina).ToList();
+        // Proyección de los próximos 6 meses desde el mes actual ("si todo sigue igual").
         var proyeccion = await _resumen.ProyectarAsync(new DateTime(hoy.Year, hoy.Month, 1), 6);
         ConstruirGraficas(proyeccion);
     }
@@ -115,10 +158,15 @@ public class IndexModel : PageModel
             ["Ingresos", "Gastos", "Balance"],
             [Resumen.TotalIngresos, Resumen.TotalGastos, Resumen.Balance]);
 
-        // Altas de colaboraciones por mes (líneas).
+        // Altas de colaboraciones por mes (líneas) — captación.
         ChartAltasPorMes = Chart("line", "Altas por mes",
             Resumen.AltasPorMes.Select(a => a.Mes).ToArray(),
             Resumen.AltasPorMes.Select(a => (decimal)a.Cantidad).ToArray());
+
+        // Evolución de ingresos devengados por mes (líneas) — cuánto se ingresa cada mes.
+        ChartIngresosPorMes = Chart("line", "Ingresos por mes",
+            Resumen.IngresosPorMes.Select(a => a.Mes).ToArray(),
+            Resumen.IngresosPorMes.Select(a => a.Valor).ToArray());
     }
 
     private static string Chart(string tipo, string etiqueta, string[] labels, decimal[] valores)
@@ -147,6 +195,8 @@ public class IndexModel : PageModel
             Importe = GastoNuevo.Importe,
             Fecha = GastoNuevo.Fecha,
             Categoria = GastoNuevo.Categoria,
+            Periodicidad = GastoNuevo.Periodicidad,
+            FechaFin = GastoNuevo.Periodicidad == PeriodicidadGasto.Puntual ? null : GastoNuevo.FechaFin,
         };
         var creado = await _gastos.CrearAsync(gasto);
         if (creado)

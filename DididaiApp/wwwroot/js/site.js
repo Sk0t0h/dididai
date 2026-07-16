@@ -70,6 +70,43 @@
     });
 })();
 
+// Date pickers en Firefox de escritorio (>=109): a diferencia de Chrome/Edge, clicar la
+// zona de texto de un <input type="date"> ya NO abre el calendario (comportamiento
+// intencionado de Mozilla, WONTFIX); solo lo abre su icono interno, cuyo clic además NO
+// burbujea hasta un listener en `document`. Para que abra clicando en CUALQUIER parte
+// (texto o icono) en Firefox y Chrome/Edge, se llama a showPicker() con:
+//   - fase de CAPTURA: corre antes de que el control interno del icono consuma el gesto;
+//   - `pointerdown`: un único evento por gesto (evita el toggle abre/cierra de click);
+//   - closest(): el target puede ser el input o un nodo interno;
+//   - candado `abriendo`: descarta reentradas en el mismo tick (anti-parpadeo).
+// Solo date/datetime-local (Firefox no soporta showPicker en time/month/week). CSP-safe.
+(function () {
+    if (!("showPicker" in HTMLInputElement.prototype)) return; // navegador antiguo: nativo
+    var abriendo = false;
+    document.addEventListener("pointerdown", function (e) {
+        var el = e.target;
+        var input = el && el.closest ? el.closest('input[type="date"], input[type="datetime-local"]') : null;
+        if (!input || input.disabled || input.readOnly) return;
+        if (abriendo) return;
+        abriendo = true;
+        try { input.showPicker(); } catch (ex) { /* el input sigue editable a mano */ }
+        window.setTimeout(function () { abriendo = false; }, 0);
+    }, true); // fase de captura
+})();
+
+// Menú hamburguesa del back: en pantallas estrechas la barra de gestión no cabe (6
+// secciones + usuario + Salir) y desbordaba en horizontal. El botón ☰ despliega/oculta
+// la nav (clase .open). Manejador externo, sin inline (CSP). aria-expanded para lectores.
+(function () {
+    var btn = document.querySelector("[data-admin-menu-btn]");
+    var nav = document.querySelector("[data-admin-nav]");
+    if (!btn || !nav) return;
+    btn.addEventListener("click", function () {
+        var abierto = nav.classList.toggle("open");
+        btn.setAttribute("aria-expanded", abierto ? "true" : "false");
+    });
+})();
+
 // Selector de idioma: al cambiar la opción, se envía el formulario que fija la
 // cultura en la cookie (manejador externo, sin inline, para respetar la CSP).
 document.addEventListener("change", function (e) {

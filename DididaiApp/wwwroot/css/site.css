@@ -141,6 +141,7 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
 
 /* ---------- Cabecera de gestión (mismo lenguaje visual que el front) ---------- */
 .admin-header {
+  position: relative; /* ancla del dropdown absoluto en móvil (mismo patrón que el front) */
   background: #fffdf9;
   border-bottom: 3px solid var(--c-naranja);
   margin-bottom: 1.5rem;
@@ -151,6 +152,11 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
   gap: 1.2rem;
   padding-top: .6rem;
   padding-bottom: .6rem;
+  /* Mismo margen lateral que el .wrap del front (24px fijos), para que el logo quede
+     alineado igual en ambas cabeceras. El .container de Bootstrap usa 12px y varía con
+     los breakpoints; solo lo sobreescribimos en esta barra, no en el resto del back. */
+  padding-left: 24px;
+  padding-right: 24px;
 }
 .admin-brand img {
   width: 52px;
@@ -164,9 +170,15 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
   font-size: .9rem;
 }
 .admin-user:hover { color: var(--c-naranja-osc); }
-/* El menú de secciones se va a la derecha. */
-.admin-nav {
+/* Bloque derecho (secciones + usuario + Salir): empujado a la derecha, como el
+   .site-nav del front. El logo queda anclado a la izquierda. */
+.admin-tools {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.3rem;
+}
+.admin-nav {
   display: flex;
   align-items: center;
   gap: 1.3rem;
@@ -192,10 +204,54 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
 }
 .admin-salir:hover { text-decoration: underline; }
 
-/* Responsive: en pantallas estrechas, la cabecera de gestión envuelve en varias líneas. */
-@media (max-width: 640px) {
-  .admin-bar { flex-wrap: wrap; gap: .6rem 1rem; }
-  .admin-nav { margin-left: 0; width: 100%; flex-wrap: wrap; gap: .8rem 1.1rem; }
+/* Botón hamburguesa: oculto en escritorio (la nav se ve entera), visible en móvil.
+   Mismo estilo que el .menu-btn del front (caja con borde) para que ambas cabeceras
+   hablen el mismo idioma visual. */
+.admin-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border: 1.6px solid #ead9c0;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  border-radius: 8px;
+  width: 42px;
+  height: 40px;
+  color: var(--c-tinta);
+}
+
+/* Responsive: se colapsa en el MISMO breakpoint que el front (860px) y con el MISMO
+   patrón —dropdown absoluto que flota sobre el contenido, no empuja la barra—, para que
+   las dos cabeceras se comporten igual. Elimina además el rango intermedio en el que la
+   barra iba apretada y "Salir" quedaba pegado al borde derecho. */
+@media (max-width: 860px) {
+  .admin-menu-btn { display: inline-flex; }
+  .admin-tools { gap: .6rem; }
+  /* Solo las SECCIONES se colapsan; usuario y Salir siguen en la barra (como el front).
+     El panel flota anclado a la cabecera (ancho completo), no empuja la barra. */
+  .admin-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: var(--c-crema);
+    border-bottom: 1px solid #ead9c0;
+    padding: .5rem 24px 1rem;
+    box-shadow: 0 12px 24px rgba(36, 26, 18, .1);
+    z-index: 50;
+  }
+  .admin-nav.open { display: flex; }
+  .admin-nav a {
+    padding: .8rem 0;
+    border-bottom: 1px solid #ead9c0;
+  }
 }
 
 /* ---------- Tablas del back: menos planas, con acento de marca ---------- */

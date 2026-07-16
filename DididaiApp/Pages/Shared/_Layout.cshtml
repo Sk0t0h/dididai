@@ -22,18 +22,24 @@
                 <a class="admin-brand" asp-area="" asp-page="/Index" aria-label="DIDIDAI inicio">
                     <img src="~/images/brand/logo.png" alt="Logo de DIDIDAI" />
                 </a>
-                <a class="admin-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gestionar mi cuenta">@User.Identity?.Name</a>
-                <nav class="admin-nav" aria-label="Gestión">
-                    <a asp-area="" asp-page="/Admin/Index">Admin</a>
-                    <a asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
-                    <a asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
-                    <a asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
-                    <a asp-area="" asp-page="/Admin/Usuarios/Index">Administradores</a>
-                    <a asp-area="" asp-page="/Admin/Auditoria/Index">Auditoría</a>
+                @* Bloque derecho (empujado con margin-left:auto, como el .site-nav del front).
+                   Solo las SECCIONES se colapsan tras el ☰ en móvil; el usuario y Salir se
+                   quedan siempre visibles en la barra, igual que idioma/Gestión/Salir en el front. *@
+                <div class="admin-tools">
+                    <nav class="admin-nav" id="admin-nav" data-admin-nav aria-label="Gestión">
+                        <a asp-area="" asp-page="/Admin/Index">Admin</a>
+                        <a asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
+                        <a asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
+                        <a asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
+                        <a asp-area="" asp-page="/Admin/Usuarios/Index">Administradores</a>
+                        <a asp-area="" asp-page="/Admin/Auditoria/Index">Auditoría</a>
+                    </nav>
+                    <a class="admin-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gestionar mi cuenta">@User.Identity?.Name</a>
                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post" class="d-inline">
                         <button type="submit" class="admin-salir">Salir</button>
                     </form>
-                </nav>
+                    <button type="button" class="admin-menu-btn" data-admin-menu-btn aria-label="Abrir menú" aria-expanded="false" aria-controls="admin-nav">☰</button>
+                </div>
             </div>
         </nav>
       }

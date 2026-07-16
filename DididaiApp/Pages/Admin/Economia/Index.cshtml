@@ -178,10 +178,19 @@ else
             <tbody>
                 @foreach (var c in Model.Colaboraciones)
                 {
+                    var cuotaDom = c as CuotaDomiciliada;
                     <tr>
                         <td>@(c.Socio is null ? "—" : $"{c.Socio.Nombre} {c.Socio.Apellidos}")</td>
-                        <td>@(c switch { CuotaDomiciliada => "Cuota domiciliada", AportacionUnica => "Aportación única", Teaming => "Teaming", _ => "—" })</td>
-                        <td class="text-end">@c.Importe.ToString("N2") €</td>
+                        <td>
+                            @(c switch { CuotaDomiciliada => "Cuota domiciliada", AportacionUnica => "Aportación única", Teaming => "Teaming", _ => "—" })
+                            @if (cuotaDom is not null)
+                            {
+                                <span class="badge @(cuotaDom.Modalidad == ModalidadCuota.Mensual ? "text-bg-info" : "text-bg-secondary")">@Html.DisplayFor(_ => cuotaDom.Modalidad)</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            @c.Importe.ToString("N2") €@(cuotaDom is not null ? (cuotaDom.Modalidad == ModalidadCuota.Mensual ? "/mes" : "/año") : "")
+                        </td>
                         <td>@c.FechaInicio.ToString("dd/MM/yyyy")</td>
                         <td>
                             @if (c.Activa)

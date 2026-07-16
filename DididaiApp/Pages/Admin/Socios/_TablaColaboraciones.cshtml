@@ -36,6 +36,7 @@ else
             <tbody>
                 @foreach (var c in Model.Colaboraciones)
                 {
+                    var cuota = c as CuotaDomiciliada;
                     <tr>
                         <td>
                             @(c switch
@@ -45,12 +46,18 @@ else
                                 Teaming => "Teaming",
                                 _ => "Colaboración"
                             })
-                        </td>
-                        <td class="text-end">@c.Importe.ToString("N2") €</td>
-                        <td>
-                            @if (c is CuotaDomiciliada cuota)
+                            @if (cuota is not null)
                             {
-                                <span>@cuota.Modalidad · @cuota.Iban</span>
+                                <span class="badge @(cuota.Modalidad == ModalidadCuota.Mensual ? "text-bg-info" : "text-bg-secondary")">@Html.DisplayFor(_ => cuota.Modalidad)</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            @c.Importe.ToString("N2") €@(cuota is not null ? (cuota.Modalidad == ModalidadCuota.Mensual ? "/mes" : "/año") : "")
+                        </td>
+                        <td>
+                            @if (cuota is not null)
+                            {
+                                <span>@cuota.Iban</span>
                             }
                             else
                             {

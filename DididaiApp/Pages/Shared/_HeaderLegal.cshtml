@@ -1,0 +1,46 @@
+@using System.Globalization
+@{
+    // Cabecera simplificada para las páginas legales: logo → home, selector de idioma
+    // y acceso a gestión. Sin la navegación por anclas de la home (no aplica aquí).
+    // El returnUrl del selector de idioma es la propia página actual, para no perder
+    // el contexto al cambiar de idioma.
+    var es = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
+    var currentPath = Context.Request.Path + Context.Request.QueryString;
+}
+<header class="site-header">
+    <div class="wrap bar">
+        <a class="brand" asp-page="/Index" aria-label="DIDIDAI inicio">
+            <img src="~/images/brand/logo.png" alt="Logo de DIDIDAI" />
+        </a>
+        <nav class="site-nav" aria-label="@(es ? "Navegación" : "Navigation")">
+            <div class="nav-links">
+                <a asp-page="/Index">@(es ? "Inicio" : "Home")</a>
+            </div>
+            <span class="lang" aria-label="@(es ? "Idioma" : "Language")">
+                <form asp-page="/SetLanguage" method="post" class="d-inline">
+                    <input type="hidden" name="culture" value="es" />
+                    <input type="hidden" name="returnUrl" value="@currentPath" />
+                    <button type="submit" class="@(es ? "is-active" : "")">ES</button>
+                </form>
+                <form asp-page="/SetLanguage" method="post" class="d-inline">
+                    <input type="hidden" name="culture" value="en" />
+                    <input type="hidden" name="returnUrl" value="@currentPath" />
+                    <button type="submit" class="@(!es ? "is-active" : "")">EN</button>
+                </form>
+            </span>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <span class="admin-links">
+                    <a asp-area="" asp-page="/Admin/Index">@(es ? "Panel" : "Dashboard")</a>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post" class="d-inline">
+                        <button type="submit" class="link-salir">@(es ? "Salir" : "Sign out")</button>
+                    </form>
+                </span>
+            }
+            else
+            {
+                <a class="admin-acceso" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Admin">@(es ? "Acceso gestión" : "Management access")</a>
+            }
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,18 @@
+@page "/privacidad"
+@using System.Globalization
+@model DididaiApp.Pages.Legal.PrivacidadModel
+@{
+    var es = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
+    ViewData["Title"] = es ? "Política de privacidad" : "Privacy policy";
+    Layout = "_PublicLayout";
+}
+
+<partial name="_HeaderLegal" />
+
+<main id="top" class="legal-page">
+    <div class="wrap legal-wrap">
+        <partial name="@(es ? "Legal/_Privacidad.es" : "Legal/_Privacidad.en")" />
+    </div>
+</main>
+
+<partial name="_FooterLegal" />

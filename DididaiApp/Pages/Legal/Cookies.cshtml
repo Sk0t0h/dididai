@@ -1,0 +1,18 @@
+@page "/cookies"
+@using System.Globalization
+@model DididaiApp.Pages.Legal.CookiesModel
+@{
+    var es = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
+    ViewData["Title"] = es ? "Política de cookies" : "Cookie policy";
+    Layout = "_PublicLayout";
+}
+
+<partial name="_HeaderLegal" />
+
+<main id="top" class="legal-page">
+    <div class="wrap legal-wrap">
+        <partial name="@(es ? "Legal/_Cookies.es" : "Legal/_Cookies.en")" />
+    </div>
+</main>
+
+<partial name="_FooterLegal" />

@@ -241,6 +241,21 @@
                     <input type="text" id="Web" name="Web" tabindex="-1" autocomplete="off" value="" />
                 </div>
 
+                @* Información básica de protección de datos (1ª capa RGPD), junto al botón enviar,
+                   con enlace a la política completa (2ª capa). El detalle bancario/SEPA no aplica
+                   aquí: el formulario solo crea una solicitud, sin IBAN. *@
+                <div class="rgpd-basica">
+                    <p class="rgpd-basica-titulo">@Localizer["Form_Rgpd_Titulo"]</p>
+                    <dl>
+                        <dt>@Localizer["Form_Rgpd_Responsable_L"]</dt><dd>@Localizer["Form_Rgpd_Responsable_V"]</dd>
+                        <dt>@Localizer["Form_Rgpd_Finalidad_L"]</dt><dd>@Localizer["Form_Rgpd_Finalidad_V"]</dd>
+                        <dt>@Localizer["Form_Rgpd_Legitimacion_L"]</dt><dd>@Localizer["Form_Rgpd_Legitimacion_V"]</dd>
+                        <dt>@Localizer["Form_Rgpd_Destinatarios_L"]</dt><dd>@Localizer["Form_Rgpd_Destinatarios_V"]</dd>
+                        <dt>@Localizer["Form_Rgpd_Derechos_L"]</dt><dd>@Localizer["Form_Rgpd_Derechos_V"]</dd>
+                        <dt>@Localizer["Form_Rgpd_Mas"]</dt><dd><a asp-page="/Legal/Privacidad" target="_blank" rel="noopener">@Localizer["Form_Rgpd_MasEnlace"]</a></dd>
+                    </dl>
+                </div>
+
                 <label class="consent">
                     <input asp-for="Colaborar.AceptaPrivacidad" type="checkbox" />
                     <span>@Localizer["Form_Consentimiento"]</span>
@@ -264,12 +279,7 @@
     </section>
 </main>
 
-<footer class="site-footer">
-    <div class="wrap bar">
-        <div>@Localizer["Footer_Left"]</div>
-        <div><a href="#colaborar">@Localizer["Nav_Colaborar"]</a> · <a href="mailto:info@@dididai.org">info@@dididai.org</a> · <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Admin">@Localizer["Footer_Acceso"]</a></div>
-    </div>
-</footer>
+<partial name="_FooterLegal" />
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

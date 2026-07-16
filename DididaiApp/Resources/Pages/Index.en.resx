@@ -135,10 +135,23 @@
   <data name="Form_Importe" xml:space="preserve"><value>Amount (€)</value></data>
   <data name="Form_Periodicidad" xml:space="preserve"><value>Frequency</value></data>
   <data name="Form_PeriodicidadDefault" xml:space="preserve"><value>Choose a frequency…</value></data>
-  <data name="Form_Consentimiento" xml:space="preserve"><value>I have read and accept the &lt;a href="/Privacy"&gt;privacy policy&lt;/a&gt; and authorise the processing of my data to manage my contribution.</value></data>
+  <data name="Form_Consentimiento" xml:space="preserve"><value>I have read the &lt;a href="/privacidad" target="_blank" rel="noopener"&gt;privacy policy&lt;/a&gt; and understand how my data will be processed to manage my request.</value></data>
+  <data name="Form_Rgpd_Titulo" xml:space="preserve"><value>Basic data protection information</value></data>
+  <data name="Form_Rgpd_Responsable_L" xml:space="preserve"><value>Controller</value></data>
+  <data name="Form_Rgpd_Responsable_V" xml:space="preserve"><value>DIDIDAI [LEGAL NAME]</value></data>
+  <data name="Form_Rgpd_Finalidad_L" xml:space="preserve"><value>Purpose</value></data>
+  <data name="Form_Rgpd_Finalidad_V" xml:space="preserve"><value>To manage your membership request. No banking details are requested at this stage.</value></data>
+  <data name="Form_Rgpd_Legitimacion_L" xml:space="preserve"><value>Legal basis</value></data>
+  <data name="Form_Rgpd_Legitimacion_V" xml:space="preserve"><value>Performance of the membership relationship and legal obligations.</value></data>
+  <data name="Form_Rgpd_Destinatarios_L" xml:space="preserve"><value>Recipients</value></data>
+  <data name="Form_Rgpd_Destinatarios_V" xml:space="preserve"><value>No data is shared with third parties, except where required by law.</value></data>
+  <data name="Form_Rgpd_Derechos_L" xml:space="preserve"><value>Rights</value></data>
+  <data name="Form_Rgpd_Derechos_V" xml:space="preserve"><value>Access, rectification, erasure and other rights, as explained in the privacy policy.</value></data>
+  <data name="Form_Rgpd_Mas" xml:space="preserve"><value>More information</value></data>
+  <data name="Form_Rgpd_MasEnlace" xml:space="preserve"><value>Privacy policy</value></data>
   <data name="Form_Enviar" xml:space="preserve"><value>Send request</value></data>
   <data name="Form_Nota" xml:space="preserve"><value>Your data is sent encrypted and is never published.</value></data>
-  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>We need your consent to process your data and manage your contribution.</value></data>
+  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>To continue, please confirm that you have read the privacy policy.</value></data>
   <data name="Form_Error_Telefono" xml:space="preserve"><value>The phone number must be in international format, with the country code (e.g. +34612345678).</value></data>
   <!-- Contacto -->
   <data name="Con_Eyebrow" xml:space="preserve"><value>Let's talk</value></data>

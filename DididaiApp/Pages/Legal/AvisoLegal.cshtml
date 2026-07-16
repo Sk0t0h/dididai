@@ -1,0 +1,18 @@
+@page "/aviso-legal"
+@using System.Globalization
+@model DididaiApp.Pages.Legal.AvisoLegalModel
+@{
+    var es = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
+    ViewData["Title"] = es ? "Aviso legal" : "Legal notice";
+    Layout = "_PublicLayout";
+}
+
+<partial name="_HeaderLegal" />
+
+<main id="top" class="legal-page">
+    <div class="wrap legal-wrap">
+        <partial name="@(es ? "Legal/_AvisoLegal.es" : "Legal/_AvisoLegal.en")" />
+    </div>
+</main>
+
+<partial name="_FooterLegal" />

@@ -1,0 +1,28 @@
+@using System.Globalization
+@{
+    // Footer público compartido por la home y las páginas legales. Los enlaces legales
+    // (Aviso Legal · Privacidad · Cookies) aparecen así en TODAS las páginas del front,
+    // como exige la normativa (accesibles desde cualquier página). Bilingüe por cultura;
+    // es poco texto, no justifica claves .resx propias.
+    var es = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
+    var copyright = es
+        ? "© DIDIDAI · derechos infantiles y educación especial · Katmandú, Nepal"
+        : "© DIDIDAI · children's rights and special education · Kathmandu, Nepal";
+    var acceso = es ? "Acceso gestión" : "Management access";
+    var avisoLegal = es ? "Aviso legal" : "Legal notice";
+    var privacidad = es ? "Privacidad" : "Privacy";
+    var cookies = "Cookies";
+}
+<footer class="site-footer">
+    <div class="wrap bar">
+        <div>@copyright</div>
+        <nav class="footer-links" aria-label="@(es ? "Enlaces legales" : "Legal links")">
+            <a asp-page="/Legal/AvisoLegal">@avisoLegal</a>
+            <a asp-page="/Legal/Privacidad">@privacidad</a>
+            <a asp-page="/Legal/Cookies">@cookies</a>
+            <a asp-area="" asp-page="/Index" asp-fragment="colaborar">@(es ? "Colaborar" : "Get involved")</a>
+            <a href="mailto:info@@dididai.org">info@@dididai.org</a>
+            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="/Admin">@acceso</a>
+        </nav>
+    </div>
+</footer>

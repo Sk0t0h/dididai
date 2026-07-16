@@ -129,10 +129,23 @@
   <data name="Form_Importe" xml:space="preserve"><value>Importe (€)</value></data>
   <data name="Form_Periodicidad" xml:space="preserve"><value>Periodicidad</value></data>
   <data name="Form_PeriodicidadDefault" xml:space="preserve"><value>Elige una periodicidad…</value></data>
-  <data name="Form_Consentimiento" xml:space="preserve"><value>He leído y acepto la &lt;a href="/Privacy"&gt;política de privacidad&lt;/a&gt; y autorizo el tratamiento de mis datos para gestionar mi colaboración.</value></data>
+  <data name="Form_Consentimiento" xml:space="preserve"><value>He leído la &lt;a href="/privacidad" target="_blank" rel="noopener"&gt;política de privacidad&lt;/a&gt; y entiendo cómo se tratarán mis datos para gestionar mi solicitud.</value></data>
+  <data name="Form_Rgpd_Titulo" xml:space="preserve"><value>Información básica sobre protección de datos</value></data>
+  <data name="Form_Rgpd_Responsable_L" xml:space="preserve"><value>Responsable</value></data>
+  <data name="Form_Rgpd_Responsable_V" xml:space="preserve"><value>DIDIDAI [DENOMINACIÓN LEGAL]</value></data>
+  <data name="Form_Rgpd_Finalidad_L" xml:space="preserve"><value>Finalidad</value></data>
+  <data name="Form_Rgpd_Finalidad_V" xml:space="preserve"><value>Gestionar tu solicitud de alta como socio/a. En esta fase no se piden datos bancarios.</value></data>
+  <data name="Form_Rgpd_Legitimacion_L" xml:space="preserve"><value>Legitimación</value></data>
+  <data name="Form_Rgpd_Legitimacion_V" xml:space="preserve"><value>Ejecución de la relación asociativa y obligaciones legales.</value></data>
+  <data name="Form_Rgpd_Destinatarios_L" xml:space="preserve"><value>Destinatarios</value></data>
+  <data name="Form_Rgpd_Destinatarios_V" xml:space="preserve"><value>No se ceden datos a terceros, salvo obligación legal.</value></data>
+  <data name="Form_Rgpd_Derechos_L" xml:space="preserve"><value>Derechos</value></data>
+  <data name="Form_Rgpd_Derechos_V" xml:space="preserve"><value>Acceso, rectificación, supresión y demás derechos, como se explica en la política de privacidad.</value></data>
+  <data name="Form_Rgpd_Mas" xml:space="preserve"><value>Más información</value></data>
+  <data name="Form_Rgpd_MasEnlace" xml:space="preserve"><value>Política de privacidad</value></data>
   <data name="Form_Enviar" xml:space="preserve"><value>Enviar solicitud</value></data>
   <data name="Form_Nota" xml:space="preserve"><value>Tus datos viajan cifrados y no se publican.</value></data>
-  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>Necesitamos tu consentimiento para tratar tus datos y gestionar la colaboración.</value></data>
+  <data name="Form_Error_Consentimiento" xml:space="preserve"><value>Para continuar, confirma que has leído la política de privacidad.</value></data>
   <data name="Form_Error_Telefono" xml:space="preserve"><value>El teléfono debe estar en formato internacional, con prefijo de país (p. ej. +34612345678).</value></data>
   <!-- Contacto -->
   <data name="Con_Eyebrow" xml:space="preserve"><value>Hablemos</value></data>

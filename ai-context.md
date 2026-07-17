@@ -3,37 +3,41 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-17 — desplegado todo lo pendiente + unificados los azules al naranja. TODO EL CÓDIGO Y
-> CONTENIDO DEL MVP ESTÁ VIVO EN PROD. Solo quedan entregables no-código.
+> Actualizado: 2026-07-17 (cierre de sesión) — todo el MVP de código/contenido vivo en prod + README al día.
+> Solo faltan slides y vídeo para completar la entrega del TFM.
 
-## FOCO ACTUAL (17-07) — MVP de código/contenido CERRADO y en prod. Solo faltan entregables no-código.
+## FOCO ACTUAL (17-07) — Solo faltan SLIDES y VÍDEO. Todo lo demás del TFM está listo.
 
-`origin/main` = `HEAD` = `c7078ae`, **working tree limpio, nada pendiente de desplegar.** Todo el código y
-contenido del MVP está vivo y verificado en https://dididai-ong.azurewebsites.net.
+`origin/main` = `HEAD` = `1647db4`, **working tree limpio.** Todo el código, contenido y el README están al día
+y en su sitio. La app entera está viva y verificada en https://dididai-ong.azurewebsites.net.
 
-**Única tarea del MVP pendiente — entregables no-código (deadline 20/07, con colchón):**
+**Entrega del TFM — formulario (9 campos, todos por URL):**
 
-- **README**: credenciales de demo (`admin@dididai.org` / la pass de los app settings de Azure), URL de prod,
-  cómo probar cada módulo.
-- **Slides** + **vídeo** de la demo.
-- Ver `context/next-steps.md`.
+| Campo | Estado |
+|---|---|
+| Nombre / Apellidos / Email | ✅ (email contacto `eduardofragalopez@gmail.com`) |
+| URL Repositorio GitHub | ✅ `https://github.com/Sk0t0h/dididai` |
+| URL Despliegue | ✅ `https://dididai-ong.azurewebsites.net` |
+| **URL Slides** | ⏳ **PENDIENTE** |
+| **URL Vídeo** | ⏳ **PENDIENTE** |
+| Usuario de prueba | ✅ `admin@dididai.org` |
+| Contraseña de prueba | ✅ la de los app settings de Azure (va en el FORMULARIO, no en el README público) |
 
-## Cerrado hoy (17-07 — 2 deploys, todo verificado en prod; detalle en log W29)
+**Al tener las 2 URLs:** rellenarlas también en el README (hoy dicen "pendiente" en la sección "Enlaces del
+proyecto").
 
-1. **Deploy de los 2 commits que quedaban en local** — `124046a` cabecera de gestión responsive + `5cb77a5`
-   periodicidad de gastos (mensual/anual con prorrateo). Runbook estándar, `RuntimeSuccessful`. Verificado en
-   prod: badges Mensual/Anual + sufijos `/mes`·`/año` en Economía, ☰ de la cabecera responsive presente, 0
-   inline, deploy de solo código → BD de demo intacta.
+**Próximo paso (ofrecido, no arrancado):** guion de slides + guion del vídeo de demo. El contenido lo prepara el
+agente; el montaje visual lo hace el usuario. Deadline **20/07** (con colchón).
 
-2. **Unificar los azules de Bootstrap al naranja de marca** (`c7078ae`, solo `site.css`, presentación pura):
-   paginación (Economía y listados), badge "Mensual" (`text-bg-info` → naranja; "Anual" sigue gris para
-   distinguir; cubre también la ficha del socio), nav "Mi cuenta" de Identity (`nav-pills`), y el halo de foco
-   de botones/campos/checkboxes (`#258cfb` residual → naranja, afectaba a toda la app). Revisión general: sin
-   más azules hardcodeados. Validado en local por el usuario + verificado en prod. **El usuario cerró la puerta
-   a más cambios estéticos** ("se nos va de las manos").
+## Cerrado en la sesión del 17-07 (detalle en log W29)
 
-3. **Limpieza de repo**: borrado el `dididai.db.bak-<epoch>` (backup que crea DB Browser for SQLite al guardar;
-   estaba sin trackear en repo público) + añadido `*.db.bak-*` al `.gitignore` (`*.db` no cubría ese sufijo).
+1. **Deploy** de los 2 commits que quedaban en local (`124046a` cabecera responsive + `5cb77a5` periodicidad de
+   gastos), verificado en prod.
+2. **Unificación de azules → naranja de marca** (`c7078ae`, solo `site.css`): paginación, badge "Mensual", nav
+   "Mi cuenta" de Identity, halo de foco. El usuario cerró los cambios estéticos.
+3. **Limpieza:** borrado `dididai.db.bak-<epoch>` + `*.db.bak-*` al `.gitignore`. NU1903 revisado y aceptado.
+4. **README reescrito** (`1647db4`) al estado real del MVP; roadmap con tienda virtual de merchan → pasarela de
+   pago. Slides/vídeo quedan como "pendiente" en el README.
 
 ## ROADMAP (hablado con el usuario, NO implementado — mejoras "proyecto vivo")
 
@@ -65,7 +69,7 @@ contenido del MVP está vivo y verificado en https://dididai-ong.azurewebsites.n
 
 ## Caveats de entorno (para retomar en frío)
 
-- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `c7078ae`, 17-07). Sin flujo de PR.
+- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `1647db4`, 17-07). Sin flujo de PR.
 - **Remoto solo desde PowerShell / terminal de VS Code** (no Git Bash); clave SSH con passphrase en el ssh-agent.
   Commits multilínea: heredoc POSIX en Bash o here-string en PowerShell (ojo al `@` basura, ver [[commits-heredoc-shell]]).
 - **Azure:** cuenta `dididai@outlook.es`; `az` en `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`;

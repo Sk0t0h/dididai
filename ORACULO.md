@@ -6,21 +6,26 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-17 — desplegado todo lo pendiente + unificados
-> los azules de Bootstrap al naranja de marca. **Todo el código y contenido del MVP está VIVO en producción.**
+> Latest Work + Immediate Risks). Última actualización: 2026-07-17 (cierre) — todo el MVP de código/contenido
+> vivo en prod + **README actualizado**. Solo faltan slides y vídeo para completar la entrega del TFM.
 
 ## Active Focus
 
-**17-07 — TODO EL MVP DE CÓDIGO/CONTENIDO ESTÁ DESPLEGADO Y VERIFICADO EN PROD.** `origin/main` = `HEAD` =
-`c7078ae`, working tree limpio, nada pendiente de desplegar. **Lo único que queda del MVP son los entregables
-no-código:** README con credenciales de demo (`admin@dididai.org` + pass de los app settings), URL de prod y
-cómo probar; slides; vídeo de la demo. **Deadline 20/07** (con colchón). Los últimos cambios (cerrados hoy): se
-desplegaron la cabecera de gestión responsive (`124046a`) y la periodicidad de gastos (`5cb77a5`) que quedaban en
-local, y se hizo un último retoque estético — **unificar los azules residuales de Bootstrap al naranja de marca**
-(`c7078ae`: paginación, badge "Mensual", nav de "Mi cuenta" de Identity y halo de foco). El usuario cerró la
-puerta a más cambios estéticos ("se nos va de las manos"). **Discrepancia menor abierta (no bloquea):** el
-`max-width` de la barra de gestión (1320px, `.container` xxl) no coincide con el del front (1140px). **NU1903**
-(SQLite transitiva) revisado y aceptado, sin parche disponible en EF 10.0.9; vigilar post-TFM.
+**17-07 — TODO EL MVP (CÓDIGO Y CONTENIDO) ESTÁ VIVO EN PROD Y EL README ESTÁ AL DÍA.** `origin/main` = `HEAD` =
+`1647db4`, working tree limpio. **Lo único que queda del TFM son 2 entregables no-código: SLIDES y VÍDEO** de la
+demo (sus URLs son 2 de los campos del formulario de entrega, y hay que rellenar los 2 enlaces "pendiente" del
+README). **Deadline 20/07** (con colchón).
+
+**Formulario de entrega** (9 campos, todos por URL): nombre/apellidos/email + repo (`github.com/Sk0t0h/dididai`)
++ despliegue (`dididai-ong.azurewebsites.net`) + **slides (pendiente)** + **vídeo (pendiente)** + usuario de
+prueba (`admin@dididai.org`) + contraseña (la de los app settings; va en el FORMULARIO, no en el README público).
+
+**Próximo paso** (ofrecido, no arrancado): guion de slides y guion del vídeo de demo (el contenido lo prepara el
+agente; el montaje visual, el usuario).
+
+**Abiertos, no bloquean:** discrepancia de `max-width` barra de gestión (1320px) vs front (1140px); **NU1903**
+(SQLite transitiva) aceptado, sin parche en EF 10.0.9 — vigilar post-TFM; textos legales son borrador (revisión
+jurídica pendiente).
 
 ---
 
@@ -150,6 +155,14 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 
 ## Latest Work
 
+- **2026-07-17 — README actualizado al estado real del MVP + formulario de entrega mapeado** (`1647db4`). El
+  README estaba redactado el 04-07 (proyecto recién arrancado: describía módulos "en desarrollo/planificado" y
+  tenía 2FA y SendGrid en el roadmap pese a estar hechos). Reescrito contra el estado real, verificado
+  (`dotnet test` → **156 verdes**): funcionalidades completas, modelo de datos al día, estructura del repo,
+  secciones nuevas de Pruebas y CI, URL de prod destacada. Credenciales de demo NO en el repo (van en el
+  formulario de entrega). Roadmap: **tienda virtual de merchandising** (nueva vía de ingresos) que justifica la
+  pasarela de pago, + exportación de datos. **Formulario de entrega:** 9 campos por URL; solo faltan **slides** y
+  **vídeo**. Detalle en el log W29 (17-07).
 - **2026-07-17 — Deploy de lo pendiente + unificar azules al naranja de marca + limpieza de repo.** Sesión de
   cierre. (1) **Desplegados** los 2 commits que quedaban en local (`124046a` cabecera de gestión responsive +
   `5cb77a5` periodicidad de gastos): runbook estándar, `RuntimeSuccessful`, verificado en prod (badges

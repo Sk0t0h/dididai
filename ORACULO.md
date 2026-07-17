@@ -6,17 +6,21 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-16 (tarde) — cabecera de gestión responsive +
-> periodicidad de gastos COMMITEADOS EN LOCAL, **pendientes de push + deploy** (`origin/main` 2 commits por detrás).
+> Latest Work + Immediate Risks). Última actualización: 2026-07-17 — desplegado todo lo pendiente + unificados
+> los azules de Bootstrap al naranja de marca. **Todo el código y contenido del MVP está VIVO en producción.**
 
 ## Active Focus
 
-**⚠️ 16-07 (tarde) — 2 commits LOCALES SIN PUSHEAR** (`origin/main` = `4461bcf`, 2 detrás de `HEAD`): `124046a`
-**cabecera de gestión responsive** (igualada al front: colapso 860px, ☰ con caja, dropdown flotante, solo
-secciones colapsan, logo a 24px; validado por el usuario) y `5cb77a5` **periodicidad de gastos** (enum + campo +
-migración aditiva `AddPeriodicidadGasto` + prorrateo en el resumen económico; verificado, 156 tests OK).
-**Próximo inmediato: `git push` + deploy a Azure + verificar en prod.** Discrepancia menor abierta: el `max-width`
-de la barra de gestión (1320px, `.container` xxl) no coincide con el del front (1140px) — revisar sin prisa.
+**17-07 — TODO EL MVP DE CÓDIGO/CONTENIDO ESTÁ DESPLEGADO Y VERIFICADO EN PROD.** `origin/main` = `HEAD` =
+`c7078ae`, working tree limpio, nada pendiente de desplegar. **Lo único que queda del MVP son los entregables
+no-código:** README con credenciales de demo (`admin@dididai.org` + pass de los app settings), URL de prod y
+cómo probar; slides; vídeo de la demo. **Deadline 20/07** (con colchón). Los últimos cambios (cerrados hoy): se
+desplegaron la cabecera de gestión responsive (`124046a`) y la periodicidad de gastos (`5cb77a5`) que quedaban en
+local, y se hizo un último retoque estético — **unificar los azules residuales de Bootstrap al naranja de marca**
+(`c7078ae`: paginación, badge "Mensual", nav de "Mi cuenta" de Identity y halo de foco). El usuario cerró la
+puerta a más cambios estéticos ("se nos va de las manos"). **Discrepancia menor abierta (no bloquea):** el
+`max-width` de la barra de gestión (1320px, `.container` xxl) no coincide con el del front (1140px). **NU1903**
+(SQLite transitiva) revisado y aceptado, sin parche disponible en EF 10.0.9; vigilar post-TFM.
 
 ---
 
@@ -145,6 +149,19 @@ simple (ingresos/gastos) · informes visuales (dashboards).
 | Contabilidad avanzada | ROADMAP (fuera de MVP) |
 
 ## Latest Work
+
+- **2026-07-17 — Deploy de lo pendiente + unificar azules al naranja de marca + limpieza de repo.** Sesión de
+  cierre. (1) **Desplegados** los 2 commits que quedaban en local (`124046a` cabecera de gestión responsive +
+  `5cb77a5` periodicidad de gastos): runbook estándar, `RuntimeSuccessful`, verificado en prod (badges
+  Mensual/Anual + sufijos `/mes`·`/año` en Economía, ☰ de la cabecera responsive, 0 inline, BD de demo intacta).
+  (2) **Unificación estética** (`c7078ae`, solo `site.css`): los azules residuales de la plantilla Bootstrap →
+  naranja de marca — paginación (Economía y listados), badge "Mensual" (`text-bg-info`, "Anual" sigue gris para
+  distinguir), nav "Mi cuenta" de Identity (`nav-pills`) y el halo de foco de botones/campos (`#258cfb` →
+  naranja, afectaba a toda la app). Revisión general: sin más azules hardcodeados; el usuario cierra los cambios
+  estéticos. Validado en local + verificado en prod. (3) **Limpieza:** borrado el `dididai.db.bak-<epoch>` (backup
+  de DB Browser for SQLite, sin trackear en repo público) + `*.db.bak-*` al `.gitignore`. (4) **NU1903** revisado
+  y aceptado (sin parche en EF 10.0.9; vector no aplica). **No queda código ni contenido del MVP.** Detalle en el
+  log W29 (17-07).
 
 - **2026-07-16 — Paquete legal (aviso legal + privacidad + cookies, bilingüe) + 1ª capa RGPD en el formulario,
   DESPLEGADO a prod**. Cerrado el último pendiente de contenido. **3 páginas nuevas** en `Pages/Legal/` con

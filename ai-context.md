@@ -3,58 +3,44 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-16 (tarde) — cabecera de gestión responsive + periodicidad de gastos COMMITEADOS EN LOCAL,
-> pendientes de push + deploy.
+> Actualizado: 2026-07-17 — desplegado todo lo pendiente + unificados los azules al naranja. TODO EL CÓDIGO Y
+> CONTENIDO DEL MVP ESTÁ VIVO EN PROD. Solo quedan entregables no-código.
 
-## FOCO ACTUAL (16-07 tarde) — 2 commits locales SIN PUSHEAR. Pendiente: push + deploy.
+## FOCO ACTUAL (17-07) — MVP de código/contenido CERRADO y en prod. Solo faltan entregables no-código.
 
-**⚠️ `origin/main` está 2 commits por detrás de `HEAD`.** Hay trabajo commiteado en local que NO está en GitHub
-ni en prod:
-- `124046a` — **cabecera de gestión responsive** (igualada al front: colapso a 860px, ☰ con caja, dropdown
-  flotante, solo secciones colapsan, logo alineado a 24px). Validado por el usuario en su navegador.
-- `5cb77a5` — **periodicidad de gastos** (enum + campo + migración aditiva `AddPeriodicidadGasto` + prorrateo en
-  el resumen económico). Verificado por el usuario. Build limpio, 156 tests OK.
+`origin/main` = `HEAD` = `c7078ae`, **working tree limpio, nada pendiente de desplegar.** Todo el código y
+contenido del MVP está vivo y verificado en https://dididai-ong.azurewebsites.net.
 
-**Próximo inmediato:** `git push` (desde PowerShell, clave SSH en el agente) + deploy a Azure (runbook en
-`context/deploy-azure.md`; deploy de código NO toca `dididai.db`). Tras eso, verificar en prod.
+**Única tarea del MVP pendiente — entregables no-código (deadline 20/07, con colchón):**
 
-**Discrepancia menor abierta (no bloquea):** en escritorio muy ancho la barra de gestión llega a 1320px
-(`.container` xxl de Bootstrap) mientras el front tope a 1140px (`--ancho`). No se igualó el `max-width`. Revisar.
-
-**Resto del MVP:** solo **entregables no-código** (README con credenciales de demo, slides, vídeo). Deadline
-**20/07**, con colchón.
-
-Cerrado hoy (2 commits, desplegados y verificados en prod — detalle en log W29 16-07):
-
-1. **Economía: distinguir cuota mensual/anual** (`3dbce1a`). Defecto visual del usuario: una cuota domiciliada
-   se mostraba igual fuese mensual o anual y el importe era ambiguo. Ahora badge `Mensual`/`Anual` + sufijo
-   `/mes` `/año` en el importe, en `Economia/Index` y en la ficha del socio (`_TablaColaboraciones`). **No había
-   bug de cálculo** — el recurrente ya prorratea las anuales. Solo presentación.
-
-2. **Paquete legal bilingüe** (`a2457bb`). 3 páginas nuevas `/aviso-legal`, `/privacidad`, `/cookies` (ES/EN,
-   `Pages/Legal/`, contenido por cultura vía partials, CSP-safe, placeholders `[ ]`). Formulario público: tabla
-   **1ª capa RGPD** + checkbox reetiquetado a **acuse de lectura** (base = ejecución de contrato, no
-   consentimiento). Footer con enlaces legales en todas las páginas (`_FooterLegal`). `/Privacy` → 302
-   `/privacidad`. Investigación previa con 5 sub-agentes contra AEPD/BOE (hallazgos en log W29).
-   **Textos borrador → requieren revisión jurídica y rellenar placeholders antes de uso real.**
-
-**Verificado en prod (16-07):** 3 rutas legales 200, redirección OK, footer/1ª capa/checkbox presentes, EN vía
-cookie de cultura. **BD de demo intacta** (deploy solo de código; `dididai.db` conserva su mtime, comprobado por
-Kudu). Validado visualmente por el usuario.
-
-## PRÓXIMO — Entregables no-código (única tarea del MVP pendiente)
-
-- **README**: credenciales de demo (`admin@dididai.org` / la pass de los app settings), URL de prod, cómo probar.
+- **README**: credenciales de demo (`admin@dididai.org` / la pass de los app settings de Azure), URL de prod,
+  cómo probar cada módulo.
 - **Slides** + **vídeo** de la demo.
-- Deadline 20/07. Ver `context/next-steps.md`.
+- Ver `context/next-steps.md`.
 
-## ROADMAP (hablado con el usuario 16-07, NO implementado — mejoras "proyecto vivo")
+## Cerrado hoy (17-07 — 2 deploys, todo verificado en prod; detalle en log W29)
+
+1. **Deploy de los 2 commits que quedaban en local** — `124046a` cabecera de gestión responsive + `5cb77a5`
+   periodicidad de gastos (mensual/anual con prorrateo). Runbook estándar, `RuntimeSuccessful`. Verificado en
+   prod: badges Mensual/Anual + sufijos `/mes`·`/año` en Economía, ☰ de la cabecera responsive presente, 0
+   inline, deploy de solo código → BD de demo intacta.
+
+2. **Unificar los azules de Bootstrap al naranja de marca** (`c7078ae`, solo `site.css`, presentación pura):
+   paginación (Economía y listados), badge "Mensual" (`text-bg-info` → naranja; "Anual" sigue gris para
+   distinguir; cubre también la ficha del socio), nav "Mi cuenta" de Identity (`nav-pills`), y el halo de foco
+   de botones/campos/checkboxes (`#258cfb` residual → naranja, afectaba a toda la app). Revisión general: sin
+   más azules hardcodeados. Validado en local por el usuario + verificado en prod. **El usuario cerró la puerta
+   a más cambios estéticos** ("se nos va de las manos").
+
+3. **Limpieza de repo**: borrado el `dididai.db.bak-<epoch>` (backup que crea DB Browser for SQLite al guardar;
+   estaba sin trackear en repo público) + añadido `*.db.bak-*` al `.gitignore` (`*.db` no cubría ese sufijo).
+
+## ROADMAP (hablado con el usuario, NO implementado — mejoras "proyecto vivo")
 
 - **Exportación de datos (CSV/Excel)**: gastos, cuotas/colaboraciones y **socios con todos sus datos** (la más
   valiosa: backup / gestoría). **Consideración RGPD:** solo admin, decidir **IBAN enmascarado vs completo**, y
-  **registrar la exportación en auditoría** (acceso masivo a datos personales — encaja con lo montado de RGPD).
-  Enunciado pendiente de afinar con el usuario (formato objetivo, decisión del IBAN).
-- Otros roadmap previos: pasarela de pago real (Stripe/SEPA), email real (SendGrid/SMTP), Azure SQL. Ver
+  **registrar la exportación en auditoría**. Enunciado pendiente de afinar (formato objetivo, decisión del IBAN).
+- Otros roadmap previos: pasarela de pago real (Stripe/SEPA), email real ya vivo (SendGrid), Azure SQL. Ver
   `ORACULO.md` / `context/next-steps.md`.
 
 ---
@@ -66,18 +52,20 @@ Kudu). Validado visualmente por el usuario.
 - **Formulario de colaboración** → crea `SolicitudColaboracion` (NO da de alta socio; **IBAN nunca en el form
   público**). Defensas OWASP: antiforgery + honeypot + rate-limit por IP + validación servidor. 1ª capa RGPD.
 - **Back `/Admin`** (español fijo por diseño): socios (CRUD + baja lógica), colaboraciones (alta/editar/baja,
-  TPH), económico (gastos + balance + **5 gráficas** Chart.js), solicitudes (máquina de estados + acciones),
-  administradores (alta/desactivar, superadmin protegido, forzar cambio de pass), **auditoría transversal**
-  (log inmutable + diff antes/después, IBAN enmascarado), **2FA** (páginas ES + QR en servidor).
+  TPH, periodicidad), económico (gastos con periodicidad + balance + **5 gráficas** Chart.js), solicitudes
+  (máquina de estados + acciones), administradores (alta/desactivar, superadmin protegido, forzar cambio de
+  pass), **auditoría transversal** (log inmutable + diff antes/después, IBAN enmascarado), **2FA** (páginas ES +
+  QR en servidor). Cabecera de gestión **responsive** (igualada al front). Toda la UI del back en naranja de
+  marca (sin azules de plantilla).
 - **Sesión OWASP** (idle 30 min + absolute 8 h, sin "Recordarme").
-- **Páginas legales** aviso legal / privacidad / cookies (bilingües, borrador).
+- **Páginas legales** aviso legal / privacidad / cookies (bilingües, borrador → revisión jurídica pendiente).
 - **Datos de demo** poblados en prod (idempotente, flag off) para la evaluación del tribunal.
 
 ---
 
 ## Caveats de entorno (para retomar en frío)
 
-- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `a2457bb`, 16-07). Sin flujo de PR.
+- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `c7078ae`, 17-07). Sin flujo de PR.
 - **Remoto solo desde PowerShell / terminal de VS Code** (no Git Bash); clave SSH con passphrase en el ssh-agent.
   Commits multilínea: heredoc POSIX en Bash o here-string en PowerShell (ojo al `@` basura, ver [[commits-heredoc-shell]]).
 - **Azure:** cuenta `dididai@outlook.es`; `az` en `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`;
@@ -89,9 +77,10 @@ Kudu). Validado visualmente por el usuario.
   por HTTP/estructura/status/0-inline; el usuario valida el render** en su navegador (o screenshots por
   OneDrive\Documentos\CLAUDE).
 - **BD local SQLite:** gestionar con **DB Browser for SQLite**, no con SSMS ni la extensión de VS Code
-  ([[bd-local-sqlite]]).
-- **NU1903 (CVE SQLite):** vulnerabilidad transitiva aceptada y documentada; sin parche aún; el aviso sale en el
-  build a propósito. Vigilar.
+  ([[bd-local-sqlite]]). Genera backups `dididai.db.bak-<epoch>` al guardar → ya gitignoreados (`*.db.bak-*`).
+- **NU1903 (CVE SQLite):** vulnerabilidad transitiva de `SQLitePCLRaw 2.1.11` (la arrastra EF 10.0.9, la última;
+  sin parche vía actualización normal). Aceptada y documentada: el vector (SQL/ficheros no confiables) no aplica.
+  El aviso sale en el build a propósito — NO suprimirlo. Vigilar post-TFM.
 
 ## Credenciales de desarrollo (no versionadas)
 

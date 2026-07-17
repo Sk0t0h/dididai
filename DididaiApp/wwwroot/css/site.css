@@ -9,7 +9,7 @@ html {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--c-naranja);
 }
 
 html {
@@ -357,3 +357,35 @@ h1, h2, h3, .card-title { color: var(--c-tinta); }
   margin: 0.2rem 0.4rem 0.2rem 0;
   font-size: 1rem;
 }
+
+/* ---------- Unificación de azules de Bootstrap al naranja de marca ---------- */
+
+/* Paginación (Economía y demás listados): el azul de plantilla → naranja de marca.
+   El item activo va con fondo naranja; los enlaces, con texto naranja. */
+.pagination {
+  --bs-pagination-color: var(--c-naranja-osc);
+  --bs-pagination-hover-color: var(--c-naranja);
+  --bs-pagination-hover-bg: #f7eddd;
+  --bs-pagination-focus-color: var(--c-naranja);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(247, 148, 29, 0.25);
+  --bs-pagination-active-bg: var(--c-naranja);
+  --bs-pagination-active-border-color: var(--c-naranja);
+}
+
+/* Badge de periodicidad "Mensual": naranja de marca en vez del cyan (text-bg-info) de
+   plantilla. "Anual" se queda en gris (text-bg-secondary) para mantener la distinción. */
+.badge.text-bg-info {
+  background-color: var(--c-naranja) !important;
+  color: #fff !important;
+}
+
+/* Nav de "Mi cuenta" (Identity, columna izquierda): las nav-pills usan el azul de
+   plantilla; el activo → naranja de marca y los enlaces → naranja oscuro. */
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--c-naranja);
+  --bs-nav-pills-link-active-color: #fff;
+}
+.nav-pills .nav-link { color: var(--c-naranja-osc); }
+.nav-pills .nav-link:hover { color: var(--c-naranja); }
+.nav-pills .nav-link.active,
+.nav-pills .nav-link.active:hover { color: #fff; }

@@ -3,13 +3,35 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-17 (cierre de sesión) — todo el MVP de código/contenido vivo en prod + README al día.
-> Solo faltan slides y vídeo para completar la entrega del TFM.
+> Actualizado: 2026-07-19 — todo el MVP + README + **SLIDES publicadas**. Único pendiente del TFM: el **VÍDEO**.
 
-## FOCO ACTUAL (17-07) — Solo faltan SLIDES y VÍDEO. Todo lo demás del TFM está listo.
+## FOCO ACTUAL (19-07) — SOLO QUEDA EL VÍDEO. Código + slides: listos y entregados.
 
-`origin/main` = `HEAD` = `1647db4`, **working tree limpio.** Todo el código, contenido y el README están al día
-y en su sitio. La app entera está viva y verificada en https://dididai-ong.azurewebsites.net.
+Código, contenido, README y **slides** al día. App viva en https://dididai-ong.azurewebsites.net.
+
+**SLIDES ✅ CERRADAS Y PUBLICADAS** (detalle en log W29, 19-07):
+- URL pública (verificada en incógnito): `https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2`
+- Ya **añadida al README** (Enlaces del proyecto).
+- Guion en `OneDrive\Documentos\CLAUDE\guion-slides-dididai-10.md`; tema clavado a la marca (naranja `#f7941d`,
+  Fraunces+Poppins). 10 tarjetas, foco producto.
+
+**PENDIENTE (para mañana, 20-07 = deadline):**
+1. **Guion + grabación del VÍDEO** (demo funcional; recorrido landing→socios→ficha/editar→economía). El guion lo
+   prepara el agente; la grabación/montaje, el usuario.
+2. **Rellenar el formulario de entrega del TFM** con las 2 URLs que faltan:
+   - URL Slides = la de Gamma de arriba.
+   - URL Vídeo = la que resulte de subir el vídeo.
+   (El resto de campos del formulario ya están listos — ver tabla abajo.)
+3. Cuando exista la URL del vídeo → **añadirla también al README** (hoy "pendiente" ahí).
+
+**Nota Gamma:** el agente NO puede ver el doc (WebFetch 403 anti-scraping) → la verificación de render/público
+la hace el usuario en incógnito.
+
+---
+
+### (Contexto previo, 17-07) Estado del MVP — sigue vigente
+
+`HEAD` = `1647db4`. Todo el MVP de código/contenido vivo y verificado en prod.
 
 **Entrega del TFM — formulario (9 campos, todos por URL):**
 
@@ -18,8 +40,8 @@ y en su sitio. La app entera está viva y verificada en https://dididai-ong.azur
 | Nombre / Apellidos / Email | ✅ (email contacto `eduardofragalopez@gmail.com`) |
 | URL Repositorio GitHub | ✅ `https://github.com/Sk0t0h/dididai` |
 | URL Despliegue | ✅ `https://dididai-ong.azurewebsites.net` |
-| **URL Slides** | ⏳ **PENDIENTE** |
-| **URL Vídeo** | ⏳ **PENDIENTE** |
+| **URL Slides** | ✅ `https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2` (falta pegarla en el form) |
+| **URL Vídeo** | ⏳ **PENDIENTE** (mañana) |
 | Usuario de prueba | ✅ `admin@dididai.org` |
 | Contraseña de prueba | ✅ la de los app settings de Azure (va en el FORMULARIO, no en el README público) |
 

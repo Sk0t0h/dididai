@@ -13,6 +13,7 @@
     var btnOk = null;      // botón que ejecuta la acción
     var btnCancel = null;  // botón cancelar
     var pendiente = null;  // formulario cuyo envío está a la espera de confirmación
+    var pendienteBoton = null; // botón que disparó el envío (lleva asp-page-handler y asp-route-*)
 
     function crearModal() {
         modal = document.createElement("div");
@@ -31,13 +32,16 @@
         btnOk = modal.querySelector("[data-confirm-ok]");
         btnCancel = modal.querySelector("[data-confirm-cancel]");
 
-        function cerrar() { modal.setAttribute("hidden", ""); pendiente = null; }
+        function cerrar() { modal.setAttribute("hidden", ""); pendiente = null; pendienteBoton = null; }
         function confirmar() {
             var form = pendiente;
+            var boton = pendienteBoton;
             cerrar();
-            // requestSubmit conserva el submitter (asp-page-handler) y respeta la
-            // validación; el submit ya pasó el interceptor con el flag de confirmado.
-            if (form) { form.dataset.confirmed = "1"; form.requestSubmit(); }
+            // Hay que reenviar CON el submitter: el asp-page-handler y los asp-route-*
+            // (id, estado…) viven en el <button>, no en el <form>. requestSubmit() sin
+            // argumento los perdería y el POST caería sin handler ni parámetros.
+            // El submit ya pasó el interceptor con el flag de confirmado.
+            if (form) { form.dataset.confirmed = "1"; form.requestSubmit(boton || undefined); }
         }
         btnCancel.addEventListener("click", cerrar);
         btnOk.addEventListener("click", confirmar);
@@ -63,6 +67,7 @@
         // no un "Confirmar" genérico. Se toma de data-confirm-ok del botón que dispara.
         btnOk.textContent = boton.getAttribute("data-confirm-ok") || "Confirmar";
         pendiente = form;
+        pendienteBoton = boton;
         modal.removeAttribute("hidden");
         // En acciones potencialmente destructivas, el foco va a Cancelar (opción segura),
         // no al botón que ejecuta.

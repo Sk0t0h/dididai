@@ -103,7 +103,7 @@ agente; el montaje visual lo hace el usuario. Deadline **20/07** (con colchón).
 
 ## Caveats de entorno (para retomar en frío)
 
-- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `6f99f08`, 19-07). Sin flujo de PR.
+- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `d9f029e`, 19-07). Sin flujo de PR.
 - **Remoto solo desde PowerShell / terminal de VS Code** (no Git Bash); clave SSH con passphrase en el ssh-agent.
   Commits multilínea: heredoc POSIX en Bash o here-string en PowerShell (ojo al `@` basura, ver [[commits-heredoc-shell]]).
 - **Azure:** cuenta `dididai@outlook.es`; `az` en `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`;

@@ -3,29 +3,41 @@
 > Memoria de trabajo **volátil**: el "ahora" del proyecto (foco, próximos pasos inmediatos). Se
 > **sobreescribe** en cada cierre de bloque, no crece. Para la crónica histórica → `logs/`. Para el tablero
 > estratégico estable → `ORACULO.md`. Para las acciones detalladas → `context/next-steps.md`.
-> Actualizado: 2026-07-19 — todo el MVP + README + **SLIDES publicadas**. Único pendiente del TFM: el **VÍDEO**.
+> Actualizado: 2026-07-19 (tarde) — MVP + README + slides + **guion de vídeo listo y web pulida (favicon/títulos)
+> DESPLEGADA**. Único pendiente del TFM: **GRABAR el vídeo** (lo hace el usuario) y las 2 URLs del formulario.
 
-## FOCO ACTUAL (19-07) — SOLO QUEDA EL VÍDEO. Código + slides: listos y entregados.
+## FOCO ACTUAL (19-07) — SOLO QUEDA GRABAR EL VÍDEO. Guion listo; prod pulida y lista para grabar.
 
-Código, contenido, README y **slides** al día. App viva en https://dididai-ong.azurewebsites.net.
+Código, contenido, README, slides **y el guion del vídeo** al día. App viva y pulida en
+https://dididai-ong.azurewebsites.net (`HEAD` = `origin/main` = `6f99f08`).
+
+**GUION DEL VÍDEO ✅ ESCRITO** (en `OneDrive\Documentos\CLAUDE\dididai-front\guion-video-dididai.md`):
+- 5–8 min, voz en off, front + back equilibrado. Tabla VOZ | PANTALLA con tiempos (teleprompter).
+- Hilo end-to-end: solicitud entra por front → admin la gestiona (socio → colaboración/IBAN → economía → auditoría).
+- **Tramo 1 "punto de partida":** enseñar en vivo la web anterior (`www.dididai.org`, hecha por el usuario al
+  empezar) como contraste de progreso. ⚠️ NO enfocar el IBAN real que hay en la web vieja.
+- **Se graba sobre PRODUCCIÓN** (refuerza "desplegado y funcionando"), no localhost. Datos ficticios `@example.org`.
+
+**FAVICON + TÍTULOS ✅ DESPLEGADOS** (commit `6f99f08`, log W29): favicon de marca (desde `logo.png`) en front y
+back; título del back unificado a `· DIDIDAI` (antes `- DididaiApp`). Verificado en prod. **Falta que el usuario
+lo valide visualmente** en la pestaña del navegador.
+
+**HERRAMIENTAS DE GRABACIÓN (asesoradas):** OBS Studio (pantalla + webcam PiP + micro de cascos en una pasada;
+NVENC, mp4 híbrido) → Clipchamp (cortar + rótulos) → subir a YouTube "no listado". OBS ya instalado y configurado
+por el usuario (falta añadir la fuente de webcam).
+
+**PENDIENTE (deadline 20-07):**
+1. **Grabar y montar el VÍDEO** (usuario) siguiendo el guion, sobre producción.
+2. **Rellenar el formulario de entrega** con las 2 URLs: Slides (la de Gamma) + Vídeo (la que resulte).
+3. Cuando exista la URL del vídeo → **añadirla al README** (hoy "_(pendiente)_" en Enlaces del proyecto).
 
 **SLIDES ✅ CERRADAS Y PUBLICADAS** (detalle en log W29, 19-07):
 - URL pública (verificada en incógnito): `https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2`
-- Ya **añadida al README** (Enlaces del proyecto).
-- Guion en `OneDrive\Documentos\CLAUDE\guion-slides-dididai-10.md`; tema clavado a la marca (naranja `#f7941d`,
-  Fraunces+Poppins). 10 tarjetas, foco producto.
+- Ya **añadida al README** (Enlaces del proyecto). Falta pegarla en el formulario de entrega.
 
-**PENDIENTE (para mañana, 20-07 = deadline):**
-1. **Guion + grabación del VÍDEO** (demo funcional; recorrido landing→socios→ficha/editar→economía). El guion lo
-   prepara el agente; la grabación/montaje, el usuario.
-2. **Rellenar el formulario de entrega del TFM** con las 2 URLs que faltan:
-   - URL Slides = la de Gamma de arriba.
-   - URL Vídeo = la que resulte de subir el vídeo.
-   (El resto de campos del formulario ya están listos — ver tabla abajo.)
-3. Cuando exista la URL del vídeo → **añadirla también al README** (hoy "pendiente" ahí).
-
-**Nota Gamma:** el agente NO puede ver el doc (WebFetch 403 anti-scraping) → la verificación de render/público
-la hace el usuario en incógnito.
+**Nota deploy (19-07):** la suscripción del TFM vive en el tenant `c074f8bf...` que **exige MFA** → el token de
+`az` caduca; re-loguear con `az login` a secas (Enter en el selector). Ver `context/deploy-azure.md`.
+**Nota Gamma:** el agente NO puede ver el doc (WebFetch 403) → verificación de render la hace el usuario.
 
 ---
 
@@ -91,7 +103,7 @@ agente; el montaje visual lo hace el usuario. Deadline **20/07** (con colchón).
 
 ## Caveats de entorno (para retomar en frío)
 
-- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `1647db4`, 17-07). Sin flujo de PR.
+- **Branch:** `main`. Todo commiteado y **pusheado a `origin/main`** (HEAD = `6f99f08`, 19-07). Sin flujo de PR.
 - **Remoto solo desde PowerShell / terminal de VS Code** (no Git Bash); clave SSH con passphrase en el ssh-agent.
   Commits multilínea: heredoc POSIX en Bash o here-string en PowerShell (ojo al `@` basura, ver [[commits-heredoc-shell]]).
 - **Azure:** cuenta `dididai@outlook.es`; `az` en `C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd`;

@@ -11,8 +11,8 @@
 | Dato | Valor |
 |---|---|
 | Cuenta Azure | **`dididai@outlook.es`** (personal, NO la del trabajo) |
-| Tenant / directorio | `dididaioutlook.onmicrosoft.com` |
-| Suscripción | "Azure subscription 1" · `5c742941-32de-4787-b72b-cf092d13d81d` |
+| Tenant / directorio | **`c074f8bf-d916-464a-9181-a755eeecbceb`** ('Directorio predeterminado'). ⚠️ **Exige MFA** → el token de `az` caduca y el deploy falla con `AADSTS50076 ... must use multi-factor authentication`; re-loguear (ver paso 0). El `dididaioutlook.onmicrosoft.com` que figuraba antes NO tiene la suscripción del TFM (login contra él da "No subscriptions found"). |
+| Suscripción | **"Suscripción para el TFM"** · `5c742941-32de-4787-b72b-cf092d13d81d` (vive en el tenant `c074f8bf...`) |
 | Resource group | `rg-dididai` |
 | Región | **`spaincentral`** (RGPD: datos en territorio nacional) |
 | App Service Plan | `plan-dididai-es` · **B1** · Linux |
@@ -72,12 +72,18 @@ $az = "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd"
 ### 0. Login y estado
 
 ```powershell
-& $az login                      # navegador → dididai@outlook.es (MFA si lo pide)
+& $az login                      # navegador → dididai@outlook.es + MFA (el tenant lo exige)
 & $az account set --subscription "5c742941-32de-4787-b72b-cf092d13d81d"
 
 & $az webapp show --name dididai-ong --resource-group rg-dididai --query "state" -o tsv
 #   "Running" -> OK. (En B1 no aparece "QuotaExceeded".)
 ```
+
+> **MFA / re-login (visto el 19-07):** el tenant `c074f8bf...` exige MFA, así que el token de `az` caduca cada
+> cierto tiempo y el deploy falla con `AADSTS50076 ... must use multi-factor authentication`. Basta con
+> **`& $az login`** (a secas) y, en el selector de suscripción, pulsar **Enter** (la "Suscripción para el TFM" ya
+> sale marcada por defecto). ❌ NO usar `--tenant dididaioutlook.onmicrosoft.com`: ese directorio no tiene la
+> suscripción y da "No subscriptions found". Tras el login, relanzar el deploy (no hace falta republicar el zip).
 
 ### 1. (Solo la PRIMERA vez / si no existen) Crear recursos
 

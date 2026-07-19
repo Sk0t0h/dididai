@@ -6,22 +6,25 @@
 > autoexplicativa: evitar jerga interna o abreviaturas que no se entiendan sin ver el repositorio.
 >
 > **Mantenimiento:** regenerar al cerrar cada bloque de trabajo sustancial (Active Focus + Module Status +
-> Latest Work + Immediate Risks). Última actualización: 2026-07-17 (cierre) — todo el MVP de código/contenido
-> vivo en prod + **README actualizado**. Solo faltan slides y vídeo para completar la entrega del TFM.
+> Latest Work + Immediate Risks). Última actualización: 2026-07-19 (tarde) — MVP + README + slides + guion de
+> vídeo listos; web pulida (favicon/títulos de marca) desplegada. Solo queda GRABAR el vídeo para cerrar el TFM.
 
 ## Active Focus
 
-**17-07 — TODO EL MVP (CÓDIGO Y CONTENIDO) ESTÁ VIVO EN PROD Y EL README ESTÁ AL DÍA.** `origin/main` = `HEAD` =
-`1647db4`, working tree limpio. **Lo único que queda del TFM son 2 entregables no-código: SLIDES y VÍDEO** de la
-demo (sus URLs son 2 de los campos del formulario de entrega, y hay que rellenar los 2 enlaces "pendiente" del
-README). **Deadline 20/07** (con colchón).
+**19-07 — TODO LISTO SALVO GRABAR EL VÍDEO.** `origin/main` = `HEAD` = `6f99f08`, working tree limpio. El MVP de
+código/contenido está vivo en prod, el README al día, las **slides publicadas** y el **guion del vídeo escrito**.
+Última mejora desplegada: **favicon de marca + títulos** (front y back) — así la pestaña del navegador luce la
+marca en el vídeo. **Lo único que queda del TFM es que el usuario GRABE Y MONTE el vídeo** (sobre producción,
+siguiendo el guion) y rellene las 2 URLs pendientes. **Deadline 20/07** (con colchón).
+
+**Guion del vídeo** en `OneDrive\Documentos\CLAUDE\dididai-front\guion-video-dididai.md` (5–8 min, voz en off,
+front + back, hilo end-to-end; con tramo inicial de contraste sobre la web anterior). **Grabación:** OBS Studio
+(pantalla + webcam PiP + micro) → Clipchamp → YouTube "no listado".
 
 **Formulario de entrega** (9 campos, todos por URL): nombre/apellidos/email + repo (`github.com/Sk0t0h/dididai`)
-+ despliegue (`dididai-ong.azurewebsites.net`) + **slides (pendiente)** + **vídeo (pendiente)** + usuario de
-prueba (`admin@dididai.org`) + contraseña (la de los app settings; va en el FORMULARIO, no en el README público).
-
-**Próximo paso** (ofrecido, no arrancado): guion de slides y guion del vídeo de demo (el contenido lo prepara el
-agente; el montaje visual, el usuario).
++ despliegue (`dididai-ong.azurewebsites.net`) + **slides ✅** (`gamma.app/...67r74k2`, falta pegarla en el form)
++ **vídeo (pendiente)** + usuario de prueba (`admin@dididai.org`) + contraseña (la de los app settings; va en el
+FORMULARIO, no en el README público).
 
 **Abiertos, no bloquean:** discrepancia de `max-width` barra de gestión (1320px) vs front (1140px); **NU1903**
 (SQLite transitiva) aceptado, sin parche en EF 10.0.9 — vigilar post-TFM; textos legales son borrador (revisión

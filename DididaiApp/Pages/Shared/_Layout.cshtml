@@ -31,11 +31,11 @@
                    quedan siempre visibles en la barra, igual que idioma/Gestión/Salir en el front. *@
                 <div class="admin-tools">
                     <nav class="admin-nav" id="admin-nav" data-admin-nav aria-label="Gestión">
-                        <a asp-area="" asp-page="/Admin/Index">Admin</a>
+                        <a asp-area="" asp-page="/Admin/Index">Inicio</a>
                         <a asp-area="" asp-page="/Admin/Socios/Index">Socios</a>
                         <a asp-area="" asp-page="/Admin/Economia/Index">Economía</a>
                         <a asp-area="" asp-page="/Admin/Solicitudes/Index">Solicitudes</a>
-                        <a asp-area="" asp-page="/Admin/Usuarios/Index">Administradores</a>
+                        <a asp-area="" asp-page="/Admin/Usuarios/Index">Usuarios</a>
                         <a asp-area="" asp-page="/Admin/Auditoria/Index">Auditoría</a>
                     </nav>
                     <a class="admin-user" asp-area="Identity" asp-page="/Account/Manage/Index" title="Gestionar mi cuenta">@User.Identity?.Name</a>

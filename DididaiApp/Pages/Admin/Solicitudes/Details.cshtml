@@ -3,6 +3,21 @@
 @model DididaiApp.Pages.Admin.Solicitudes.DetailsModel
 @{
     ViewData["Title"] = "Solicitud de colaboración";
+}
+@* Defensa: si la solicitud no está disponible (p. ej. resuelta/eliminada por otro admin
+   entre la carga y una acción concurrente), no reventar la vista: volver al listado. *@
+@if (Model.Solicitud is null)
+{
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="mb-0">Solicitud de colaboración</h1>
+        <a class="btn btn-outline-secondary" asp-page="Index">Volver al listado</a>
+    </div>
+    <div class="alert alert-warning" role="alert">
+        Esta solicitud ya no está disponible (puede haber sido gestionada por otra persona).
+    </div>
+    return;
+}
+@{
     var s = Model.Solicitud;
     var badge = s.Estado switch
     {

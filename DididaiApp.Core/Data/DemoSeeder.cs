@@ -84,8 +84,8 @@ public static class DemoSeeder
 
             // Alta repartida en los últimos 12 meses (más recientes según i baja).
             var fechaAlta = ahora.AddMonths(-(11 - (i % 12))).AddDays(-(i % 27));
-            // 2-3 socios de baja (los de índice 4 y 18).
-            DateTime? fechaBaja = (i == 4 || i == 18) ? fechaAlta.AddMonths(3) : null;
+            // 2-3 socios de baja (los de índice 4 y 18). La baja siempre en el pasado.
+            DateTime? fechaBaja = (i == 4 || i == 18) ? BajaEnPasado(fechaAlta, ahora) : null;
 
             var socio = new Socio
             {
@@ -134,7 +134,11 @@ public static class DemoSeeder
                 {
                     SocioId = s.Id, Importe = importe, FechaInicio = inicio,
                     Modalidad = modalidad, Iban = IbanEspanolValido(i),
-                    Activa = (i != 6), FechaFin = (i == 6) ? inicio.AddMonths(5) : null,
+                    // La única baja de cuota de la demo se fecha SIEMPRE en el pasado
+                    // (hace ~2 meses, pero nunca antes de su propio inicio), para que ni
+                    // la auditoría ni el histórico muestren fechas futuras.
+                    Activa = (i != 6),
+                    FechaFin = (i == 6) ? BajaEnPasado(inicio, ahora) : null,
                 });
             }
             else if (r < 17)
@@ -300,6 +304,17 @@ public static class DemoSeeder
         logger.LogInformation(
             "DemoSeeder: sembrados {Socios} socios (incl. 1 entidad colaboradora), {Colab} colaboraciones, {Gastos} gastos, {Sol} solicitudes, {Aud} registros de auditoría.",
             socios.Count + 1, colaboraciones.Count + 1, gastos.Count, solicitudes.Count, auditoria.Count);
+    }
+
+    // Fecha de baja (de socio o colaboración) garantizada en el PASADO: ~2 meses antes
+    // de "ahora", pero nunca anterior a su inicio (para altas muy recientes cae a medio
+    // camino entre el inicio y ahora). Evita bajas fechadas en el futuro en la demo.
+    private static DateTime BajaEnPasado(DateTime inicio, DateTime ahora)
+    {
+        var candidata = ahora.AddMonths(-2);
+        if (candidata > inicio) return candidata;
+        // Alta reciente (< 2 meses): baja a mitad de camino inicio→ahora.
+        return inicio.AddDays((ahora - inicio).TotalDays / 2);
     }
 
     // --- Helpers de auditoría ---------------------------------------------------------

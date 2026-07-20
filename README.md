@@ -281,7 +281,7 @@ az webapp deploy --name dididai-ong --resource-group rg-dididai --src-path didid
 - **Repositorio:** https://github.com/Sk0t0h/dididai
 - **Despliegue (URL pública):** https://dididai-ong.azurewebsites.net
 - **Presentación (slides):** https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2
-- **Vídeo demostrativo:** _(pendiente)_
+- **Vídeo demostrativo:** https://youtu.be/mmWBjtGY1KM
 
 ## Roadmap
 

@@ -6,7 +6,7 @@
 > Actualizado: 2026-07-19 (tarde) — MVP + README + slides + **guion de vídeo listo y web pulida (favicon/títulos)
 > DESPLEGADA**. Único pendiente del TFM: **GRABAR el vídeo** (lo hace el usuario) y las 2 URLs del formulario.
 
-## FOCO ACTUAL (19-07) — SOLO QUEDA GRABAR EL VÍDEO. Guion listo; prod pulida y lista para grabar.
+## FOCO ACTUAL (20-07) — TFM COMPLETO. Solo falta enviar el FORMULARIO de entrega (administrativo).
 
 Código, contenido, README, slides **y el guion del vídeo** al día. App viva y pulida en
 https://dididai-ong.azurewebsites.net (`HEAD` = `origin/main` = `6f99f08`).
@@ -26,10 +26,13 @@ lo valide visualmente** en la pestaña del navegador.
 NVENC, mp4 híbrido) → Clipchamp (cortar + rótulos) → subir a YouTube "no listado". OBS ya instalado y configurado
 por el usuario (falta añadir la fuente de webcam).
 
-**PENDIENTE (deadline 20-07):**
-1. **Grabar y montar el VÍDEO** (usuario) siguiendo el guion, sobre producción.
-2. **Rellenar el formulario de entrega** con las 2 URLs: Slides (la de Gamma) + Vídeo (la que resulte).
-3. Cuando exista la URL del vídeo → **añadirla al README** (hoy "_(pendiente)_" en Enlaces del proyecto).
+**VÍDEO ✅ GRABADO Y SUBIDO:** `https://youtu.be/mmWBjtGY1KM` (YouTube no listado). **Ya en el README**
+(commit `6e8aee9`) — no queda ningún "_(pendiente)_" en Enlaces del proyecto.
+
+**ÚNICO PENDIENTE (administrativo, lo hace el usuario):** rellenar el **formulario de entrega** con las 2 URLs:
+- Slides = `https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2`
+- Vídeo = `https://youtu.be/mmWBjtGY1KM`
+El resto de campos ya estaban listos. **Con el formulario enviado, el TFM queda entregado.**
 
 **SLIDES ✅ CERRADAS Y PUBLICADAS** (detalle en log W29, 19-07):
 - URL pública (verificada en incógnito): `https://gamma.app/docs/Una-web-a-medida-para-una-ONG-que-lo-da-casi-todo-67m0ryts67r74k2`
